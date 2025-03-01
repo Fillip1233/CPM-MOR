@@ -1,3 +1,7 @@
+'''
+2025-3-1
+用于分析ibmpg的B矩阵,统计电路端口数和连接电流源超过1的端口数
+'''
 import numpy as np
 import scipy.io as spio
 from scipy.sparse import csc_matrix

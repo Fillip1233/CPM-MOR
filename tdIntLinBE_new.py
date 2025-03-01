@@ -1,3 +1,7 @@
+'''
+2025-3-1
+祖传代码,后向欧拉法
+'''
 import numpy as np
 from datetime import datetime
 import scipy.sparse

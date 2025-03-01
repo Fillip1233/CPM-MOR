@@ -1,3 +1,7 @@
+'''
+2025-3-1
+祖传代码,PRIMA降阶ibmpg
+'''
 # Aenerated with SMOP  0
 from filecmp import cmp
 import math

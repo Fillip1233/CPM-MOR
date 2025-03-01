@@ -1,3 +1,7 @@
+'''
+2025-3-1
+祖传代码,PRIMA方法
+'''
 # from PRIMA_sp import *
 # from spaceit import *
 import numpy as np

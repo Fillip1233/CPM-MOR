@@ -1,3 +1,7 @@
+'''
+2025-3-1
+后向欧拉法的svd修改
+'''
 import numpy as np
 from datetime import datetime
 import scipy.sparse

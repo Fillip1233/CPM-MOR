@@ -1,3 +1,7 @@
+'''
+2025-3-1
+nn拟合波形以及alpha想法相关思路尝试
+'''
 import scipy.io as spio
 import torch.nn as nn
 import torch

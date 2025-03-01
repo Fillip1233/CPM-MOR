@@ -1,3 +1,7 @@
+'''
+2025-3-1
+和 nn_forB.py 一起使用 模型的测试代码
+'''
 import torch
 import numpy as np
 import scipy.io as spio

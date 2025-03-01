@@ -1,3 +1,7 @@
+'''
+2025-3-1
+svd 方法的尝试
+'''
 # Aenerated with SMOP  0
 from filecmp import cmp
 import math

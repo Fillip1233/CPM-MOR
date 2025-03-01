@@ -1,3 +1,7 @@
+'''
+2025-3-1
+简化B矩阵的尝试
+'''
 import scipy.io as spio
 import numpy as np
 from tdIntLinBE_new import *

@@ -1,3 +1,7 @@
+'''
+2025-3-1
+用于生成训练的波形数据
+'''
 import numpy as np
 import random
 import math

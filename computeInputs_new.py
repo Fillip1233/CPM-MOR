@@ -1,3 +1,7 @@
+'''
+2025-3-1
+ç¥–ä¼ ä»£ç ,ç”¨äºç”Ÿæˆç¬æ—¶çš„ç”µæµè¾“å…¥
+'''
 import operator
 import numpy as np
 import math
@@ -86,7 +90,7 @@ def computeInputs_new(VsourcesAll=None, IsourcesAll=None, t=None, func=None, *ar
                 for i in range(0, ni):
                     is_ = IsourcesAll[i, :]
                     v1, v2, td, tr, tf, pw, per = is_[0], is_[1], is_[2], is_[3], is_[4], is_[5], is_[6]
-                    t = t - np.multiply(per, math.floor(t / per)) #½«tÏŞÖÆÔÚÒ»¸öÖÜÆÚÄÚ/zhenjie
+                    t = t - np.multiply(per, math.floor(t / per)) #ï¿½ï¿½tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/zhenjie
                     if t < td:
                         ui[i] = v1
                     else:
