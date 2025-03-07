@@ -6,7 +6,7 @@ import numpy as np
 from datetime import datetime
 import scipy.sparse
 import scipy.sparse.linalg
-from computeInputs_new import *
+from utils.computeInputs_new import *
 
 
 def tdIntLinBE_svd(t0=None, tf=None, dt=None, Cl=None, Gl=None, Bl=None, VS=None, IS=None, x0=None, srcType=None, ass_metric = None):

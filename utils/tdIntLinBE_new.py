@@ -6,7 +6,7 @@ import numpy as np
 from datetime import datetime
 import scipy.sparse
 import scipy.sparse.linalg
-from computeInputs_new import *
+from utils.computeInputs_new import *
 
 
 def tdIntLinBE_new(t0=None, tf=None, dt=None, Cl=None, Gl=None, Bl=None, VS=None, IS=None, x0=None, srcType=None):
@@ -56,6 +56,9 @@ def tdIntLinBE_new(t0=None, tf=None, dt=None, Cl=None, Gl=None, Bl=None, VS=None
     return xAll, time, dtAll, uAll
 
 def tdIntLinBE_re(t0=None, tf=None, dt=None, Cl=None, Gl=None, Bl=None, VS=None, IS=None, x0=None, srcType=None, idx_h=None, idx_l=None):
+    '''
+    采用点乘的方法计算,不知道能不能保持moment
+    '''
     print('Start backward Euler solve...with tf = ', str(tf), ', dt = ', str(dt), '.')
     print('Current time step is:     ')
     tic = datetime.now()

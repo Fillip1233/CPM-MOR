@@ -1,12 +1,12 @@
 '''
 2025-3-1
-简化B矩阵的尝试
+简化B矩阵的尝试+点乘的方法计算
 '''
 import scipy.io as spio
 import numpy as np
-from tdIntLinBE_new import *
+from utils.tdIntLinBE_new import *
 import matplotlib.pyplot as plt
-import PRIMA as PRIMA
+import utils.PRIMA as PRIMA
 
 if __name__ == '__main__':
     data = spio.loadmat("./IBM_transient/ibmpg1t.mat")

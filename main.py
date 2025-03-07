@@ -17,7 +17,7 @@ import scipy.io as spio
 from numpy.linalg import norm
 from scipy.sparse import csc_matrix
 from datetime import datetime
-import PRIMA as PRIMA
+import utils.PRIMA as PRIMA
 
 # This will be the main function through which we define both tic() and toc()
 
@@ -68,7 +68,7 @@ else:
 x0 = np.zeros((N, 1))
 # B[:,1] = 0
 
-from tdIntLinBE_new import *
+from utils.tdIntLinBE_new import *
 
 xAll, time, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, E, -A, B, VS, IS, x0, srcType)
 y = C.T@xAll

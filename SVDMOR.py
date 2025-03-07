@@ -1,12 +1,12 @@
 '''
 2025-3-3
-SVDMOR
+SVDMOR baseline
 '''
 import scipy.io as spio
 import numpy as np
-import PRIMA as PRIMA
+import utils.PRIMA as PRIMA
 from datetime import datetime
-from tdIntLinBE_new import * 
+from utils.tdIntLinBE_new import * 
 import matplotlib.pyplot as plt
 from scipy.sparse.linalg import splu
 from scipy.sparse.linalg import spsolve
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     O = B
     
     tic = datetime.now()
-    left, right, B_r, O_r = svdmor(G, B, B, threshold = 0.5)
+    left, right, B_r, O_r = svdmor(G, B, B, threshold = 0.1)
     toc = datetime.now()
     ts = toc - tic
     print("SVD completed. Time used: ", str(ts), 's')
@@ -151,10 +151,10 @@ if __name__ == '__main__':
 
     plt.figure(figsize=(8, 5))
 
-    plt.plot(time, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 25, markersize=6, linewidth=1.5)
+    plt.plot(time, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
 
-    plt.plot(time, yy_mor, color='blue', linestyle='-', marker='o', label='PRIMA', markersize=6,markevery = 10, linewidth=1.5)
-    plt.plot(time, yy_svd, color='red', linestyle='--', marker='s', label='SVD-MOR', markersize=6, markevery = 15, linewidth=1.5)
+    plt.plot(time, yy_mor, color='blue', linestyle='-', marker='o', label='PRIMA', markersize=6,markevery = 30, linewidth=1.5)
+    plt.plot(time, yy_svd, color='red', linestyle='--', marker='s', label='SVD-MOR', markersize=6, markevery = 45, linewidth=1.5)
     plt.legend(fontsize=12)
     plt.title("Method compare", fontsize=14)
     plt.xlabel("Time (s)", fontsize=12)
