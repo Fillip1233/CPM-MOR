@@ -127,12 +127,12 @@ if __name__ == '__main__':
 
 
 
-    xAll, time, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
+    # xAll, time, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
     
-    y = O.T@xAll
-    yy = np.zeros((y.shape[1]))
-    for i in range(y.shape[0]):
-        yy += np.real(y[i, :])
+    # y = O.T@xAll
+    # yy = np.zeros((y.shape[1]))
+    # for i in range(y.shape[0]):
+    #     yy += np.real(y[i, :])
 
     xr0 = XX_1.T@ x0
     xrAll, time, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr0, srcType)
@@ -151,7 +151,7 @@ if __name__ == '__main__':
 
     plt.figure(figsize=(8, 5))
 
-    plt.plot(time, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
+    # plt.plot(time, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
 
     plt.plot(time, yy_mor, color='blue', linestyle='-', marker='o', label='PRIMA', markersize=6,markevery = 30, linewidth=1.5)
     plt.plot(time, yy_svd, color='red', linestyle='--', marker='s', label='SVD-MOR', markersize=6, markevery = 45, linewidth=1.5)
