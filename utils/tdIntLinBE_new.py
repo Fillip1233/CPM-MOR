@@ -16,6 +16,7 @@ def tdIntLinBE_new(t0=None, tf=None, dt=None, Cl=None, Gl=None, Bl=None, VS=None
     xtold = x0
     xAll = xtold
     ui, uv = computeInputs_new(VS, IS, t0, srcType)
+    
     uAll = np.vstack((ui, uv))
     told = t0
     dt0 = dt

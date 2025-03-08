@@ -21,7 +21,7 @@ if __name__ == '__main__':
     N = C.shape[0]
     NB = B.shape[1]
 
-    Nb = 40 
+    Nb = 70 
     B = B[:, 0:Nb]
     O = B
     t0 = 0
@@ -57,11 +57,11 @@ if __name__ == '__main__':
     # B[:,1] = 0
 
 
-    xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
-    y = O.T@xAll
-    yy = np.zeros((y.shape[1]))
-    for i in range(y.shape[0]):
-        yy += np.real(y[i, :])
+    # xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
+    # y = O.T@xAll
+    # yy = np.zeros((y.shape[1]))
+    # for i in range(y.shape[0]):
+    #     yy += np.real(y[i, :])
 
 
     # simplify B using svd
@@ -72,15 +72,15 @@ if __name__ == '__main__':
     U, S, V = np.linalg.svd(B_dense,full_matrices=False)
     t2 = time.time()
     print('time for svd:', t2-t1)
-    threshold = 1.1
-    indices = S >= threshold
+    threshold = 1.0
+    indices = S > threshold
     U_new = U[:, indices]               
     S_new = S[indices]                  
     V_new = V[indices, :]
     assign_matrix = np.diag(S_new)@V_new 
 
     # mor with PRIMA
-    f = np.array([1e2, 1e9])  # array of targeting frequencies
+    f = np.array([1e2,1e9])  # array of targeting frequencies
     m = 2  # number of moments to match per expansion point (same for all points here, though can be made different)
     s = 1j * 2 * np.pi * f  # array of expansion points
     q = m * Nb
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
 
     plt.figure(figsize=(8, 5))
-    plt.plot(time2, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
+    # plt.plot(time2, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
     plt.plot(time2, yy_mor, color='blue', linestyle='-', marker='o', label='PRIMA', markersize=6,markevery = 30, linewidth=1.5)
     plt.plot(time2, yy_svd, color='red', linestyle='--', marker='s', label='my-svd-mor', markersize=6, markevery = 45, linewidth=1.5)
     plt.legend(fontsize=12)

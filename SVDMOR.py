@@ -48,7 +48,7 @@ if __name__ == '__main__':
     # C = E, G = A
     data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
-    port_num = 40
+    port_num = 100
     B = B.tocsc()
     C = C.tocsc()
     G = G.tocsc()
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     O = B
     
     tic = datetime.now()
-    left, right, B_r, O_r = svdmor(G, B, B, threshold = 0.1)
+    left, right, B_r, O_r = svdmor(G, B, B, threshold = 2)
     toc = datetime.now()
     ts = toc - tic
     print("SVD completed. Time used: ", str(ts), 's')
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         np.dot(np.ones([is_num, 1]), 2e-09),
         np.dot(np.ones([is_num, 1]), 4e-09),
         np.dot(np.ones([is_num, 1]), 1e-08)])
-    IS = np.vstack([IS1, IS2])
+    IS = np.vstack([IS1, IS1])
     x0 = np.zeros((N, 1))
 
     f = np.array([1e2, 1e9])
@@ -96,18 +96,18 @@ if __name__ == '__main__':
     q = m * port_num
     tic = datetime.now()
 
-    XX_1 = PRIMA.PRIMA_mp(C, G, B, s, q)
-    Cr_1 = (XX_1.T @ C) @ XX_1
-    Gr_1 = (XX_1.T @ G) @ XX_1
-    Br_1 = XX_1.T @ B
-    Or_1 = XX_1.T @ O
-    nr_1 = Cr_1.shape[0]
-    toc = datetime.now()
-    tprima = toc - tic
+    # XX_1 = PRIMA.PRIMA_mp(C, G, B, s, q)
+    # Cr_1 = (XX_1.T @ C) @ XX_1
+    # Gr_1 = (XX_1.T @ G) @ XX_1
+    # Br_1 = XX_1.T @ B
+    # Or_1 = XX_1.T @ O
+    # nr_1 = Cr_1.shape[0]
+    # toc = datetime.now()
+    # tprima = toc - tic
 
-    print("Origin PRIMA MOR:")
-    print('PRIMA completed. Time used: ', str(tprima), 's')
-    print('The original order is', N, 'the reduced order is', nr_1)
+    # print("Origin PRIMA MOR:")
+    # print('PRIMA completed. Time used: ', str(tprima), 's')
+    # print('The original order is', N, 'the reduced order is', nr_1)
     
 
     q_svd = m * B_r.shape[1]
@@ -127,19 +127,19 @@ if __name__ == '__main__':
 
 
 
-    # xAll, time, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
+    xAll, time, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
     
-    # y = O.T@xAll
-    # yy = np.zeros((y.shape[1]))
-    # for i in range(y.shape[0]):
-    #     yy += np.real(y[i, :])
+    y = O.T@xAll
+    yy = np.zeros((y.shape[1]))
+    for i in range(y.shape[0]):
+        yy += np.real(y[i, :])
 
-    xr0 = XX_1.T@ x0
-    xrAll, time, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr0, srcType)
-    y_mor = Or_1.T@xrAll
-    yy_mor = np.zeros((y_mor.shape[1]))
-    for i in range(y_mor.shape[0]):
-        yy_mor += np.real(y_mor[i, :])
+    # xr0 = XX_1.T@ x0
+    # xrAll, time, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr0, srcType)
+    # y_mor = Or_1.T@xrAll
+    # yy_mor = np.zeros((y_mor.shape[1]))
+    # for i in range(y_mor.shape[0]):
+    #     yy_mor += np.real(y_mor[i, :])
     
     xr1 = XX_2.T@ x0
     Br_2 = Br_2@right
@@ -151,9 +151,9 @@ if __name__ == '__main__':
 
     plt.figure(figsize=(8, 5))
 
-    # plt.plot(time, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
+    plt.plot(time, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
 
-    plt.plot(time, yy_mor, color='blue', linestyle='-', marker='o', label='PRIMA', markersize=6,markevery = 30, linewidth=1.5)
+    # plt.plot(time, yy_mor, color='blue', linestyle='-', marker='o', label='PRIMA', markersize=6,markevery = 30, linewidth=1.5)
     plt.plot(time, yy_svd, color='red', linestyle='--', marker='s', label='SVD-MOR', markersize=6, markevery = 45, linewidth=1.5)
     plt.legend(fontsize=12)
     plt.title("Method compare", fontsize=14)
