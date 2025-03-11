@@ -90,6 +90,7 @@ if __name__ == '__main__':
     low_f = []
     high_f = []
     input_data = []
+    in_all = []
 
     Br_2 = Br_2@right
     x0 = np.zeros((N, 1))
@@ -105,13 +106,16 @@ if __name__ == '__main__':
         low_f.append(y_svd)
         high_f.append(y)
         input_data.append(in_data)
+        in_all.append(uAll)
     low_f = np.array(low_f)
     high_f = np.array(high_f)
+    inall = np.array(in_all)
     input_data = np.array(input_data)
     input_data = np.squeeze(input_data)
-    np.save('train_data/mf_in.npy', input_data)
-    np.save('train_data/mf_low_f.npy', low_f)
-    np.save('train_data/mf_high_f.npy', high_f)
+    # np.save('train_data/mf_in.npy', input_data)
+    # np.save('train_data/mf_low_f.npy', low_f)
+    # np.save('train_data/mf_high_f.npy', high_f)
+    np.save('train_data/mf_inall.npy', inall)
 
     # yy = np.zeros((y.shape[1]))
     # for i in range(y.shape[0]):

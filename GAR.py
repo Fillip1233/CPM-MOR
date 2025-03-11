@@ -150,12 +150,21 @@ if __name__ == "__main__":
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    x = np.load('train_data\mf_in.npy')
-    x = torch.tensor(x, dtype=torch.float32)
-    yl= np.load('train_data\mf_low_f.npy')
-    yl = torch.tensor(yl, dtype=torch.float32)
-    yh = np.load('train_data\mf_high_f.npy')
-    yh = torch.tensor(yh, dtype=torch.float32)
+    x1 = np.load('train_data\mf_inall.npy')
+    x1 = torch.tensor(x1, dtype=torch.float32)
+    x1 = torch.fft.fft(x1,dim = -1)
+    x1 = torch.abs(x1)
+    x = x1.reshape(x1.shape[0], -1)
+    yl1= np.load('train_data\mf_low_f.npy')
+    yl1 = torch.tensor(yl1, dtype=torch.float32)
+    yl = torch.fft.fft(yl1,dim = -1)
+    yl = torch.abs(yl)
+
+    yh1 = np.load('train_data\mf_high_f.npy')
+    yh1 = torch.tensor(yh1, dtype=torch.float32)
+    yh = torch.fft.fft(yh1,dim = -1)
+    yh = torch.abs(yh)
+
     time = np.load('train_data\mf_time.npy')
 
 
@@ -178,9 +187,9 @@ if __name__ == "__main__":
     fidelity_num = len(initial_data)
     fidelity_manager = MultiFidelityDataManager(initial_data)
 
-    myGAR = GAR(fidelity_num, data_shape, if_nonsubset = True).to(device)
+    myGAR = GAR(fidelity_num, data_shape, if_nonsubset = False).to(device)
 
-    train_GAR(myGAR, fidelity_manager, max_iter = 100, lr_init = 1e-3, debugger = None)
+    train_GAR(myGAR, fidelity_manager, max_iter = 200, lr_init = 1e-2, debugger = None)
 
     with torch.no_grad():
         x_test = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].normalize_x(x_test)
@@ -188,22 +197,30 @@ if __name__ == "__main__":
         ypred, ypred_var = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].denormalize(ypred, ypred_var)
 
     ##plot the results
-    # fig, axs = plt.subplots(1, 3, figsize=(15, 5))
     yte = y_test
-    # vmin = torch.min(yte[4])
-    # vmax = torch.max(yte[4])
+    
+    # for i in range(100):
+    #     fig, axs = plt.subplots(1, 3, figsize=(15, 5))
 
-    # im = axs[0].imshow(yte[4].cpu(), cmap='hot', interpolation='nearest', vmin = vmin, vmax = vmax)
-    # axs[0].set_title('Groundtruth')
+    #     # cbar_ax1 = fig.add_axes([0.02, 0.3, 0.03, 0.4])
+    #     cbar_ax2 = fig.add_axes([0.94, 0.3, 0.03, 0.4])
+    #     vmin = torch.min(yte[i])
+    #     vmax = torch.max(yte[i])
 
-    # axs[1].imshow(ypred[4].cpu(), cmap='hot', interpolation ='nearest', vmin = vmin, vmax = vmax)
-    # axs[1].set_title('Predict')
+    #     im1 = axs[0].imshow(yte[i].cpu(), cmap='viridis', interpolation='nearest', vmin = vmin, vmax = vmax)
+    #     axs[0].set_title('Groundtruth')
 
-    # axs[2].imshow((yte[1].cpu()-ypred[1].cpu()).abs(), cmap = 'hot', interpolation='nearest', vmin = vmin, vmax = vmax)
-    # axs[2].set_title('Difference')
+    #     axs[1].imshow(ypred[i].cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax)
+    #     axs[1].set_title('Predict')
 
-    # cbar_ax = fig.add_axes([0.94, 0.3, 0.03, 0.4])
-    # cbar = fig.colorbar(im, cax=cbar_ax)
+    #     im2 = axs[2].imshow((yte[i].cpu()-ypred[1].cpu()).abs(), cmap = 'viridis', interpolation='nearest', vmin = vmin, vmax = vmax)
+    #     axs[2].set_title('Difference')
+
+    #     # cbar1 = fig.colorbar(im1, cax=cbar_ax1)
+    #     cbar2 = fig.colorbar(im2, cax=cbar_ax2)
+    #     plt.show()
+    #     plt.clf()
+
 
     plt.figure(figsize=(8, 5))
     for i in range(100):
