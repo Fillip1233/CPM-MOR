@@ -1,5 +1,6 @@
 Experiment/nn_exp
 IBM_transient/
-train_data/
+train_data/*.npy
+!train_data/*.md
 __pycache__/
 utils/__pycache__
