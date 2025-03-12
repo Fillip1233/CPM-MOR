@@ -55,7 +55,7 @@ class GAR(torch.nn.Module):
 
         self.if_nonsubset = if_nonsubset
 
-    def forward(self, data_manager, x_test, to_fidelity=None, normal=True):
+    def forward(self, data_manager, x_test, to_fidelity=None, normal=False):
         """
         Forward pass of the GAR model.
 
@@ -91,7 +91,7 @@ class GAR(torch.nn.Module):
 
         return mean_high, var_high
         
-def train_GAR(GARmodel, data_manager, max_iter=1000, lr_init=1e-1, normal = True, debugger=None):
+def train_GAR(GARmodel, data_manager, max_iter=1000, lr_init=1e-1, normal = False, debugger=None):
     """
     Trains the GARmodel using the specified data_manager.
 

@@ -12,25 +12,26 @@ tensorly.set_backend('pytorch')
 
 def prepare_data():
 
-    x1 = np.load('train_data\mf_in.npy')
-    x1 = np.repeat(x1[:, np.newaxis, :], 100, axis=1)
+    x1 = np.load('train_data\sim_100\mf_inall.npy')
+    # x1 = np.repeat(x1[:, np.newaxis, :], 100, axis=1)
     x1 = torch.tensor(x1, dtype=torch.float32)
     # x1 = torch.fft.fft(x1,dim = -1)
     # x1 = torch.abs(x1)
     x = x1.reshape(x1.shape[0], -1)
-    yl1= np.load('train_data\mf_low_f.npy')
+    yl1= np.load('train_data\sim_100\mf_low_f.npy')
     yl = torch.tensor(yl1, dtype=torch.float32)
     # yl = torch.fft.fft(yl,dim = -1)
     # yl = torch.abs(yl)
 
-    yh1 = np.load('train_data\mf_high_f.npy')
+    yh1 = np.load('train_data\sim_100\mf_high_f.npy')
     yh = torch.tensor(yh1, dtype=torch.float32)
     # yh = torch.fft.fft(yh,dim = -1)
     # yh = torch.abs(yh)
 
-    time = np.load('train_data\mf_time.npy')
+    time = np.load('train_data\sim_100\mf_time.npy')
 
-    x_train = x[:100, :]
+    x_trainl = x[:100, :]
+    x_trainh = x[:100, :]
     y_l = yl[:100, :]
     y_h = yh[:100, :]
 
@@ -38,19 +39,19 @@ def prepare_data():
     y_test = yh[100:, :]
     yl_test = yl[100:, :]
 
-    return x_train, y_l, y_h, x_test, y_test, yl_test, time
+    return x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time
     
 if __name__ == "__main__":
     torch.manual_seed(1)
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     device = torch.device("cpu")
-    x_train, y_l, y_h, x_test, y_test, yl_test, time = prepare_data()
+    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time = prepare_data()
 
     data_shape = [y_l[0].shape, y_h[0].shape]
 
     initial_data = [
-        {'fidelity_indicator': 0,'raw_fidelity_name': '0', 'X': x_train.to(device), 'Y': y_l.to(device)},
-        {'fidelity_indicator': 1,'raw_fidelity_name': '1', 'X': x_train.to(device), 'Y': y_h.to(device)},
+        {'fidelity_indicator': 0,'raw_fidelity_name': '0', 'X': x_trainl.to(device), 'Y': y_l.to(device)},
+        {'fidelity_indicator': 1,'raw_fidelity_name': '1', 'X': x_trainh.to(device), 'Y': y_h.to(device)},
         # {'fidelity_indicator': 2,'raw_fidelity_name': '2', 'X': x_train.to(device), 'Y': y_h2.to(device)}
     ]
     fidelity_num = len(initial_data)
@@ -61,9 +62,9 @@ if __name__ == "__main__":
     train_GAR(myGAR, fidelity_manager, max_iter = 200, lr_init = 1e-2, debugger = None)
 
     with torch.no_grad():
-        x_test = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].normalize_x(x_test)
+        # x_test = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].normalize_x(x_test)
         ypred, ypred_var = myGAR(fidelity_manager, x_test)
-        ypred, ypred_var = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].denormalize(ypred, ypred_var)
+        # ypred, ypred_var = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].denormalize(ypred, ypred_var)
 
     ##plot the results
     yte = y_test

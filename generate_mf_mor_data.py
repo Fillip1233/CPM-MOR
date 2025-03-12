@@ -9,6 +9,7 @@ import numpy as np
 from SVDMOR import svdmor
 import utils.PRIMA as PRIMA
 import matplotlib.pyplot as plt
+import time
 
 def generate_u(port_num, seed):
     VS = []
@@ -16,7 +17,7 @@ def generate_u(port_num, seed):
     vl_range = (1.748e-5, 4.139e-5)
     vh_range = (0.036, 0.121)
     # td_range = (0, 1.2e-9)
-    td_range = (0, 1e-9)
+    td_range = (0, 1e-10)
     tr_range = (1e-10, 3e-10)
     tf_range = (1e-10, 3e-10) 
     pw_range = (1e-10, 3e-10)
@@ -24,7 +25,7 @@ def generate_u(port_num, seed):
     # tf = 1e-10
     # pw = 1e-11
     # per_range = (2e-9, 3e-9)
-    per = 2e-9
+    per = 1e-9
     random.seed(seed)
     vl = random.uniform(*vl_range)
     vh = random.uniform(*vh_range)
@@ -44,6 +45,40 @@ def generate_u(port_num, seed):
     IS = np.vstack(IS)
     return IS, VS, in_data
 
+def generate_udiff(port_num, seed):
+    VS = []
+    VS = np.array(VS)
+    vl_range = (1.748e-5, 4.139e-5)
+    vh_range = (0.036, 0.121)
+    # td_range = (0, 1.2e-9)
+    td_range = (0, 1e-10)
+    tr_range = (1e-10, 3e-10)
+    tf_range = (1e-10, 3e-10) 
+    pw_range = (1e-10, 3e-10)
+    # tr = 1e-10
+    # tf = 1e-10
+    # pw = 1e-11
+    # per_range = (2e-9, 3e-9)
+    per = 1e-9
+    
+    IS = []
+    for k in range(port_num):
+        random.seed(seed+200+k)
+        vl = random.uniform(*vl_range)
+        vh = random.uniform(*vh_range)
+        td = random.uniform(*td_range)
+        tr = random.uniform(*tr_range)
+        # tr = 1e-10
+        tf = random.uniform(*tf_range)
+        # tf = 1e-10
+        pw = random.uniform(*pw_range)
+        # pw = 1e-11
+        # per = random.uniform(*per_range)
+        IS.append([vl, vh, td, tr, tf, pw, per])
+    IS = np.vstack(IS)
+    return IS, VS
+
+
 if __name__ == '__main__':
     data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
@@ -56,9 +91,8 @@ if __name__ == '__main__':
     O = B
     
     t0 = 0
-    t_all = 2e-09
+    t_all = 1e-09
     dt = 1e-11
-    data_length = 200
     data_num = 200
 
     N = C.shape[0]
@@ -98,24 +132,33 @@ if __name__ == '__main__':
     for i in range(data_num):
         print("Generating {}th input data".format(i))
         seed = i
-        IS, VS, in_data = generate_u(port_num, seed)
-        xAll, time, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = 'pulse')
+        # IS, VS, in_data = generate_u(port_num, seed)
+        IS, VS = generate_udiff(port_num, seed)
+        t1 = time.time()
+        xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = 'pulse')
         y = O.T@xAll
+        t2 = time.time()
+        print("High-fidelity data generated. Time used: ", t2-t1, 's')
+        t3 = time.time()
         xAll_svd, time_svd, dtAll_svd, urAll_svd = tdIntLinBE_new(t0, t_all, dt, Cr_2, -Gr_2, Br_2, VS, IS, xr1, srcType = 'pulse')
         y_svd = (Or_2@left).T@ xAll_svd
+        t4 = time.time()
+        print("Low-fidelity data generated. Time used: ", t4-t3, 's')
         low_f.append(y_svd)
         high_f.append(y)
-        input_data.append(in_data)
+        # input_data.append(in_data)
         in_all.append(uAll)
     low_f = np.array(low_f)
     high_f = np.array(high_f)
     inall = np.array(in_all)
     input_data = np.array(input_data)
     input_data = np.squeeze(input_data)
+    time1 = np.array(time1)
+    np.save('train_data/sim_100_diff/mf_time.npy', time1)
     # np.save('train_data/mf_in.npy', input_data)
-    # np.save('train_data/mf_low_f.npy', low_f)
-    # np.save('train_data/mf_high_f.npy', high_f)
-    np.save('train_data/mf_inall.npy', inall)
+    np.save('train_data/sim_100_diff/mf_low_f.npy', low_f)
+    np.save('train_data/sim_100_diff/mf_high_f.npy', high_f)
+    np.save('train_data/sim_100_diff/mf_inall.npy', inall)
 
     # yy = np.zeros((y.shape[1]))
     # for i in range(y.shape[0]):
