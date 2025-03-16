@@ -48,7 +48,7 @@ if __name__ == '__main__':
     # C = E, G = A
     data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
-    port_num = 100
+    port_num = 300
     B = B.tocsc()
     C = C.tocsc()
     G = G.tocsc()
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     print("SVD completed. Time used: ", str(ts), 's')
 
     t0 = 0
-    tf = 1e-08
+    tf = 1e-09
     dt = 1e-11
     srcType = 'pulse'
     VS = []
@@ -74,10 +74,10 @@ if __name__ == '__main__':
         [np.zeros([is_num, 1]), 
             np.dot(np.ones([is_num, 1]), 0.1),
             np.dot(np.ones([is_num, 1]), tf) / 5,
-            np.dot(np.ones([is_num, 1]), 1e-09),
-            np.dot(np.ones([is_num, 1]), 1e-09),
-            np.dot(np.ones([is_num, 1]), 5e-09),
-            np.dot(np.ones([is_num, 1]), 1e-08)])
+            np.dot(np.ones([is_num, 1]), 1e-10),
+            np.dot(np.ones([is_num, 1]), 1e-10),
+            np.dot(np.ones([is_num, 1]), 5e-10),
+            np.dot(np.ones([is_num, 1]), 1e-09)])
     IS2 = np.hstack([
         np.zeros([is_num, 1]),
         np.dot(np.ones([is_num, 1]), 0.2),

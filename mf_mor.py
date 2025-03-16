@@ -12,30 +12,30 @@ tensorly.set_backend('pytorch')
 
 def prepare_data():
 
-    x1 = np.load('train_data\sim_100\mf_inall.npy')
+    x1 = np.load('train_data\sim_100_port1500\mf_inall.npy')
     # x1 = np.repeat(x1[:, np.newaxis, :], 100, axis=1)
     x1 = torch.tensor(x1, dtype=torch.float32)
     # x1 = torch.fft.fft(x1,dim = -1)
     # x1 = torch.abs(x1)
     x = x1.reshape(x1.shape[0], -1)
-    yl1= np.load('train_data\sim_100\mf_low_f.npy')
+    yl1= np.load('train_data\sim_100_port1500\mf_low_f.npy')
     yl = torch.tensor(yl1, dtype=torch.float32)
     # yl = torch.fft.fft(yl,dim = -1)
     # yl = torch.abs(yl)
 
-    yh1 = np.load('train_data\sim_100\mf_high_f.npy')
+    yh1 = np.load('train_data\sim_100_port1500\mf_high_f.npy')
     yh = torch.tensor(yh1, dtype=torch.float32)
     # yh = torch.fft.fft(yh,dim = -1)
     # yh = torch.abs(yh)
 
-    time = np.load('train_data\sim_100\mf_time.npy')
+    time = np.load('train_data\sim_100_port1500\mf_time.npy')
 
     x_trainl = x[:100, :]
     x_trainh = x[:100, :]
     y_l = yl[:100, :]
     y_h = yh[:100, :]
 
-    x_test = x[100:, :].to(device)
+    x_test = x[100:, :]
     y_test = yh[100:, :]
     yl_test = yl[100:, :]
 
@@ -43,9 +43,12 @@ def prepare_data():
     
 if __name__ == "__main__":
     torch.manual_seed(1)
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = torch.device("cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cpu")
     x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time = prepare_data()
+    x_test = x_test.to(device)
+    y_test = y_test.to(device)
+    yl_test = yl_test.to(device)
 
     data_shape = [y_l[0].shape, y_h[0].shape]
 
@@ -59,7 +62,11 @@ if __name__ == "__main__":
 
     myGAR = GAR(fidelity_num, data_shape, if_nonsubset = False).to(device)
 
-    train_GAR(myGAR, fidelity_manager, max_iter = 200, lr_init = 1e-2, debugger = None)
+    train_GAR(myGAR, fidelity_manager, max_iter = 350, lr_init = 1e-2, debugger = None)
+
+    total_params = sum(p.numel() for p in myGAR.parameters())
+    print(f"Total number of parameters: {total_params}")
+    torch.save(myGAR.state_dict(), "myGAR.pth")
 
     with torch.no_grad():
         # x_test = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].normalize_x(x_test)
@@ -94,15 +101,15 @@ if __name__ == "__main__":
     plt.figure(figsize=(8, 5))
     for i in range(100):
         y_1 = ypred[i]
-        yy_1 = torch.zeros((y_1.shape[1]))
+        yy_1 = torch.zeros((y_1.shape[1])).to(device)
         for j in range(y_1.shape[0]):
             yy_1 += y_1[j, :]
         y_te = yte[i]
-        yy_te = torch.zeros((y_te.shape[1]))
+        yy_te = torch.zeros((y_te.shape[1])).to(device)
         for k in range(y_te.shape[0]):
             yy_te += y_te[k, :]
         y_low = yl_test[i]
-        yy_low = torch.zeros((y_low.shape[1]))
+        yy_low = torch.zeros((y_low.shape[1])).to(device)
         for e in range(y_low.shape[0]):
             yy_low += y_low[e, :]
         plt.plot(time, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity-GT', markevery = 35, markersize=6, linewidth=1.5)

@@ -32,12 +32,12 @@ E, A, B = data['E'] * 1e-0, data['A'], data['B']  # rename the matrices
 N = E.shape[0]
 NB = B.shape[1]
 
-Nb = 40   # set the number of port
+Nb = 200   # set the number of port
 B = B[:, 0:Nb]
 C = B
 t0 = 0
 # main.m:24
-tf = 1e-08
+tf = 1e-09
 # main.m:24
 dt = 1e-11
 # main.m:24
@@ -61,10 +61,10 @@ else:
             [np.zeros([Nb, 1]), 
              np.dot(np.ones([Nb, 1]), 0.1),
              np.dot(np.ones([Nb, 1]), tf) / 5,
-             np.dot(np.ones([Nb, 1]), 1e-09),
-             np.dot(np.ones([Nb, 1]), 1e-09),
-             np.dot(np.ones([Nb, 1]), 5e-09),
-             np.dot(np.ones([Nb, 1]), 1e-08)])
+             np.dot(np.ones([Nb, 1]), 1e-10),
+             np.dot(np.ones([Nb, 1]), 1e-10),
+             np.dot(np.ones([Nb, 1]), 5e-10),
+             np.dot(np.ones([Nb, 1]), 1e-09)])
 x0 = np.zeros((N, 1))
 # B[:,1] = 0
 
@@ -73,11 +73,11 @@ from utils.tdIntLinBE_new import *
 xAll, time, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, E, -A, B, VS, IS, x0, srcType)
 y = C.T@xAll
 
-plt.plot(time, y[0, :], 'b-o')
-plt.show()
+# plt.plot(time, y[0, :], 'b-o')
+# plt.show()
 
 f = np.array([1e2, 1e9])  # array of targeting frequencies
-m = 2  # number of moments to match per expansion point (same for all points here, though can be made different)
+m = 3  # number of moments to match per expansion point (same for all points here, though can be made different)
 
 s = 1j * 2 * np.pi * f  # array of expansion points
 q = m * Nb
@@ -147,3 +147,4 @@ nd = 500
 
 plt.plot(time, y[0, :], 'b-o', time, y_mor[0, :], 'r-o')
 plt.show()
+pass

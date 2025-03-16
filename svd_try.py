@@ -12,6 +12,21 @@ import utils.PRIMA as PRIMA
 from utils.tdIntLinBE_new import *
 from code_try.tdIntLinBE_forsvd import *
 
+def svd_try(B, threshold):
+
+    B_1 = csc_matrix(B, dtype=np.float64)
+    t1 = time.time()
+    B_dense = B_1.toarray()
+    U, S, V = np.linalg.svd(B_dense,full_matrices=False)
+    t2 = time.time()
+    print('time for svd:', t2-t1)
+    indices = S > threshold
+    U_new = U[:, indices]               
+    S_new = S[indices]                  
+    V_new = V[indices, :]
+    assign_matrix = np.diag(S_new)@V_new
+
+    return U_new, assign_matrix
 
 if __name__ == '__main__':
     data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
@@ -21,11 +36,11 @@ if __name__ == '__main__':
     N = C.shape[0]
     NB = B.shape[1]
 
-    Nb = 70 
+    Nb = 1500 
     B = B[:, 0:Nb]
     O = B
     t0 = 0
-    tf = 1e-08
+    tf = 1e-09
     dt = 1e-11
 
     srcType = 'pulse'
@@ -40,10 +55,10 @@ if __name__ == '__main__':
         [np.zeros([is_num, 1]), 
             np.dot(np.ones([is_num, 1]), 0.1),
             np.dot(np.ones([is_num, 1]), tf) / 5,
-            np.dot(np.ones([is_num, 1]), 1e-09),
-            np.dot(np.ones([is_num, 1]), 1e-09),
-            np.dot(np.ones([is_num, 1]), 5e-09),
-            np.dot(np.ones([is_num, 1]), 1e-08)])
+            np.dot(np.ones([is_num, 1]), 1e-10),
+            np.dot(np.ones([is_num, 1]), 1e-10),
+            np.dot(np.ones([is_num, 1]), 5e-10),
+            np.dot(np.ones([is_num, 1]), 1e-09)])
     IS2 = np.hstack([
         np.zeros([is_num, 1]),
         np.dot(np.ones([is_num, 1]), 0.2),
@@ -52,32 +67,21 @@ if __name__ == '__main__':
         np.dot(np.ones([is_num, 1]), 2e-09),
         np.dot(np.ones([is_num, 1]), 4e-09),
         np.dot(np.ones([is_num, 1]), 1e-08)])
-    IS = np.vstack([IS1, IS2])
+    IS = np.vstack([IS1, IS1])
     x0 = np.zeros((N, 1))
     # B[:,1] = 0
 
 
-    # xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
-    # y = O.T@xAll
-    # yy = np.zeros((y.shape[1]))
-    # for i in range(y.shape[0]):
-    #     yy += np.real(y[i, :])
+    xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
+    y = O.T@xAll
+    yy = np.zeros((y.shape[1]))
+    for i in range(y.shape[0]):
+        yy += np.real(y[i, :])
 
 
     # simplify B using svd
     ## method 1 -> turn to dense matrix
-    B_1 = csc_matrix(B, dtype=np.float64)
-    t1 = time.time()
-    B_dense = B_1.toarray()
-    U, S, V = np.linalg.svd(B_dense,full_matrices=False)
-    t2 = time.time()
-    print('time for svd:', t2-t1)
-    threshold = 1.0
-    indices = S > threshold
-    U_new = U[:, indices]               
-    S_new = S[indices]                  
-    V_new = V[indices, :]
-    assign_matrix = np.diag(S_new)@V_new 
+    U_new, assign_matrix = svd_try(B, threshold=1.0)
 
     # mor with PRIMA
     f = np.array([1e2,1e9])  # array of targeting frequencies
@@ -86,25 +90,25 @@ if __name__ == '__main__':
     q = m * Nb
     tic = datetime.now()
 
-    XX = PRIMA.PRIMA_mp(C, G, B, s, q)
-    Cr_1 = (XX.T @ C) @ XX
-    Gr_1 = (XX.T @ G) @ XX
-    Br_1 = XX.T @ B
-    Or_1 = XX.T @ O
-    nr = Cr_1.shape[0]
-    toc = datetime.now()
-    tprima = toc - tic
+    # XX = PRIMA.PRIMA_mp(C, G, B, s, q)
+    # Cr_1 = (XX.T @ C) @ XX
+    # Gr_1 = (XX.T @ G) @ XX
+    # Br_1 = XX.T @ B
+    # Or_1 = XX.T @ O
+    # nr = Cr_1.shape[0]
+    # toc = datetime.now()
+    # tprima = toc - tic
 
-    print("Origin PRIMA MOR:")
-    print('PRIMA completed. Time used: ', str(tprima), 's')
-    print('The original order is', N, 'the reduced order is', nr)
+    # print("Origin PRIMA MOR:")
+    # print('PRIMA completed. Time used: ', str(tprima), 's')
+    # print('The original order is', N, 'the reduced order is', nr)
     
-    xr0 = XX.T@ x0
-    xrAll, time3, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr0, srcType)
-    y_mor = Or_1.T@xrAll
-    yy_mor = np.zeros((y_mor.shape[1]))
-    for i in range(y_mor.shape[0]):
-        yy_mor += np.real(y_mor[i, :])
+    # xr0 = XX.T@ x0
+    # xrAll, time3, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr0, srcType)
+    # y_mor = Or_1.T@xrAll
+    # yy_mor = np.zeros((y_mor.shape[1]))
+    # for i in range(y_mor.shape[0]):
+    #     yy_mor += np.real(y_mor[i, :])
 
     # mor-prima -> U_new
     q_new = m * U_new.shape[1]
@@ -132,8 +136,8 @@ if __name__ == '__main__':
 
 
     plt.figure(figsize=(8, 5))
-    # plt.plot(time2, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
-    plt.plot(time2, yy_mor, color='blue', linestyle='-', marker='o', label='PRIMA', markersize=6,markevery = 30, linewidth=1.5)
+    plt.plot(time2, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
+    # plt.plot(time2, yy_mor, color='blue', linestyle='-', marker='o', label='PRIMA', markersize=6,markevery = 30, linewidth=1.5)
     plt.plot(time2, yy_svd, color='red', linestyle='--', marker='s', label='my-svd-mor', markersize=6, markevery = 45, linewidth=1.5)
     plt.legend(fontsize=12)
     plt.title("Method compare", fontsize=14)

@@ -7,6 +7,7 @@ import random
 from utils.tdIntLinBE_new import *
 import numpy as np
 from SVDMOR import svdmor
+from svd_try import svd_try
 import utils.PRIMA as PRIMA
 import matplotlib.pyplot as plt
 import time
@@ -82,7 +83,7 @@ def generate_udiff(port_num, seed):
 if __name__ == '__main__':
     data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
-    port_num = 100
+    port_num = 1500
     B = B.tocsc()
     C = C.tocsc()
     G = G.tocsc()
@@ -98,7 +99,9 @@ if __name__ == '__main__':
     N = C.shape[0]
 
     tic = datetime.now()
-    left, right, B_r, O_r = svdmor(G, B, B, threshold = 2)
+    # left, right, B_r, O_r = svdmor(G, B, B, threshold = 2)
+    B_r ,right = svd_try(B, threshold = 1.0)
+    O_r = B_r
     toc = datetime.now()
     ts = toc - tic
     print("SVD completed. Time used: ", str(ts), 's')
@@ -127,13 +130,15 @@ if __name__ == '__main__':
     in_all = []
 
     Br_2 = Br_2@right
+    # Or_2 = Or_2@left
+    Or_2 = Or_2@right
     x0 = np.zeros((N, 1))
     xr1 = XX_2.T@ x0
     for i in range(data_num):
         print("Generating {}th input data".format(i))
         seed = i
-        # IS, VS, in_data = generate_u(port_num, seed)
-        IS, VS = generate_udiff(port_num, seed)
+        IS, VS, in_data = generate_u(port_num, seed)
+        # IS, VS = generate_udiff(port_num, seed)
         t1 = time.time()
         xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = 'pulse')
         y = O.T@xAll
@@ -141,7 +146,7 @@ if __name__ == '__main__':
         print("High-fidelity data generated. Time used: ", t2-t1, 's')
         t3 = time.time()
         xAll_svd, time_svd, dtAll_svd, urAll_svd = tdIntLinBE_new(t0, t_all, dt, Cr_2, -Gr_2, Br_2, VS, IS, xr1, srcType = 'pulse')
-        y_svd = (Or_2@left).T@ xAll_svd
+        y_svd = Or_2.T@xAll_svd
         t4 = time.time()
         print("Low-fidelity data generated. Time used: ", t4-t3, 's')
         low_f.append(y_svd)
@@ -154,11 +159,13 @@ if __name__ == '__main__':
     input_data = np.array(input_data)
     input_data = np.squeeze(input_data)
     time1 = np.array(time1)
-    np.save('train_data/sim_100_diff/mf_time.npy', time1)
+    np.save('train_data/sim_100_port1500/mf_time.npy', time1)
     # np.save('train_data/mf_in.npy', input_data)
-    np.save('train_data/sim_100_diff/mf_low_f.npy', low_f)
-    np.save('train_data/sim_100_diff/mf_high_f.npy', high_f)
-    np.save('train_data/sim_100_diff/mf_inall.npy', inall)
+    np.save('train_data/sim_100_port1500/mf_low_f.npy', low_f)
+    np.save('train_data/sim_100_port1500/mf_high_f.npy', high_f)
+    np.save('train_data/sim_100_port1500/mf_inall.npy', inall)
+
+
 
     # yy = np.zeros((y.shape[1]))
     # for i in range(y.shape[0]):
@@ -167,8 +174,8 @@ if __name__ == '__main__':
     # for i in range(y_svd.shape[0]):
     #     yy_svd += np.real(y_svd[i, :])    
     # plt.figure(figsize=(8, 5))
-    # plt.plot(time, yy, color='black', linestyle='-.', marker='*', label='High-fidelity-data', markevery = 35, markersize=6, linewidth=1.5)
-    # plt.plot(time, yy_svd, color='red', linestyle='--', marker='s', label='Low-fidelity-data', markersize=6, markevery = 45, linewidth=1.5)
+    # plt.plot(time1, yy, color='black', linestyle='-.', marker='*', label='High-fidelity-data', markevery = 35, markersize=6, linewidth=1.5)
+    # plt.plot(time1, yy_svd, color='red', linestyle='--', marker='s', label='Low-fidelity-data', markersize=6, markevery = 45, linewidth=1.5)
     # plt.legend(fontsize=12)
     # plt.title("MF-data", fontsize=14)
     # plt.xlabel("Time (s)", fontsize=12)

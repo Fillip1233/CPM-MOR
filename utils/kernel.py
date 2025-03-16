@@ -269,9 +269,10 @@ class SquaredExponentialKernel(nn.Module):
         """
         ## When encountering abnormal data or gradients causing parameter errors, parameter reset can achieve good training results
         if torch.isnan(self.length_scale):
-            self.length_scale = nn.Parameter(torch.tensor([1.0])).to(x1.device)
+            self.length_scale = nn.Parameter(torch.tensor([1.0], device = x1.device)) 
         if torch.isnan(self.signal_variance):
-            self.signal_variance = nn.Parameter(torch.tensor([1.0])).to(x1.device)
+            self.signal_variance = nn.Parameter(torch.tensor([1.0], device= x1.device))
+
         
         x1 = x1.reshape(x1.shape[0], -1)
         x2 = x2.reshape(x2.shape[0], -1)
