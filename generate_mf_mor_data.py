@@ -12,11 +12,15 @@ import utils.PRIMA as PRIMA
 import matplotlib.pyplot as plt
 import time
 
-def generate_u(port_num, seed):
+def generate_u(port_num, circuit_size, seed):
     VS = []
     VS = np.array(VS)
-    vl_range = (1.748e-5, 4.139e-5)
-    vh_range = (0.036, 0.121)
+    if circuit_size == 1:
+        vl_range = (1.748e-5, 4.139e-5)
+        vh_range = (0.036, 0.121)
+    elif circuit_size == 2:
+        vl_range = (5.308e-6, 9.672e-6)
+        vh_range = (0.013, 0.024)
     # td_range = (0, 1.2e-9)
     td_range = (0, 1e-10)
     tr_range = (1e-10, 3e-10)
@@ -81,7 +85,8 @@ def generate_udiff(port_num, seed):
 
 
 if __name__ == '__main__':
-    data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
+    data = spio.loadmat("./IBM_transient/ibmpg2t.mat")
+    circuit_size = 2
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
     port_num = 1500
     B = B.tocsc()
@@ -99,9 +104,13 @@ if __name__ == '__main__':
     N = C.shape[0]
 
     tic = datetime.now()
-    # left, right, B_r, O_r = svdmor(G, B, B, threshold = 2)
-    B_r ,right = svd_try(B, threshold = 1.0)
-    O_r = B_r
+
+    left, right, B_r, O_r = svdmor(G, B, B, threshold = 2)
+
+    # my svd mor
+    # B_r ,right = svd_try(B, threshold = 1.0)
+    # O_r = B_r
+
     toc = datetime.now()
     ts = toc - tic
     print("SVD completed. Time used: ", str(ts), 's')
@@ -130,14 +139,16 @@ if __name__ == '__main__':
     in_all = []
 
     Br_2 = Br_2@right
-    # Or_2 = Or_2@left
-    Or_2 = Or_2@right
+    Or_2 = Or_2@left
+
+    ## for svd_try
+    # Or_2 = Or_2@right
     x0 = np.zeros((N, 1))
     xr1 = XX_2.T@ x0
     for i in range(data_num):
         print("Generating {}th input data".format(i))
         seed = i
-        IS, VS, in_data = generate_u(port_num, seed)
+        IS, VS, in_data = generate_u(port_num, circuit_size, seed)
         # IS, VS = generate_udiff(port_num, seed)
         t1 = time.time()
         xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = 'pulse')
@@ -159,11 +170,11 @@ if __name__ == '__main__':
     input_data = np.array(input_data)
     input_data = np.squeeze(input_data)
     time1 = np.array(time1)
-    np.save('train_data/sim_100_port1500/mf_time.npy', time1)
+    np.save('train_data/2t/sim_100_port1500/mf_time.npy', time1)
     # np.save('train_data/mf_in.npy', input_data)
-    np.save('train_data/sim_100_port1500/mf_low_f.npy', low_f)
-    np.save('train_data/sim_100_port1500/mf_high_f.npy', high_f)
-    np.save('train_data/sim_100_port1500/mf_inall.npy', inall)
+    np.save('train_data/2t/sim_100_port1500/mf_low_f.npy', low_f)
+    np.save('train_data/2t/sim_100_port1500/mf_high_f.npy', high_f)
+    np.save('train_data/2t/sim_100_port1500/mf_inall.npy', inall)
 
 
 

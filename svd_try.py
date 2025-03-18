@@ -29,7 +29,7 @@ def svd_try(B, threshold):
     return U_new, assign_matrix
 
 if __name__ == '__main__':
-    data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
+    data = spio.loadmat("./IBM_transient/ibmpg3t.mat")
 
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
 
     plt.figure(figsize=(8, 5))
-    plt.plot(time2, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
+    # plt.plot(time2, yy, color='black', linestyle='-.', marker='*', label='Origin', markevery = 35, markersize=6, linewidth=1.5)
     # plt.plot(time2, yy_mor, color='blue', linestyle='-', marker='o', label='PRIMA', markersize=6,markevery = 30, linewidth=1.5)
     plt.plot(time2, yy_svd, color='red', linestyle='--', marker='s', label='my-svd-mor', markersize=6, markevery = 45, linewidth=1.5)
     plt.legend(fontsize=12)

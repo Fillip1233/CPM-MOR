@@ -23,11 +23,10 @@ def tdIntLinBE_new(t0=None, tf=None, dt=None, Cl=None, Gl=None, Bl=None, VS=None
     it = 2
     dtAll = [0]
     time = [0]
-    M = Cl + dt * Gl
+    M = Cl + dt * Gl 
     lu = scipy.sparse.linalg.splu(M)
     while told < tf - np.spacing(1):
         ui, uv = computeInputs_new(VS, IS, told, srcType)
-        
         b = Bl @ np.vstack((ui, uv))
         f = Cl @ xtold + dt * b
         # interesting thing

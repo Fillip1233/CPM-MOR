@@ -12,23 +12,23 @@ tensorly.set_backend('pytorch')
 
 def prepare_data():
 
-    x1 = np.load('train_data\sim_100_port1500\mf_inall.npy')
+    x1 = np.load('train_data/2t/sim_100_port1500/mf_inall.npy')
     # x1 = np.repeat(x1[:, np.newaxis, :], 100, axis=1)
     x1 = torch.tensor(x1, dtype=torch.float32)
     # x1 = torch.fft.fft(x1,dim = -1)
     # x1 = torch.abs(x1)
     x = x1.reshape(x1.shape[0], -1)
-    yl1= np.load('train_data\sim_100_port1500\mf_low_f.npy')
+    yl1= np.load('train_data/2t/sim_100_port1500/mf_low_f.npy')
     yl = torch.tensor(yl1, dtype=torch.float32)
     # yl = torch.fft.fft(yl,dim = -1)
     # yl = torch.abs(yl)
 
-    yh1 = np.load('train_data\sim_100_port1500\mf_high_f.npy')
+    yh1 = np.load('train_data/2t/sim_100_port1500/mf_high_f.npy')
     yh = torch.tensor(yh1, dtype=torch.float32)
     # yh = torch.fft.fft(yh,dim = -1)
     # yh = torch.abs(yh)
 
-    time = np.load('train_data\sim_100_port1500\mf_time.npy')
+    time = np.load('train_data/2t/sim_100_port1500/mf_time.npy')
 
     x_trainl = x[:100, :]
     x_trainh = x[:100, :]
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     total_params = sum(p.numel() for p in myGAR.parameters())
     print(f"Total number of parameters: {total_params}")
-    torch.save(myGAR.state_dict(), "myGAR.pth")
+    # torch.save(myGAR.state_dict(), "myGAR.pth")
 
     with torch.no_grad():
         # x_test = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].normalize_x(x_test)

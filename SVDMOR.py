@@ -46,9 +46,9 @@ def svdmor(G, in_mat, out_mat, threshold):
 
 if __name__ == '__main__':
     # C = E, G = A
-    data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
+    data = spio.loadmat("./IBM_transient/ibmpg3t.mat")
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
-    port_num = 300
+    port_num = 1500
     B = B.tocsc()
     C = C.tocsc()
     G = G.tocsc()
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     is_num = int(port_num/2)
     IS1 = np.hstack(
         [np.zeros([is_num, 1]), 
-            np.dot(np.ones([is_num, 1]), 0.1),
+            np.dot(np.ones([is_num, 1]), 0.01),
             np.dot(np.ones([is_num, 1]), tf) / 5,
             np.dot(np.ones([is_num, 1]), 1e-10),
             np.dot(np.ones([is_num, 1]), 1e-10),

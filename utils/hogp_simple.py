@@ -89,7 +89,7 @@ class HOGP_simple(nn.Module):
         self.K.append(self.kernel_list[0](x_train, x_train))
         self.K_eigen.append(eigen_pairs(self.K[-1]))
 
-        # update grid
+        # update grid refer to paper formula 5
         for i in range(0, len(self.kernel_list)-1):
             _in = tensorly.tenalg.mode_dot(self.grid[i], self.mapping_vector[i], 0)
             self.K.append(self.kernel_list[i+1](_in, _in))
