@@ -81,6 +81,9 @@ class GAR(torch.nn.Module):
                     var_high = var_low
             else:
                 x_train, _ = data_manager.get_data_by_name('res-{}'.format(i_fidelity))
+                if x_train is None:
+                    print("warning: can not find the res data")
+                    x_train, _ = data_manager.get_data(i_fidelity, normal=normal)
                 mean_res, var_res = self.hogp_list[i_fidelity].forward(x_train, x_test)
 
                 mean_high = self.Tensor_linear_list[i_fidelity - 1](mean_low) + mean_res

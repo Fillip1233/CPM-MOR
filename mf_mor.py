@@ -8,27 +8,29 @@ from utils.MF_data import MultiFidelityDataManager
 import matplotlib.pyplot as plt
 import tensorly
 from utils.GAR import *
+import os
+import sys
 tensorly.set_backend('pytorch')
 
-def prepare_data():
+def prepare_data(data_path):
 
-    x1 = np.load('train_data/2t/sim_100_port1500/mf_inall.npy')
+    x1 = np.load(data_path+'/mf_inall.npy')
     # x1 = np.repeat(x1[:, np.newaxis, :], 100, axis=1)
     x1 = torch.tensor(x1, dtype=torch.float32)
     # x1 = torch.fft.fft(x1,dim = -1)
     # x1 = torch.abs(x1)
     x = x1.reshape(x1.shape[0], -1)
-    yl1= np.load('train_data/2t/sim_100_port1500/mf_low_f.npy')
+    yl1= np.load(data_path+'/mf_low_f.npy')
     yl = torch.tensor(yl1, dtype=torch.float32)
     # yl = torch.fft.fft(yl,dim = -1)
     # yl = torch.abs(yl)
 
-    yh1 = np.load('train_data/2t/sim_100_port1500/mf_high_f.npy')
+    yh1 = np.load(data_path+'/mf_high_f.npy')
     yh = torch.tensor(yh1, dtype=torch.float32)
     # yh = torch.fft.fft(yh,dim = -1)
     # yh = torch.abs(yh)
 
-    time = np.load('train_data/2t/sim_100_port1500/mf_time.npy')
+    time = np.load(data_path+'/mf_time.npy')
 
     x_trainl = x[:100, :]
     x_trainh = x[:100, :]
@@ -44,8 +46,9 @@ def prepare_data():
 if __name__ == "__main__":
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    data_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port1500_multiper')
     # device = torch.device("cpu")
-    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time = prepare_data()
+    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time = prepare_data(data_path)
     x_test = x_test.to(device)
     y_test = y_test.to(device)
     yl_test = yl_test.to(device)
@@ -66,7 +69,16 @@ if __name__ == "__main__":
 
     total_params = sum(p.numel() for p in myGAR.parameters())
     print(f"Total number of parameters: {total_params}")
-    # torch.save(myGAR.state_dict(), "myGAR.pth")
+    torch.save({ "model_state":myGAR.state_dict(),
+                 "hogp1_g": myGAR.hogp_list[0].g,
+                 "hogp1_A": myGAR.hogp_list[0].A,
+                 "hogp1_K": myGAR.hogp_list[0].K,
+                 "hogp1_K_eigen": myGAR.hogp_list[0].K_eigen,
+                 "hogp2_K": myGAR.hogp_list[1].K,
+                 "hogp2_K_eigen": myGAR.hogp_list[1].K_eigen,
+                 "hogp2_A": myGAR.hogp_list[1].A,
+                 "hogp2_g": myGAR.hogp_list[1].g,
+                }, data_path + "\model.pth")
 
     with torch.no_grad():
         # x_test = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].normalize_x(x_test)
@@ -124,4 +136,4 @@ if __name__ == "__main__":
         plt.show()
         plt.clf()
         
-    plt.show()
+    # plt.show()

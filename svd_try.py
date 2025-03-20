@@ -72,11 +72,11 @@ if __name__ == '__main__':
     # B[:,1] = 0
 
 
-    xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
-    y = O.T@xAll
-    yy = np.zeros((y.shape[1]))
-    for i in range(y.shape[0]):
-        yy += np.real(y[i, :])
+    # xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
+    # y = O.T@xAll
+    # yy = np.zeros((y.shape[1]))
+    # for i in range(y.shape[0]):
+    #     yy += np.real(y[i, :])
 
 
     # simplify B using svd
