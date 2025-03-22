@@ -25,6 +25,12 @@ def generate_u(port_num, circuit_size, seed):
     elif circuit_size == 2:
         vl_range = (5.308e-6, 9.672e-6)
         vh_range = (0.013, 0.024)
+    elif circuit_size == 3:
+        vl_range = (6.367e-7, 1.830e-6)
+        vh_range = (0.002, 0.005)
+    # elif circuit_size == 4:
+    #     vl = 4.178e-8
+    #     vh = 0.0001
     # td_range = (0, 1.2e-9)
     td_range = (0, 5e-11)
     tr_range = (5e-11, 8e-11)
@@ -93,19 +99,19 @@ def generate_udiff(port_num, seed):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="generate mf_mor data for model")
     parser.add_argument("--port_num", type=int, default= 2000)
-    parser.add_argument("--circuit_size", type=int, default= 1)
+    parser.add_argument("--circuit_size", type=int, default= 3)
     parser.add_argument("--threshold", type=float, default= 1.0)
     parser.add_argument("--svd_type", type=int, default= 1)
     parser.add_argument("--load", type=int, default= 1)
     parser.add_argument("--generate", type=int, default= 1)
     args = parser.parse_args()
-    save_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper')
+    save_path = os.path.join(sys.path[0], 'train_data/3t/sim_100_port2000_multiper')
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
                         handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/data_generate.log")])
     logging.info(args)
-    data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
+    data = spio.loadmat("./IBM_transient/ibmpg3t.mat")
     circuit_size = args.circuit_size
     port_num = args.port_num
     C, G, B = data['E'] * 1e-0, data['A'], data['B']

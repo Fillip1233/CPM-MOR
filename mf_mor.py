@@ -46,7 +46,7 @@ def prepare_data(data_path):
 if __name__ == "__main__":
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port1500_multiper')
+    data_path = os.path.join(sys.path[0], 'train_data/3t/sim_100_port2000_multiper')
     # device = torch.device("cpu")
     x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time = prepare_data(data_path)
     x_test = x_test.to(device)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     myGAR = GAR(fidelity_num, data_shape, if_nonsubset = False).to(device)
 
-    train_GAR(myGAR, fidelity_manager, max_iter = 350, lr_init = 1e-2, debugger = None)
+    train_GAR(myGAR, fidelity_manager, max_iter = 400, lr_init = 1e-2, normal = False, debugger = None)
 
     total_params = sum(p.numel() for p in myGAR.parameters())
     print(f"Total number of parameters: {total_params}")
