@@ -1,45 +1,61 @@
 '''
-2025-3-11
-use GAR to perform mf_mor
+2025-3-24
+ann network for mf_mor
 '''
 import torch
 import numpy as np
 from utils.MF_data import MultiFidelityDataManager
 import matplotlib.pyplot as plt
 import tensorly
-from utils.GAR import *
+from utils.Ann_mor import *
 import os
 import sys
 tensorly.set_backend('pytorch')
 
 def prepare_data(data_path):
 
+    # x1 = np.load(data_path+'/mf_inall.npy')
+    # x1 = torch.tensor(x1, dtype=torch.float32)
+    # yl1= np.load(data_path+'/mf_low_f.npy')
+    # yl = torch.tensor(yl1, dtype=torch.float32)
+
+    # yh1 = np.load(data_path+'/mf_high_f.npy')
+    # yh = torch.tensor(yh1, dtype=torch.float32)
+
+    # time = np.load(data_path+'/mf_time.npy')
+
+    # x_trainl = x1[:100, :]
+    # x_trainh = x1[:100, :]
+    # y_l = yl[:100, :]
+    # y_h = yh[:100, :]
+
+    # x_test = x1[100:, :]
+    # y_test = yh[100:, :]
+    # yl_test = yl[100:, :]
+
     x1 = np.load(data_path+'/mf_inall.npy')
-    # x1 = np.repeat(x1[:, np.newaxis, :], 100, axis=1)
+    x2 = np.load(data_path+'_multiper'+'/mf_inall.npy')
     x1 = torch.tensor(x1, dtype=torch.float32)
-    # x1 = torch.fft.fft(x1,dim = -1)
-    # x1 = torch.abs(x1)
-    x = x1.reshape(x1.shape[0], -1)
+    x2 = torch.tensor(x2, dtype=torch.float32)
+    x_trainl = torch.cat((x1[:100,:], x2[:100,:]), dim = 0)
+    x_trainh = x_trainl
     yl1= np.load(data_path+'/mf_low_f.npy')
-    yl = torch.tensor(yl1, dtype=torch.float32)
-    # yl = torch.fft.fft(yl,dim = -1)
-    # yl = torch.abs(yl)
+    yl2= np.load(data_path+'_multiper'+'/mf_low_f.npy')
+    yl1 = torch.tensor(yl1, dtype=torch.float32)
+    yl2 = torch.tensor(yl2, dtype=torch.float32)
+    y_l = torch.cat((yl1[:100,:], yl2[:100,:]), dim = 0)
 
     yh1 = np.load(data_path+'/mf_high_f.npy')
-    yh = torch.tensor(yh1, dtype=torch.float32)
-    # yh = torch.fft.fft(yh,dim = -1)
-    # yh = torch.abs(yh)
+    yh1 = torch.tensor(yh1, dtype=torch.float32)
+    yh2 = np.load(data_path+'_multiper'+'/mf_high_f.npy')
+    yh2 = torch.tensor(yh2, dtype=torch.float32)
+    y_h = torch.cat((yh1[:100, :], yh2[:100,:]), dim = 0)
 
     time = np.load(data_path+'/mf_time.npy')
 
-    x_trainl = x[:100, :]
-    x_trainh = x[:100, :]
-    y_l = yl[:100, :]
-    y_h = yh[:100, :]
-
-    x_test = x[100:, :]
-    y_test = yh[100:, :]
-    yl_test = yl[100:, :]
+    x_test = torch.cat((x1[100:, :], x2[100:, :]), dim = 0)
+    y_test = torch.cat((yh1[100:, :], yh2[100:, :]), dim = 0)
+    yl_test = torch.cat((yl1[100:, :], yl2[100:, :]), dim = 0)
 
     return x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time
     
@@ -47,7 +63,6 @@ if __name__ == "__main__":
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port1500')
-    # device = torch.device("cpu")
     x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time = prepare_data(data_path)
     x_test = x_test.to(device)
     y_test = y_test.to(device)
@@ -58,32 +73,21 @@ if __name__ == "__main__":
     initial_data = [
         {'fidelity_indicator': 0,'raw_fidelity_name': '0', 'X': x_trainl.to(device), 'Y': y_l.to(device)},
         {'fidelity_indicator': 1,'raw_fidelity_name': '1', 'X': x_trainh.to(device), 'Y': y_h.to(device)},
-        # {'fidelity_indicator': 2,'raw_fidelity_name': '2', 'X': x_train.to(device), 'Y': y_h2.to(device)}
+        
     ]
     fidelity_num = len(initial_data)
     fidelity_manager = MultiFidelityDataManager(initial_data)
 
-    myGAR = GAR(fidelity_num, data_shape, if_nonsubset = False).to(device)
+    mynn = ann_mor(fidelity_num, data_shape, hidden_size=128, d_num=101).to(device)
 
-    train_GAR(myGAR, fidelity_manager, max_iter = 200, lr_init = 1e-2, normal = False, debugger = None)
+    train_ann_mor(mynn, fidelity_manager, epoch = 200, lr_init = 1e-2, normal = False)
 
-    total_params = sum(p.numel() for p in myGAR.parameters())
+    total_params = sum(p.numel() for p in mynn.parameters())
     print(f"Total number of parameters: {total_params}")
-    torch.save({ "model_state":myGAR.state_dict(),
-                 "hogp1_g": myGAR.hogp_list[0].g,
-                 "hogp1_A": myGAR.hogp_list[0].A,
-                 "hogp1_K": myGAR.hogp_list[0].K,
-                 "hogp1_K_eigen": myGAR.hogp_list[0].K_eigen,
-                 "hogp2_K": myGAR.hogp_list[1].K,
-                 "hogp2_K_eigen": myGAR.hogp_list[1].K_eigen,
-                 "hogp2_A": myGAR.hogp_list[1].A,
-                 "hogp2_g": myGAR.hogp_list[1].g,
-                }, data_path + "\model.pth")
+    torch.save(mynn.state_dict(), data_path + '/ann_mor.pth')
 
     with torch.no_grad():
-        # x_test = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].normalize_x(x_test)
-        ypred, ypred_var = myGAR(fidelity_manager, x_test)
-        # ypred, ypred_var = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].denormalize(ypred, ypred_var)
+        ypred = mynn(x_test)
 
     ##plot the results
     yte = y_test
@@ -135,5 +139,3 @@ if __name__ == "__main__":
         plt.tight_layout()
         plt.show()
         plt.clf()
-        
-    # plt.show()

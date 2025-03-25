@@ -4,10 +4,9 @@ test mf_mor
 '''
 import torch
 import numpy as np
-from utils.MF_data import MultiFidelityDataManager
+from utils.Ann_mor import *
 import matplotlib.pyplot as plt
 import tensorly
-from utils.GAR import *
 from utils.calculate_metrix import calculate_metrix
 import pandas as pd
 import os
@@ -18,41 +17,33 @@ tensorly.set_backend('pytorch')
 def prepare_data(data_path):
 
     x1 = np.load(data_path+'/mf_inall.npy')
-    # x1 = np.repeat(x1[:, np.newaxis, :], 100, axis=1)
     x1 = torch.tensor(x1, dtype=torch.float32)
-    # x1 = torch.fft.fft(x1,dim = -1)
-    # x1 = torch.abs(x1)
-    x = x1.reshape(x1.shape[0], -1)
     yl1= np.load(data_path+'/mf_low_f.npy')
     yl = torch.tensor(yl1, dtype=torch.float32)
-    # yl = torch.fft.fft(yl,dim = -1)
-    # yl = torch.abs(yl)
 
     yh1 = np.load(data_path+'/mf_high_f.npy')
     yh = torch.tensor(yh1, dtype=torch.float32)
-    # yh = torch.fft.fft(yh,dim = -1)
-    # yh = torch.abs(yh)
 
     time = np.load(data_path+'/mf_time.npy')
 
-    x_trainl = x[:100, :]
-    x_trainh = x[:100, :]
+    x_trainl = x1[:100, :]
+    x_trainh = x1[:100, :]
     y_l = yl[:100, :]
     y_h = yh[:100, :]
 
-    x_test = x[100:, :]
+    x_test = x1[100:, :]
     y_test = yh[100:, :]
     yl_test = yl[100:, :]
 
-    # x_te = np.load("F:/zhenjie/code/CPM-MOR/train_data/1t/sim_100_port1500_multiper/mf_inall.npy")
-    # x_te = torch.tensor(x_te, dtype=torch.float32)
-    # y_te_h = np.load("F:/zhenjie/code/CPM-MOR/train_data/1t/sim_100_port1500_multiper/mf_high_f.npy")
-    # y_te_h = torch.tensor(y_te_h, dtype=torch.float32)
-    # y_te_l = np.load("F:/zhenjie/code/CPM-MOR/train_data/1t/sim_100_port1500_multiper/mf_low_f.npy")
-    # y_te_l = torch.tensor(y_te_l, dtype=torch.float32)
-    # x_test = x_te[100:, :]
-    # y_test = y_te_h[100:, :]
-    # yl_test = y_te_l[100:, :]
+    x_te = np.load("F:/zhenjie/code/CPM-MOR/train_data/1t/sim_100_port1500_multiper/mf_inall.npy")
+    x_te = torch.tensor(x_te, dtype=torch.float32)
+    y_te_h = np.load("F:/zhenjie/code/CPM-MOR/train_data/1t/sim_100_port1500_multiper/mf_high_f.npy")
+    y_te_h = torch.tensor(y_te_h, dtype=torch.float32)
+    y_te_l = np.load("F:/zhenjie/code/CPM-MOR/train_data/1t/sim_100_port1500_multiper/mf_low_f.npy")
+    y_te_l = torch.tensor(y_te_l, dtype=torch.float32)
+    x_test = x_te[100:, :]
+    y_test = y_te_h[100:, :]
+    yl_test = y_te_l[100:, :]
 
     return x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time
     
@@ -67,32 +58,15 @@ if __name__ == "__main__":
     yl_test = yl_test.to(device)
 
     data_shape = [y_l[0].shape, y_h[0].shape]
+    fidelity_num = 2
 
-    initial_data = [
-        {'fidelity_indicator': 0,'raw_fidelity_name': '0', 'X': x_trainl.to(device), 'Y': y_l.to(device)},
-        {'fidelity_indicator': 1,'raw_fidelity_name': '1', 'X': x_trainh.to(device), 'Y': y_h.to(device)},
-    ]
-    fidelity_num = len(initial_data)
-    fidelity_manager = MultiFidelityDataManager(initial_data)
-
-    kk = torch.load(data_path + "\model.pth")
-    myGAR = GAR(fidelity_num, data_shape, if_nonsubset = False).to(device)
-    myGAR.load_state_dict(kk["model_state"])
-    myGAR.hogp_list[0].g = kk["hogp1_g"]
-    myGAR.hogp_list[0].K = kk["hogp1_K"]
-    myGAR.hogp_list[0].K_eigen = kk["hogp1_K_eigen"]
-    myGAR.hogp_list[0].A = kk["hogp1_A"]
-    myGAR.hogp_list[1].g = kk["hogp2_g"]
-    myGAR.hogp_list[1].K = kk["hogp2_K"]
-    myGAR.hogp_list[1].K_eigen = kk["hogp2_K_eigen"]
-    myGAR.hogp_list[1].A = kk["hogp2_A"]
+    mynn = ann_mor(fidelity_num , data_shape, hidden_size=128, d_num=101).to(device)
+    mynn.load_state_dict(torch.load(data_path + '/ann_mor.pth'))
     
     with torch.no_grad():
-        # x_test = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].normalize_x(x_test)
         pre_t1 = time.time()
-        ypred, ypred_var = myGAR(fidelity_manager, x_test)
+        ypred = mynn(x_test)
         pre_t2 = time.time()
-        # ypred, ypred_var = fidelity_manager.normalizelayer[myGAR.fidelity_num-1].denormalize(ypred, ypred_var)
 
     yte = y_test
 
@@ -104,7 +78,7 @@ if __name__ == "__main__":
     recording['mae'].append(metrics['mae'])
     recording['time'].append(pre_t2 - pre_t1)
     record = pd.DataFrame(recording)
-    record.to_csv(data_path + '/predit_result.csv', index = False)
+    record.to_csv(data_path + '/predit_result_ann.csv', index = False)
 
     ## plot the results with all ports -> test type 0
     if test_type == 0:
