@@ -4,3 +4,5 @@ train_data/
 !train_data/*.md
 __pycache__/
 utils/__pycache__
+B_SVD_data/
+SVD_data/
