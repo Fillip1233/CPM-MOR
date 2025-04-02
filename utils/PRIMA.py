@@ -91,6 +91,7 @@ def PRIMA_sp(E=None, A=None, B=None, s=None, q=None):
         XX = np.hstack([XX, X[i]])
     # XX = np.real(XX)
     # print('The original order is', n, 'the reduced order is', q)
+    XX,_ = qr_deflated(XX, tol=1e-3)
 
     return XX
 

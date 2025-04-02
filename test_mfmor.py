@@ -60,7 +60,7 @@ if __name__ == "__main__":
     test_type = 1
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port1500')
+    data_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper')
     x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1 = prepare_data(data_path)
     x_test = x_test.to(device)
     y_test = y_test.to(device)
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     recording['mae'].append(metrics['mae'])
     recording['time'].append(pre_t2 - pre_t1)
     record = pd.DataFrame(recording)
-    record.to_csv(data_path + '/predit_result.csv', index = False)
+    record.to_csv(data_path + '/predit_result1.csv', index = False)
 
     ## plot the results with all ports -> test type 0
     if test_type == 0:

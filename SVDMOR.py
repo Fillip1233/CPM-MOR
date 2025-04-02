@@ -12,25 +12,45 @@ from scipy.sparse.linalg import splu
 from scipy.sparse.linalg import spsolve
 import scipy.sparse as sp
 
-def svdmor(G, in_mat, out_mat, threshold):
+def svdmor(G, in_mat, out_mat, threshold, load_path=None):
     
     lu = splu(G)
-    L = spsolve(lu.U.T, out_mat)
-    R = spsolve(lu.L, in_mat)
-    B = sp.hstack([L, R])
-    p = L.shape[1]
-    q = R.shape[1]
-    E_l = sp.vstack([
-            sp.eye(p),
-            sp.csr_matrix((q, p))
-    ])
-    E_r = sp.vstack([  
-            sp.csr_matrix((p, q)), 
-            sp.eye(q),              
-    ])
+    # # L = spsolve(lu.U.T, out_mat)
+    # # R = spsolve(lu.L, in_mat)
+    if load_path == None:
+        L = lu.solve(out_mat.toarray(), trans='T')  # 直接求解 U.T x = out_mat
+        R = lu.solve(in_mat.toarray(), trans='N')
+        L = lu.L.T @ L
+        R = lu.U @ R
+        B = np.hstack([L, R])
+        p = L.shape[1]
+        q = R.shape[1]
+        E_l = sp.vstack([
+                sp.eye(p),
+                sp.csr_matrix((q, p))
+        ])
+        E_r = sp.vstack([  
+                sp.csr_matrix((p, q)), 
+                sp.eye(q),              
+        ])
 
-    B = B.toarray()
-    U, S, V = np.linalg.svd(B, full_matrices=False)
+        # B = B.toarray()
+        U, S, V = np.linalg.svd(B, full_matrices=False)
+    else:
+        p = out_mat.shape[1]
+        q = in_mat.shape[1]
+        E_l = sp.vstack([
+                sp.eye(p),
+                sp.csr_matrix((q, p))
+        ])
+        E_r = sp.vstack([  
+                sp.csr_matrix((p, q)), 
+                sp.eye(q),              
+        ])
+        U = np.load(load_path+r"/U1.npy")
+        S = np.load(load_path+r"/S1.npy")
+        V = np.load(load_path+r"/V1.npy")
+
     indices = S >= threshold
     U_new = U[:, indices]               
     S_new = S[indices]                  
