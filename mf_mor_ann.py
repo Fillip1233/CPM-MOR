@@ -13,54 +13,8 @@ import sys
 tensorly.set_backend('pytorch')
 from utils.calculate_metrix import calculate_metrix
 import pandas as pd
+from utils.load_data import *
 import time
-
-def prepare_data(data_path):
-
-    x1 = np.load(data_path+'/mf_inall.npy')
-    x1 = torch.tensor(x1, dtype=torch.float32)
-    yl1= np.load(data_path+'/mf_low_f.npy')
-    yl = torch.tensor(yl1, dtype=torch.float32)
-
-    yh1 = np.load(data_path+'/mf_high_f.npy')
-    yh = torch.tensor(yh1, dtype=torch.float32)
-
-    time = np.load(data_path+'/mf_time.npy')
-
-    x_trainl = x1[:100, :]
-    x_trainh = x1[:100, :]
-    y_l = yl[:100, :]
-    y_h = yh[:100, :]
-
-    x_test = x1[100:, :]
-    y_test = yh[100:, :]
-    yl_test = yl[100:, :]
-
-    # x1 = np.load(data_path+'/mf_inall.npy')
-    # x2 = np.load(data_path+'_multiper'+'/mf_inall.npy')
-    # x1 = torch.tensor(x1, dtype=torch.float32)
-    # x2 = torch.tensor(x2, dtype=torch.float32)
-    # x_trainl = torch.cat((x1[:100,:], x2[:100,:]), dim = 0)
-    # x_trainh = x_trainl
-    # yl1= np.load(data_path+'/mf_low_f.npy')
-    # yl2= np.load(data_path+'_multiper'+'/mf_low_f.npy')
-    # yl1 = torch.tensor(yl1, dtype=torch.float32)
-    # yl2 = torch.tensor(yl2, dtype=torch.float32)
-    # y_l = torch.cat((yl1[:100,:], yl2[:100,:]), dim = 0)
-
-    # yh1 = np.load(data_path+'/mf_high_f.npy')
-    # yh1 = torch.tensor(yh1, dtype=torch.float32)
-    # yh2 = np.load(data_path+'_multiper'+'/mf_high_f.npy')
-    # yh2 = torch.tensor(yh2, dtype=torch.float32)
-    # y_h = torch.cat((yh1[:100, :], yh2[:100,:]), dim = 0)
-
-    # time = np.load(data_path+'/mf_time.npy')
-
-    # x_test = torch.cat((x1[100:, :], x2[100:, :]), dim = 0)
-    # y_test = torch.cat((yh1[100:, :], yh2[100:, :]), dim = 0)
-    # yl_test = torch.cat((yl1[100:, :], yl2[100:, :]), dim = 0)
-
-    return x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time
     
 if __name__ == "__main__":
     torch.manual_seed(1)

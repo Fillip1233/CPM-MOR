@@ -48,7 +48,8 @@ def computeInputs_new(VsourcesAll=None, IsourcesAll=None, t=None, func=None, *ar
                 ipha = np.tile(IsourcesAll[:, 3], (1, NT))
                 iamp = np.tile(IsourcesAll[:, 5], (1, NT))
                 ifrq = np.tile(IsourcesAll[:, 2], (1, NT))
-                ui = ioff + iamp*np.sin(2*np.pi*ifrq*ti) + ipha
+                # ui = ioff + iamp*np.sin(2*np.pi*ifrq*ti) + ipha  ##wrong?
+                ui = ioff + iamp * np.sin(2 *np.pi *ifrq *ti +ipha)
 
     else:
         if operator.eq(func, 'pulse'):

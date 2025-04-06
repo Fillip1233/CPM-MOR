@@ -6,77 +6,26 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorly
-from utils.res_ann import *
+from utils.tensor_ann import *
 import os
 import sys
 import argparse
 tensorly.set_backend('pytorch')
 from utils.calculate_metrix import calculate_metrix
+from utils.load_data import *
 import pandas as pd
 import time
 
-# def prepare_data(data_path):
+# class waveform_data(Dataset):
+#     def __init__(self, u, y):
+#         self.u = u
+#         self.y = y
 
-#     x1 = np.load(data_path+'/mf_inall.npy')
-#     x2 = np.load(data_path+'_multiper'+'/mf_inall.npy')
-#     x1 = torch.tensor(x1, dtype=torch.float32)
-#     x2 = torch.tensor(x2, dtype=torch.float32)
-#     x_trainl = torch.cat((x1[:100,:], x2[:100,:]), dim = 0)
-#     x_trainh = x_trainl
-#     yl1= np.load(data_path+'/mf_low_f.npy')
-#     yl2= np.load(data_path+'_multiper'+'/mf_low_f.npy')
-#     yl1 = torch.tensor(yl1, dtype=torch.float32)
-#     yl2 = torch.tensor(yl2, dtype=torch.float32)
-#     y_l = torch.cat((yl1[:100,:], yl2[:100,:]), dim = 0)
-
-#     yh1 = np.load(data_path+'/mf_high_f.npy')
-#     yh1 = torch.tensor(yh1, dtype=torch.float32)
-#     yh2 = np.load(data_path+'_multiper'+'/mf_high_f.npy')
-#     yh2 = torch.tensor(yh2, dtype=torch.float32)
-#     y_h = torch.cat((yh1[:100, :], yh2[:100,:]), dim = 0)
-
-#     time = np.load(data_path+'/mf_time.npy')
-
-#     x_test = torch.cat((x1[100:, :], x2[100:, :]), dim = 0)
-#     y_test = torch.cat((yh1[100:, :], yh2[100:, :]), dim = 0)
-#     yl_test = torch.cat((yl1[100:, :], yl2[100:, :]), dim = 0)
-
-#     return x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time
-
-def prepare_data(data_path):
-
-    x1 = np.load(data_path+'/mf_inall.npy')
-    x = torch.tensor(x1, dtype=torch.float32)
-   
-    yl1= np.load(data_path+'/mf_low_f.npy')
-    yl = torch.tensor(yl1, dtype=torch.float32)
-
-    yh1 = np.load(data_path+'/mf_high_f.npy')
-    yh = torch.tensor(yh1, dtype=torch.float32)
-
-    time = np.load(data_path+'/mf_time.npy')
-
-    x_trainl = x[:100, :]
-    x_trainh = x[:100, :]
-    y_l = yl[:100, :]
-    y_h = yh[:100, :]
-
-    x_test = x[100:, :]
-    y_test = yh[100:, :]
-    yl_test = yl[100:, :]
-
-    return x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time
-
-class waveform_data(Dataset):
-    def __init__(self, u, y):
-        self.u = u
-        self.y = y
-
-    def __len__(self):
-        return len(self.u)
+#     def __len__(self):
+#         return len(self.u)
     
-    def __getitem__(self, idx):
-        return self.u[idx], self.y[idx]
+#     def __getitem__(self, idx):
+#         return self.u[idx], self.y[idx]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An example program with command-line arguments")
@@ -96,13 +45,18 @@ if __name__ == "__main__":
     yl_test = yl_test.to(device)
 
     data_shape = [y_l[0].shape, y_h[0].shape]
-    y_res = y_h - y_l
-    waveform_dataset = waveform_data(x_trainh.to(device), y_res.to(device))
+    initial_data = [
+        {'fidelity_indicator': 0,'raw_fidelity_name': '0', 'X': x_trainl.to(device), 'Y': y_l.to(device)},
+        {'fidelity_indicator': 1,'raw_fidelity_name': '1', 'X': x_trainh.to(device), 'Y': y_h.to(device)},
+        
+    ]
+    fidelity_num = len(initial_data)
+    fidelity_manager = MultiFidelityDataManager(initial_data)
 
-    mynn = res_ann(data_shape, hidden_size=args.hidden_size, d_num=101).to(device)
+    mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=101).to(device)
 
     tr_time1 = time.time()
-    train_res_ann(mynn, x_trainh.to(device), y_l.to(device), y_h.to(device), lr = args.lr, epoch = args.epoch)
+    train_tensor_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
     tr_time2 = time.time()
 
     total_params = sum(p.numel() for p in mynn.parameters())

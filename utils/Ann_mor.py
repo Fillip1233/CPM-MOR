@@ -79,11 +79,11 @@ class ann_mor(nn.Module):
 
         
     
-def train_ann_mor(ann_mor, data_manager, lr_init = 0.01, epoch = 100, normal = False):
+def train_ann_mor(ann_mor, data_manager, lr = 0.01, epoch = 100, normal = False):
     
     criterion = nn.MSELoss()
     for i_fidelity in range(ann_mor.fidelity_num):
-        optimizer = torch.optim.Adam(ann_mor.parameters(), lr = lr_init)
+        optimizer = torch.optim.Adam(ann_mor.parameters(), lr = lr)
         if i_fidelity == 0:
             x_low, y_low = data_manager.get_data(i_fidelity, normal = normal)
             for i in range(epoch):
