@@ -279,7 +279,7 @@ if __name__ == '__main__':
         tprima = toc - tic
         logging.info("PRIMA-MOR:")
         logging.info('MOR completed. Time used:{} s '.format(tprima))
-        logging.info('The original order is{}, the reduced order is {}'.format(N, nr_2))
+        logging.info('The original order is{}, the reduced order is {}'.format(N, nr_1))
         np.savez(save_path + '/prima_mor_data.npz', Cr_1 = Cr_1, Gr_1 = Gr_1, Br_1 = Br_1, Or_1 = Or_1, XX_1 = XX_1)
 
 

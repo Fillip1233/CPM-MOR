@@ -37,10 +37,10 @@ class ann_mor(nn.Module):
             self.f_list.append( torch.nn.Sequential(
             nn.Linear(d_num, hidden_size),
             nn.SiLU(),
-            nn.Linear(hidden_size, hidden_size),
-            nn.SiLU(),
-            nn.Linear(hidden_size, hidden_size),
-            nn.SiLU(),
+            # nn.Linear(hidden_size, hidden_size),
+            # nn.SiLU(),
+            # nn.Linear(hidden_size, hidden_size),
+            # nn.SiLU(),
             nn.Linear(hidden_size, d_num),
         ))
         self.f_list = torch.nn.ModuleList(self.f_list)

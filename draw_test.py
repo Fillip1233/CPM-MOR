@@ -16,26 +16,24 @@ from utils.alpha_ann import *
 from utils.res_ann import *
 from utils.tensor_rnn import *
 from utils.tensor_lstm import *
-from utils.single_gar import *
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An example program with command-line arguments")
     parser.add_argument("--lr", type= float, default= 1e-2)
-    parser.add_argument("--epoch", type= int, default= 300)
+    parser.add_argument("--epoch", type= int, default= 200)
     parser.add_argument("--bs", type= int, default= 100)
     parser.add_argument("--hidden_size", type= int, default= 128)
-    parser.add_argument("--draw_type", type= int, default= 1)
+    parser.add_argument("--draw_type", type= int, default= 0)
     parser.add_argument("--module_name", type= str, default= "tensor_ann")
-    parser.add_argument("--test_over", type= int, default= 1)
+    parser.add_argument("--test_over", type= int, default= 0)
 
     args = parser.parse_args()
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_diff')
-    # x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1 = prepare_data_mix(data_path)
     x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path,prima=True)
     if args.test_over:
-        data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_over')
+        data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_sin')
         x_test, y_test, yl_test, time1, pr = load_over_data(data_path1)
     x_test = x_test.to(device)
     y_test = y_test.to(device)
@@ -43,105 +41,59 @@ if __name__ == "__main__":
     pr = pr.to(device)
 
     data_shape = [y_l[0].shape, y_h[0].shape]
-    initial_data = [
-        {'fidelity_indicator': 0,'raw_fidelity_name': '0', 'X': x_trainl.to(device), 'Y': y_l.to(device)},
-        {'fidelity_indicator': 1,'raw_fidelity_name': '1', 'X': x_trainh.to(device), 'Y': y_h.to(device)},
-        
-    ]
-    fidelity_num = len(initial_data)
-    fidelity_manager = MultiFidelityDataManager(initial_data)
+    
     if args.module_name == 'res_ann':
         mynn = res_ann(hidden_size=args.hidden_size, d_num=101).to(device)
-        tr_time1 = time.time()
-        train_res_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
-        tr_time2 = time.time()
-        torch.save(mynn.state_dict(), data_path + '/res_ann.pth')
         
     elif args.module_name == 'alpha_ann':
         mynn = alpha_ann(hidden_size=args.hidden_size, d_num=101).to(device)
-        tr_time1 = time.time()
-        train_alpha_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
-        torch.save(mynn.state_dict(), data_path + '/alpha_ann.pth')
-        print('alpha:', mynn.alpha)
-        tr_time2 = time.time()
+        
     elif args.module_name == 'tensor_ann':
         mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=101).to(device)
-        tr_time1 = time.time()
-        train_tensor_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
-        tr_time2 = time.time()
-        torch.save(mynn.state_dict(), data_path + '/tensor_ann.pth')
+        mynn.load_state_dict(torch.load(data_path + '/tensor_ann.pth'))
         
     elif args.module_name == 'tensor_rnn':
         mynn = tensor_rnn(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
-        tr_time1 = time.time()
-        train_tensor_rnn(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
-        tr_time2 = time.time()
-        torch.save(mynn.state_dict(), data_path + '/tensor_rnn.pth')
         
     elif args.module_name == 'tensor_lstm':
         mynn = tensor_lstm(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
-        tr_time1 = time.time()
-        train_tensor_lstm(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
-        tr_time2 = time.time()
-        torch.save(mynn.state_dict(), data_path + '/tensor_lstm.pth')
-    elif args.module_name == 'gar':
-        mynn = gar(data_shape).to(device)
-        tr_time1 = time.time()
-        train_gar(mynn, fidelity_manager, max_iter = args.epoch, lr_init = args.lr)
-        tr_time2 = time.time()
-        
+
 
     total_params = sum(p.numel() for p in mynn.parameters())
     print(f"Total number of parameters: {total_params}")
     with torch.no_grad():
         pre_t1 = time.time()
-        if args.module_name == 'gar':
-            ypred = mynn.forward(fidelity_manager, x_test, yl_test)
-        else:
-            ypred = mynn.forward_h(x_test, yl_test)
+        yafter1, yafter2 = mynn.draw(yl_test)
         pre_t2 = time.time()
 
     ##plot the results
-    yte = y_test
-
-    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[],'train_time':[]}
-    metrics = calculate_metrix(y_test = yte[:10,:], y_mean_pre = ypred[:10,:])
-    recording['rmse'].append(metrics['rmse'])
-    recording['nrmse'].append(metrics['nrmse'])
-    recording['r2'].append(metrics['r2'])
-    recording['mae'].append(metrics['mae'])
-    recording['pred_time'].append(pre_t2 - pre_t1)
-    recording['train_time'].append(tr_time2 - tr_time1)
-    record = pd.DataFrame(recording)
-    if args.test_over:
-        record.to_csv(data_path1 + '/{}_over_res.csv'.format(args.module_name), index = False)
-    else:
-        record.to_csv(data_path + '/{}_res_improve.csv'.format(args.module_name), index = False)
+    yte = yafter2
 
     if args.draw_type == 0:
         #全端口波形图
         for i in range(100):
-            fig, axs = plt.subplots(1, 3, figsize=(10, 6))
+            fig, axs = plt.subplots(1, 4, figsize=(20, 6))
 
             # cbar_ax1 = fig.add_axes([0.02, 0.3, 0.03, 0.4])
             cbar_ax2 = fig.add_axes([0.94, 0.3, 0.03, 0.4])
-            vmin = torch.min(yte[i])
-            vmax = torch.max(yte[i])
+            vmin = torch.min(y_test[i])
+            vmax = torch.max(y_test[i])
 
-            im1 = axs[0].imshow(yte[i].cpu(), cmap='viridis', interpolation='nearest', vmin = vmin, vmax = vmax, aspect='auto')
-            axs[0].set_title('Groundtruth')
+            im1 = axs[0].imshow(yafter1[i].cpu(), cmap='viridis', interpolation='nearest', vmin = vmin, vmax = vmax, aspect='auto')
+            axs[0].set_title('yafter1')
 
-            axs[1].imshow(ypred[i].cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
-            axs[1].set_title('Predict')
+            axs[1].imshow(yafter2[i].cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
+            axs[1].set_title('yafter2')
 
-            im2 = axs[2].imshow((yte[i].cpu()-ypred[i].cpu()).abs(), cmap = 'viridis', interpolation='nearest', vmin = vmin, vmax = vmax, aspect='auto')
-            axs[2].set_title('Difference')
+            axs[2].imshow(yl_test[i].cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
+            axs[2].set_title('y_l')
+
+            axs[3].imshow((y_test[i]-yafter2[i]).cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
+            axs[3].set_title('y_h')
 
             # cbar1 = fig.colorbar(im1, cax=cbar_ax1)
-            cbar2 = fig.colorbar(im2, cax=cbar_ax2,location='right', fraction=0.02, pad=0.02)
-            fig.suptitle("ibmpg3t time and voltage model predictions and errors for each port", fontsize=14)
+            cbar2 = fig.colorbar(im1, cax=cbar_ax2,location='right', fraction=0.02, pad=0.02)
             # plt.tight_layout()
-            fig.subplots_adjust(left=0.05, right=0.92, top=0.85, bottom=0.1)
             plt.show()
             plt.clf()
     
@@ -149,7 +101,6 @@ if __name__ == "__main__":
         #端口响应总和
         plt.figure(figsize=(8, 5))
         for i in range(100):
-            # i = 0
             y_1 = ypred[i]
             yy_1 = torch.zeros((y_1.shape[1])).to(device)
             for j in range(y_1.shape[0]):
@@ -172,9 +123,9 @@ if __name__ == "__main__":
             plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
             plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='Predict', markevery = 28, markersize=6, linewidth=1.5)
             plt.legend(fontsize=12)
-            plt.title("ibmpg1t total port response", fontsize=14)
+            plt.title("MF-result", fontsize=14)
             plt.xlabel("Time (s)", fontsize=12)
-            plt.ylabel("Response result (V)", fontsize=12)
+            plt.ylabel("result", fontsize=12)
             plt.grid()
             plt.tight_layout()
             plt.show()
@@ -208,5 +159,3 @@ if __name__ == "__main__":
             plt.tight_layout()
             plt.show()
             plt.clf()
-    if args.draw_type == 3:
-        pass

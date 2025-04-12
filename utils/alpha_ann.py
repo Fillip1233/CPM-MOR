@@ -12,10 +12,10 @@ class alpha_ann(nn.Module):
         self.f = torch.nn.Sequential(
             nn.Linear(d_num, hidden_size),
             nn.SiLU(),
-            nn.Linear(hidden_size, hidden_size),
-            nn.SiLU(),
-            nn.Linear(hidden_size, hidden_size),
-            nn.SiLU(),
+            # nn.Linear(hidden_size, hidden_size),
+            # nn.SiLU(),
+            # nn.Linear(hidden_size, hidden_size),
+            # nn.SiLU(),
             nn.Linear(hidden_size, d_num),
         )
     
