@@ -1,6 +1,8 @@
 '''
 2025-3-8
 generate mf_mor data for model
+2025-4-6
+add generate sin and over size data
 '''
 import scipy.io as spio
 import random
@@ -83,7 +85,7 @@ def generate_udiff(port_num, circuit_size, seed):
     elif circuit_size == 2:
         vl_range = (5.308e-6, 9.672e-6)
         vh_range = (0.013, 0.024)
-    elif circuit_size == 3:
+    elif circuit_size == 3 or circuit_size == 4:
         vl_range = (6.367e-7, 1.830e-6)
         vh_range = (0.002, 0.005)
     # elif circuit_size == 4:
@@ -180,19 +182,43 @@ def generate_uover(port_num, circuit_size, seed):
     IS = np.vstack(IS)
     return IS, VS
 
+def generate_sin(port_num, circuit_size, seed):
+    VS = []
+    VS = np.array(VS)
+    ##sourcesAll = [node1, node2, freq, phase, offset, amp]
+    # usin = offset+amp⋅sin(2π⋅freq⋅t+phase)
+    if circuit_size == 1:
+        offset_range = (1.748e-5, 4.139e-5)
+        amp_range = (0.036, 0.121)
+        freq_range = (4e9, 5e9)
+    node1 = 1
+    node2 = 0
+    phase = 0
+    # freq = 1e10
+    IS = []
+    for k in range(port_num):
+        random.seed(seed+200+k)
+        offset = random.uniform(*offset_range)
+        amp = random.uniform(*amp_range)
+        freq = random.uniform(*freq_range)
+        IS.append([node1, node2, freq, phase, offset, amp])
+    IS = np.vstack(IS)
+    return IS, VS
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="generate mf_mor data for model")
-    parser.add_argument("--port_num", type=int, default= 2000)
+    parser.add_argument("--port_num", type=int, default= 1000)
     parser.add_argument("--circuit_size", type=int, default= 1)
     parser.add_argument("--threshold", type=float, default= 1.0)
     parser.add_argument("--svd_type", type=int, default= 1)
-    parser.add_argument("--load", type=int, default= 1)
-    parser.add_argument("--generate", type=int, default= 1)
-    parser.add_argument("--data_num", type=int, default= 100)
+    parser.add_argument("--load", type=int, default= 0)
+    parser.add_argument("--generate", type=int, default= 0)
+    parser.add_argument("--data_num", type=int, default= 200)
+    ## srcType: 'pulse' or 'sin'
+    parser.add_argument("--srcType", type=str, default= 'sin')
     args = parser.parse_args()
-    save_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_over')
+    save_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port1000_multiper_diff')
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -285,15 +311,15 @@ if __name__ == '__main__':
 
     else:
         # load
-        save_path2 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_diff')
-        data = np.load(save_path2 + '/mf_mor_data.npz')
+        # save_path2 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_diff')
+        data = np.load(save_path + '/mf_mor_data.npz')
         Cr_2 = data['Cr_2']
         Gr_2 = data['Gr_2']
         Br_2 = data['Br_2']
         Or_2 = data['Or_2']
         XX_2 = data['XX_2']
 
-        data1 = np.load(save_path2 + '/prima_mor_data.npz')
+        data1 = np.load(save_path + '/prima_mor_data.npz')
         Cr_1 = data1['Cr_1']
         Gr_1 = data1['Gr_1']
         Br_1 = data1['Br_1']
@@ -316,15 +342,16 @@ if __name__ == '__main__':
             seed = i
             # IS, VS = generate_u(port_num, circuit_size, seed)
             # IS, VS = generate_udiff(port_num, circuit_size, seed)
-            IS, VS = generate_uover(port_num, circuit_size, seed)
+            # IS, VS = generate_uover(port_num, circuit_size, seed)
+            IS, VS = generate_sin(port_num, circuit_size, seed)
             t1 = time.time()
-            xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = 'pulse')
+            xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = args.srcType)
             y = O.T@xAll
             t2 = time.time()
             logging.info("High-fidelity data generated. Time used: {}s ".format(t2-t1))
 
             t3 = time.time()
-            xAll_svd, time_svd, dtAll_svd, urAll_svd = tdIntLinBE_new(t0, t_all, dt, Cr_2, -Gr_2, Br_2, VS, IS, xr2, srcType = 'pulse')
+            xAll_svd, time_svd, dtAll_svd, urAll_svd = tdIntLinBE_new(t0, t_all, dt, Cr_2, -Gr_2, Br_2, VS, IS, xr2, srcType = args.srcType)
             y_svd = Or_2.T@xAll_svd
             t4 = time.time()
             logging.info("Low-fidelity data generated. Time used: {}s ".format(t4-t3))
@@ -332,7 +359,7 @@ if __name__ == '__main__':
             # if i > 99 and i < 110:
             if i < 10:
                 t5 = time.time()
-                xAll_mor, time_mor, dtAll_mor, urAll_mor = tdIntLinBE_new(t0, t_all, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr1, srcType = 'pulse')
+                xAll_mor, time_mor, dtAll_mor, urAll_mor = tdIntLinBE_new(t0, t_all, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr1, srcType = args.srcType)
                 y_mor = Or_1.T@xAll_mor
                 t6 = time.time()
                 logging.info("PRIMA data generated. Time used: {}s ".format(t6-t5))
@@ -362,15 +389,16 @@ if __name__ == '__main__':
         # use to check the data
         # IS, VS = generate_u(port_num, circuit_size, seed = 1)
         # IS, VS = generate_udiff(port_num,circuit_size, seed=1)
-        IS, VS = generate_uover(port_num,circuit_size, seed=1)
+        # IS, VS = generate_uover(port_num,circuit_size, seed=1)
+        IS, VS = generate_sin(port_num, circuit_size, seed = 1)
         
-        xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = 'pulse')
+        xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = args.srcType)
         y = O.T@xAll
 
-        xAll_svd, time_svd, dtAll_svd, urAll_svd = tdIntLinBE_new(t0, t_all, dt, Cr_2, -Gr_2, Br_2, VS, IS, xr2, srcType = 'pulse')
+        xAll_svd, time_svd, dtAll_svd, urAll_svd = tdIntLinBE_new(t0, t_all, dt, Cr_2, -Gr_2, Br_2, VS, IS, xr2, srcType = args.srcType)
         y_svd = Or_2.T@xAll_svd
 
-        xAll_mor, time_mor, dtAll_mor, urAll_mor = tdIntLinBE_new(t0, t_all, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr1, srcType = 'pulse')
+        xAll_mor, time_mor, dtAll_mor, urAll_mor = tdIntLinBE_new(t0, t_all, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr1, srcType = args.srcType)
         y_mor = Or_1.T@xAll_mor
 
         yy = np.zeros((y.shape[1]))
@@ -393,6 +421,6 @@ if __name__ == '__main__':
         plt.grid(alpha=0.5)
         plt.tight_layout()
         # plt.show()
-        plt.savefig("1t_over.png")
+        plt.savefig("1t_sin.png")
         plt.close()    
     pass

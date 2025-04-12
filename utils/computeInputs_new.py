@@ -19,6 +19,8 @@ def computeInputs_new(VsourcesAll=None, IsourcesAll=None, t=None, func=None, *ar
     # uv = np.array(uv)
     # ui = np.array(ui)
     if operator.eq(func, 'sin'):
+        if isinstance(t, int) or isinstance(t,float): ## zhenjie add
+            t = np.array([t])
         if len(t) == 1:
             # sourcesAll = [node1, node2, freq, phase, offset, amp]
             if not (np.all(VsourcesAll == 0)) == 1:
@@ -29,6 +31,8 @@ def computeInputs_new(VsourcesAll=None, IsourcesAll=None, t=None, func=None, *ar
                 #   # ui = ioffset + iamp.*sin(2*pi*ifreq*0+iphi);
                 ui = IsourcesAll[:, 4] + IsourcesAll[:, 5]*np.sin(
                     2 * np.pi* IsourcesAll[:, 2]*t + IsourcesAll[:, 3])
+                ui = ui.reshape(-1,1) ## zhenjie add
+            
         else:
             t = t[:]
             t = t.T
