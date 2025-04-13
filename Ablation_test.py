@@ -32,7 +32,6 @@ if __name__ == "__main__":
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data_path = os.path.join(sys.path[0], 'train_data/3t/sim_100_port2000_multiper_diff')
-    # x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1 = prepare_data_mix(data_path)
     x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path,prima=True)
     if args.test_over:
         data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_over')

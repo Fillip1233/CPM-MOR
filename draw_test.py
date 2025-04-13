@@ -1,6 +1,6 @@
 '''
-2025/4/2
-top module
+2025/4/12
+a script to draw the tensor mapping results 
 '''
 import argparse
 import os
