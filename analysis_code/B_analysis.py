@@ -6,7 +6,7 @@ import numpy as np
 import scipy.io as spio
 from scipy.sparse import csc_matrix
 
-data = spio.loadmat("./IBM_transient/ibmpg2t.mat")
+data = spio.loadmat("./IBM_transient/ibmpg5t.mat")
 
 E, A, B = data['E'] * 1e-0, data['A'], data['B']
 
@@ -20,7 +20,7 @@ rows_with_more_than_non_zero = np.sum(non_zero_counts > 0)
 print("电路端口数:", rows_with_more_than_non_zero)
 rows_with_more_than_one_non_zero = np.sum(non_zero_counts > 1)
 print("连接电流源超过1的端口数:", rows_with_more_than_one_non_zero)
-
+pass
 
 # for i, count in enumerate(non_zero_counts):
 #     print(f"Column {i} has {count} non-zero elements.")
