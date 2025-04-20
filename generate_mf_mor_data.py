@@ -208,7 +208,7 @@ def generate_sin(port_num, circuit_size, seed):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="generate mf_mor data for model")
-    parser.add_argument("--port_num", type=int, default= 1000)
+    parser.add_argument("--port_num", type=int, default= 2000)
     parser.add_argument("--circuit_size", type=int, default= 1)
     parser.add_argument("--threshold", type=float, default= 1.0)
     parser.add_argument("--svd_type", type=int, default= 1)

@@ -23,14 +23,14 @@ if __name__ == "__main__":
     parser.add_argument("--epoch", type= int, default= 200)
     parser.add_argument("--bs", type= int, default= 100)
     parser.add_argument("--hidden_size", type= int, default= 128)
-    parser.add_argument("--draw_type", type= int, default= 0)
+    parser.add_argument("--draw_type", type= int, default= 2)
     parser.add_argument("--module_name", type= str, default= "tensor_ann")
     parser.add_argument("--test_over", type= int, default= 0)
 
     args = parser.parse_args()
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_diff')
+    data_path = os.path.join(sys.path[0], 'train_data/3t/sim_100_port2000_multiper_diff')
     x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path,prima=True)
     if args.test_over:
         data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_sin')
@@ -64,6 +64,7 @@ if __name__ == "__main__":
     with torch.no_grad():
         pre_t1 = time.time()
         yafter1, yafter2 = mynn.draw(yl_test)
+        ypred = mynn.forward_h(x_test, yl_test)
         pre_t2 = time.time()
 
     ##plot the results
@@ -72,7 +73,7 @@ if __name__ == "__main__":
     if args.draw_type == 0:
         #全端口波形图
         for i in range(100):
-            fig, axs = plt.subplots(1, 4, figsize=(20, 6))
+            fig, axs = plt.subplots(1, 5, figsize=(25, 6))
 
             # cbar_ax1 = fig.add_axes([0.02, 0.3, 0.03, 0.4])
             cbar_ax2 = fig.add_axes([0.94, 0.3, 0.03, 0.4])
@@ -85,11 +86,14 @@ if __name__ == "__main__":
             axs[1].imshow(yafter2[i].cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
             axs[1].set_title('yafter2')
 
-            axs[2].imshow(yl_test[i].cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
-            axs[2].set_title('y_l')
+            axs[2].imshow(ypred[i].cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
+            axs[2].set_title('y_pred')
 
-            axs[3].imshow((y_test[i]-yafter2[i]).cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
-            axs[3].set_title('y_h')
+            axs[3].imshow(yl_test[i].cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
+            axs[3].set_title('y_l')
+
+            axs[4].imshow((y_test[i]).cpu(), cmap='viridis', interpolation ='nearest', vmin = vmin, vmax = vmax, aspect='auto')
+            axs[4].set_title('y_h')
 
             # cbar1 = fig.colorbar(im1, cax=cbar_ax1)
             cbar2 = fig.colorbar(im1, cax=cbar_ax2,location='right', fraction=0.02, pad=0.02)
@@ -123,9 +127,9 @@ if __name__ == "__main__":
             plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
             plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='Predict', markevery = 28, markersize=6, linewidth=1.5)
             plt.legend(fontsize=12)
-            plt.title("MF-result", fontsize=14)
+            plt.title("Ablation of Component Contributions", fontsize=14)
             plt.xlabel("Time (s)", fontsize=12)
-            plt.ylabel("result", fontsize=12)
+            plt.ylabel("Response result(V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
             plt.show()
@@ -134,27 +138,34 @@ if __name__ == "__main__":
         #单个端口响应波形图
         plt.figure(figsize=(8, 5))
         example = 1
-        y_1 = ypred[example]
-        y_te = yte[example]
-        y_low = yl_test[example]
-        pr1 = pr[example+1]
+        y_pred = ypred[example]
+        y_af1 = yafter1[example]
+        y_af2 = yafter2[example]
+        yl_te = yl_test[example]
+        yh_te = y_test[example]
+
+        # pr1 = pr[example+1]
+
         for i in range(100):
-            yy_1 = torch.zeros((y_1.shape[1])).to(device)
-            yy_1 = y_1[i, :]
-            yy_te = torch.zeros((y_te.shape[1])).to(device)
-            yy_te = y_te[i, :]
-            yy_low = torch.zeros((y_low.shape[1])).to(device)
-            yy_low = y_low[i, :]
-            ppr = torch.zeros((pr1.shape[1])).to(device)
-            ppr += pr1[i, :]
-            plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity-GT', markevery = 35, markersize=6, linewidth=1.5)
-            plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
-            plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
-            plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='Predict', markevery = 28, markersize=6, linewidth=1.5)
+            # yy_1 = torch.zeros((y_1.shape[1])).to(device)
+            # yy_1 = y_1[i, :]
+            # yy_te = torch.zeros((y_te.shape[1])).to(device)
+            # yy_te = y_te[i, :]
+            # yy_low = torch.zeros((y_low.shape[1])).to(device)
+            # yy_low = y_low[i, :]
+            # ppr = torch.zeros((pr1.shape[1])).to(device)
+            # ppr = pr1[i, :]
+            plt.plot(time1, yl_te[i,:].cpu(), color='black', linestyle='-.', marker='*', label='Low fidelity', markevery = 35, markersize=6, linewidth=1.5)
+            plt.plot(time1, y_af1[i,:].cpu(), color='purple', linestyle='-.', marker='^', label='y_map1', markevery = 25, markersize=6, linewidth=1.5)
+            plt.plot(time1, y_af2[i,:].cpu(), color='orange', linestyle='--', marker='o', label='y_map', markevery = 30, markersize=6, linewidth=1.5)
+            plt.plot(time1, y_pred[i,:].cpu(), color='red', linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
+            plt.plot(time1, yh_te[i,:].cpu(), color='blue', linestyle='-.', marker='*', label='GT', markevery = 26, markersize=6, linewidth=1.5)
+    
+            
             plt.legend(fontsize=12)
-            plt.title("MF-result", fontsize=14)
+            plt.title("Ablation of Component Contributions", fontsize=14)
             plt.xlabel("Time (s)", fontsize=12)
-            plt.ylabel("result", fontsize=12)
+            plt.ylabel("Response result(V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
             plt.show()

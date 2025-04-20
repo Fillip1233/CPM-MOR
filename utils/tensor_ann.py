@@ -33,13 +33,16 @@ class tensor_ann(nn.Module):
         
         batch_size, port_num, d_num = u.shape
         u = u.view(-1, d_num)
+        # u = u.view(batch_size, port_num*d_num)
         u_f = self.f(u)
         u_f = u_f.view(batch_size, port_num, d_num)
+
         return u_f
     def forward_h(self, u, y_low):
         y_l_after = self.Tensor_linear_list[0](y_low)
         res = self(u)
         return res + y_l_after
+        # return y_l_after 
     
     def draw(self, y_low):
         y_l_after1  = tensorly.tenalg.mode_dot(y_low, self.Tensor_linear_list[0].vectors[0], 1)
@@ -57,6 +60,9 @@ def train_tensor_ann(tensor_ann ,data_manager, lr, epoch, normal = False):
         y_res = y_h - tensor_ann.Tensor_linear_list[0](y_l)
         u_pred = tensor_ann(x_h)
         loss = criterion(u_pred, y_res)
+
+        # y_l_after = tensor_ann.Tensor_linear_list[0](y_l)
+        # loss = criterion(y_h, y_l_after)
         
         loss.backward()
         optimizer.step()

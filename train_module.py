@@ -26,21 +26,23 @@ if __name__ == "__main__":
     parser.add_argument("--hidden_size", type= int, default= 128)
     parser.add_argument("--draw_type", type= int, default= 1)
     parser.add_argument("--module_name", type= str, default= "tensor_ann")
-    parser.add_argument("--test_over", type= int, default= 1)
+    parser.add_argument("--test_over", type= int, default= 0)
+    parser.add_argument("--cir", type= int, default= 6)
 
     args = parser.parse_args()
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_diff')
-    # x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1 = prepare_data_mix(data_path)
-    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path,prima=True)
+    data_path = os.path.join(sys.path[0], f'train_data/{args.cir}t/sim_100_port2000_multiper_diff')
+    # x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1,pr = prepare_data_mix(data_path,prima = True)
+    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path,prima=False)
     if args.test_over:
-        data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_over')
+        data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_sin')
         x_test, y_test, yl_test, time1, pr = load_over_data(data_path1)
     x_test = x_test.to(device)
     y_test = y_test.to(device)
     yl_test = yl_test.to(device)
-    pr = pr.to(device)
+    if pr is not None:
+        pr = pr.to(device)
 
     data_shape = [y_l[0].shape, y_h[0].shape]
     initial_data = [
@@ -55,13 +57,13 @@ if __name__ == "__main__":
         tr_time1 = time.time()
         train_res_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
         tr_time2 = time.time()
-        torch.save(mynn.state_dict(), data_path + '/res_ann.pth')
+        # torch.save(mynn.state_dict(), data_path + '/res_ann.pth')
         
     elif args.module_name == 'alpha_ann':
         mynn = alpha_ann(hidden_size=args.hidden_size, d_num=101).to(device)
         tr_time1 = time.time()
         train_alpha_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
-        torch.save(mynn.state_dict(), data_path + '/alpha_ann.pth')
+        # torch.save(mynn.state_dict(), data_path + '/alpha_ann.pth')
         print('alpha:', mynn.alpha)
         tr_time2 = time.time()
     elif args.module_name == 'tensor_ann':
@@ -69,14 +71,14 @@ if __name__ == "__main__":
         tr_time1 = time.time()
         train_tensor_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
         tr_time2 = time.time()
-        torch.save(mynn.state_dict(), data_path + '/tensor_ann.pth')
+        # torch.save(mynn.state_dict(), data_path + '/tensor_ann.pth')
         
     elif args.module_name == 'tensor_rnn':
         mynn = tensor_rnn(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
         tr_time1 = time.time()
         train_tensor_rnn(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
         tr_time2 = time.time()
-        torch.save(mynn.state_dict(), data_path + '/tensor_rnn.pth')
+        # torch.save(mynn.state_dict(), data_path + '/tensor_rnn.pth')
         
     elif args.module_name == 'tensor_lstm':
         mynn = tensor_lstm(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
@@ -105,7 +107,8 @@ if __name__ == "__main__":
     yte = y_test
 
     recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[],'train_time':[]}
-    metrics = calculate_metrix(y_test = yte[:10,:], y_mean_pre = ypred[:10,:])
+    # metrics = calculate_metrix(y_test = yte[:10,:], y_mean_pre = ypred[:10,:])
+    metrics = calculate_metrix(y_test = yte, y_mean_pre = ypred)
     recording['rmse'].append(metrics['rmse'])
     recording['nrmse'].append(metrics['nrmse'])
     recording['r2'].append(metrics['r2'])
@@ -139,7 +142,7 @@ if __name__ == "__main__":
 
             # cbar1 = fig.colorbar(im1, cax=cbar_ax1)
             cbar2 = fig.colorbar(im2, cax=cbar_ax2,location='right', fraction=0.02, pad=0.02)
-            fig.suptitle("ibmpg3t time and voltage model predictions and errors for each port", fontsize=14)
+            fig.suptitle(f"ibmpg{args.cir}t time and voltage model predictions and errors for each port", fontsize=14)
             # plt.tight_layout()
             fig.subplots_adjust(left=0.05, right=0.92, top=0.85, bottom=0.1)
             plt.show()
@@ -162,17 +165,19 @@ if __name__ == "__main__":
             yy_low = torch.zeros((y_low.shape[1])).to(device)
             for e in range(y_low.shape[0]):
                 yy_low += y_low[e, :]
-            pr1 = pr[i]
-            ppr = torch.zeros((pr1.shape[1])).to(device)
-            for p in range(pr1.shape[0]):
-                ppr += pr1[p, :]
-            plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity-GT', markevery = 35, markersize=6, linewidth=1.5)
+            if pr is not None:
+                pr1 = pr[i]
+                ppr = torch.zeros((pr1.shape[1])).to(device)
+                for p in range(pr1.shape[0]):
+                    ppr += pr1[p, :]
+            plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
             plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
+            if pr is not None:
+                plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
             
-            plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
-            plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='Predict', markevery = 28, markersize=6, linewidth=1.5)
+            plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
             plt.legend(fontsize=12)
-            plt.title("ibmpg1t total port response", fontsize=14)
+            plt.title(f"ibmpg{args.cir}t total port response", fontsize=14)
             plt.xlabel("Time (s)", fontsize=12)
             plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
@@ -182,28 +187,37 @@ if __name__ == "__main__":
     if args.draw_type == 2:
         #单个端口响应波形图
         plt.figure(figsize=(8, 5))
-        example = 1
+        example = 6
         y_1 = ypred[example]
         y_te = yte[example]
         y_low = yl_test[example]
-        pr1 = pr[example+1]
+        if pr is not None:
+            pr1 = pr[example]
         for i in range(100):
             yy_1 = torch.zeros((y_1.shape[1])).to(device)
-            yy_1 = y_1[i, :]
+            yy_1 = y_1[i+300, :]
             yy_te = torch.zeros((y_te.shape[1])).to(device)
-            yy_te = y_te[i, :]
+            yy_te = y_te[i+300, :]
             yy_low = torch.zeros((y_low.shape[1])).to(device)
-            yy_low = y_low[i, :]
-            ppr = torch.zeros((pr1.shape[1])).to(device)
-            ppr += pr1[i, :]
-            plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity-GT', markevery = 35, markersize=6, linewidth=1.5)
+            yy_low = y_low[i+300, :]
+            if pr is not None:
+                ppr = torch.zeros((pr1.shape[1])).to(device)
+                ppr = pr1[i+300, :]
+            
+            plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
             plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
-            plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
-            plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='Predict', markevery = 28, markersize=6, linewidth=1.5)
+            if pr is not None:
+                plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
+            plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
+            # plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='LF', markevery = 35, markersize=6, linewidth=1.5)
+            # plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GT', markevery = 25, markersize=6, linewidth=1.5)
+            # if pr is not None:
+            #     plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
+            # plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='LF+', markevery = 28, markersize=6, linewidth=1.5)
             plt.legend(fontsize=12)
-            plt.title("MF-result", fontsize=14)
+            plt.title(f"ibmpg{args.cir}t single-Port output response", fontsize=14)
             plt.xlabel("Time (s)", fontsize=12)
-            plt.ylabel("result", fontsize=12)
+            plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
             plt.show()

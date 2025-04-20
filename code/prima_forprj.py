@@ -21,7 +21,7 @@ import utils.PRIMA as PRIMA
 
 # This will be the main function through which we define both tic() and toc()
 
-data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
+data = spio.loadmat("./IBM_transient/ibmpg3t.mat")
 
 # the 1e-6 factor is for MNA_5 only. Remove it for other cases
 E, A, B = data['E'] * 1e-0, data['A'], data['B']  # rename the matrices
@@ -145,6 +145,14 @@ nd = 500
 # main.m:71
 # plt.plot(time, y_mor[0, :], 'r-o')
 
-plt.plot(time, y[0, :], 'b-o', time, y_mor[0, :], 'r-o')
+# plt.plot(time, y[0, :], 'b-o', time, y_mor[0, :], 'r-o')
+plt.plot(time, y[0, :],color='blue', label='Origin', marker = '*',markevery = 10,markersize = 6,linewidth=1.5)
+plt.plot(time, y_mor[0, :],color='red', label='PRIMA', marker = 'o',markevery =6,markersize = 6,linewidth=1.5)
+plt.legend(fontsize=12)
+plt.xlabel('Time (s)',fontsize=12)
+plt.ylabel('Voltage (V)',fontsize=12)
+plt.title('Transient Response',fontsize=12)
+plt.grid()
+plt.tight_layout()
 plt.show()
 pass
