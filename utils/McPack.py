@@ -221,7 +221,7 @@ if __name__ == "__main__":
     # G_hat, C_hat, B_hat, L_hat = mcpack(C, G, B, L, zQ, k, g, r)
     
     # print(f"降阶模型维度: {G_hat.shape}")
-    data = spio.loadmat("D:\CPM项目\code\CPM-MOR\CPM-MOR\IBM_transient\ibmpg1t.mat")
+    data = spio.loadmat("F:\zhenjie\code\CPM-MOR\IBM_transient\ibmpg1t.mat")
     port_num = 100
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
     B = B.tocsc()

@@ -17,6 +17,7 @@ from utils.res_ann import *
 from utils.tensor_rnn import *
 from utils.tensor_lstm import *
 from utils.single_gar import *
+import matplotlib.ticker as ticker
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An example program with command-line arguments")
@@ -24,10 +25,10 @@ if __name__ == "__main__":
     parser.add_argument("--epoch", type= int, default= 300)
     parser.add_argument("--bs", type= int, default= 100)
     parser.add_argument("--hidden_size", type= int, default= 128)
-    parser.add_argument("--draw_type", type= int, default= 1)
+    parser.add_argument("--draw_type", type= int, default= 0)
     parser.add_argument("--module_name", type= str, default= "tensor_ann")
     parser.add_argument("--test_over", type= int, default= 0)
-    parser.add_argument("--cir", type= int, default= 6)
+    parser.add_argument("--cir", type= int, default= 3)
 
     args = parser.parse_args()
     torch.manual_seed(1)
@@ -142,6 +143,9 @@ if __name__ == "__main__":
 
             # cbar1 = fig.colorbar(im1, cax=cbar_ax1)
             cbar2 = fig.colorbar(im2, cax=cbar_ax2,location='right', fraction=0.02, pad=0.02)
+            cbar2.formatter = ticker.ScalarFormatter(useMathText=True)  # 启用科学计数法
+            cbar2.formatter.set_powerlimits((0, 0))  # 设置科学计数法的阈值（这里对所有数值生效）
+            cbar2.update_ticks()
             fig.suptitle(f"ibmpg{args.cir}t time and voltage model predictions and errors for each port", fontsize=14)
             # plt.tight_layout()
             fig.subplots_adjust(left=0.05, right=0.92, top=0.85, bottom=0.1)

@@ -15,13 +15,15 @@ import scipy.sparse as sp
 def svdmor(G, in_mat, out_mat, threshold, load_path=None):
     
     lu = splu(G)
-    # # L = spsolve(lu.U.T, out_mat)
-    # # R = spsolve(lu.L, in_mat)
+    # L = spsolve(lu.U.T, out_mat)
+    # R = spsolve(lu.L, in_mat)
     if load_path == None:
-        L = lu.solve(out_mat.toarray(), trans='T')  # 直接求解 U.T x = out_mat
-        R = lu.solve(in_mat.toarray(), trans='N')
-        L = lu.L.T @ L
-        R = lu.U @ R
+        # L = lu.solve(out_mat.toarray(), trans='T')  # 直接求解 U.T x = out_mat
+        # R = lu.solve(in_mat.toarray(), trans='N')
+        # L = lu.L.T @ L
+        # R = lu.U @ R
+        L = spsolve(lu.U.T, out_mat)
+        R = spsolve(lu.L, in_mat)
         B = np.hstack([L, R])
         p = L.shape[1]
         q = R.shape[1]
