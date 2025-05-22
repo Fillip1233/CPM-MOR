@@ -6,7 +6,7 @@ import numpy as np
 import scipy.io as spio
 from scipy.sparse import csc_matrix
 
-data = spio.loadmat("./IBM_transient/ibmpg5t.mat")
+data = spio.loadmat("./IBM_transient/thupg1t.mat")
 
 E, A, B = data['E'] * 1e-0, data['A'], data['B']
 

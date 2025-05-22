@@ -5,4 +5,6 @@ train_data/
 __pycache__/
 utils/__pycache__
 B_SVD_data/
-SVD_data/
+SVD_B/
+SVDMOR_result/
+McPack_res/

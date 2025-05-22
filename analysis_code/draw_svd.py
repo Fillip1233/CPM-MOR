@@ -2,15 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 singular_values = {
-    "ibmpg1t": np.load("/home/fillip/CPM-MOR/B_SVD_data/1t/S.npy"),
-    "ibmpg2t": np.load("/home/fillip/CPM-MOR/B_SVD_data/2t/S.npy"),
-    "ibmpg3t": np.load("/home/fillip/CPM-MOR/B_SVD_data/3t/S.npy"),
-    "ibmpg4t": np.load("/home/fillip/CPM-MOR/B_SVD_data/4t/S.npy"),
-    "ibmpg5t": np.load("/home/fillip/CPM-MOR/B_SVD_data/5t/S.npy"),
-    "ibmpg6t": np.load("/home/fillip/CPM-MOR/B_SVD_data/6t/S.npy")
+    "ibmpg1t": np.load("/home/fillip/home/CPM-MOR/SVDMOR_result/1t/S.npy"),
+    "ibmpg2t": np.load("/home/fillip/home/CPM-MOR/SVDMOR_result/2t/S.npy"),
+    "ibmpg3t": np.load("/home/fillip/home/CPM-MOR/SVDMOR_result/3t/S.npy"),
+    "ibmpg4t": np.load("/home/fillip/home/CPM-MOR/SVDMOR_result/4t/S.npy"),
+    "ibmpg5t": np.load("/home/fillip/home/CPM-MOR/SVDMOR_result/5t/S.npy"),
+    "ibmpg6t": np.load("/home/fillip/home/CPM-MOR/SVDMOR_result/6t/S.npy"),
+    "thupg1t": np.load("/home/fillip/home/CPM-MOR/SVDMOR_result/thupg1t/S.npy"),
 }
 
-thresholds = [0.5, 1, 1.01,  1.1 ,1.2 ]
+thresholds = [0, 0.5, 1, 1.5, 2 ,2.5 ]
 
 sv_counts = {name: [np.sum(sv >= t) for t in thresholds] for name, sv in singular_values.items()}
 

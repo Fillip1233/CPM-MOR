@@ -1,3 +1,4 @@
+# coding: utf-8
 from scipy.sparse.linalg import splu
 import scipy.sparse as sp
 import scipy.io as spio
@@ -13,8 +14,11 @@ from scipy.sparse.linalg import spsolve
 from scipy.sparse import identity
 from scipy.sparse.linalg import lgmres
 from scipy.sparse.linalg import inv
+import psutil
 from tqdm import tqdm
-
+def get_memory_usage():
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss / (1024 ** 2)  # 返回 MB
 def svdmor(G, in_mat, out_mat, threshold):
     
     t1 = time.time()
@@ -38,7 +42,9 @@ def svdmor(G, in_mat, out_mat, threshold):
     # R1 = lu.solve(in_mat.toarray(), trans='N')
     # L1= lu.L.T@L1
     # R1 = lu.U@R1
-
+    # R = R.toarray()
+    # L = L.toarray()
+    
     #方法4
     in_mat = in_mat.toarray()
     out_mat = out_mat.toarray()
@@ -54,15 +60,22 @@ def svdmor(G, in_mat, out_mat, threshold):
         bk = out_mat[:, k]
         UT_inv_out[:, k] = sp.linalg.spsolve_triangular(LuUT, bk, lower=True)
 
-    # R = R.toarray()
-    # L = L.toarray()
-    # # R1 = R1.toarray()
-    # L_inv_in = L_inv_in.toarray()
-    # UT_inv_out = UT_inv_out.toarray()
-    # print(np.allclose(R, L_inv_in, atol=1e-9))
-    # print(np.allclose(L, UT_inv_out, atol=1e-9))
+    ## 不逐列求解的话，返回的是np.array 不是稀疏矩阵，还是不能用在大规模的矩阵上
+    L_inv_in = sp.linalg.spsolve_triangular(LuL, in_mat, lower=True)
+    L_inv_in = sp.csc_matrix(L_inv_in)
+    UT_inv_out = sp.linalg.spsolve_triangular(LuUT, out_mat, lower=True)
+    UT_inv_out = sp.csc_matrix(UT_inv_out)
 
     B = sp.hstack([UT_inv_out, L_inv_in])
+
+    # R = R.toarray()
+    # L = L.toarray()
+    # # # R1 = R1.toarray()
+    L_inv_in = L_inv_in.toarray()
+    UT_inv_out = UT_inv_out.toarray()
+    logging.info(np.allclose(R, L_inv_in, atol=1e-9))
+    logging.info(np.allclose(L, UT_inv_out, atol=1e-9))
+
     t2 = time.time()
     logging.info("Finish B ,time: {}".format(t2-t1))
 
@@ -86,26 +99,35 @@ def svd_try(B):
     return U,S,V
 
 if __name__ == '__main__':
-    save_path = os.path.join(sys.path[0], 'SVD_data/4t')
+    start_mem = get_memory_usage()
+    parser = argparse.ArgumentParser(description='SVD MOR')
+    parser.add_argument('--threshold', type=float, default=1e-3, help='Threshold for SVD')
+    parser.add_argument('--port_num', type=int, default=2000, help='Number of ports')
+    parser.add_argument('--circuit', type=int, default=1, help='Circuit number')
+    args = parser.parse_args()
+    save_path = os.path.join('/home/fillip/home/CPM-MOR/SVDMOR_result/{}t'.format(args.circuit))
+    # save_path = os.path.join('/home/fillip/home/CPM-MOR/SVDMOR_result/thupg1t')
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
                         handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/data_generate.log")])
-    
-    data = spio.loadmat("./IBM_transient/ibmpg4t.mat")
+    logging.info(args)
+    data = spio.loadmat("./IBM_transient/ibmpg{}t.mat".format(args.circuit))
+    # data = spio.loadmat("./IBM_transient/thupg1t.mat")
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
-    port_num = 100
     B = B.tocsc()
     C = C.tocsc()
     G = G.tocsc()
-    B = B[:, 0:port_num]
+    B = B[:, 0:args.port_num]
     # output matrix
     O = B
-
-    U,S,V = svdmor(G, B, B, threshold = 2)
+    logging.info("Finish B, C, G")
+    U,S,V = svdmor(G, B, B, threshold = args.threshold)
     # U,S,V = svd_try(B)
-    np.save("F:\zhenjie\code\CPM-MOR\code_try/U1.npy",U)
-    np.save("F:\zhenjie\code\CPM-MOR\code_try/S1.npy",S)
-    np.save("F:\zhenjie\code\CPM-MOR\code_try/V1.npy",V)
+    np.save(save_path + "/U.npy",U)
+    np.save(save_path + "/S.npy",S)
+    np.save(save_path + "/V.npy",V)
+    end_mem = get_memory_usage()
+    logging.info("Memory usage: {:.2f} MB".format(end_mem - start_mem))
     logging.info("Finish!")
     pass

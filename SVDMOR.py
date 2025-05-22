@@ -24,7 +24,7 @@ def svdmor(G, in_mat, out_mat, threshold, load_path=None):
         # R = lu.U @ R
         L = spsolve(lu.U.T, out_mat)
         R = spsolve(lu.L, in_mat)
-        B = np.hstack([L, R])
+        B = sp.hstack([L, R])
         p = L.shape[1]
         q = R.shape[1]
         E_l = sp.vstack([
@@ -36,8 +36,9 @@ def svdmor(G, in_mat, out_mat, threshold, load_path=None):
                 sp.eye(q),              
         ])
 
-        # B = B.toarray()
+        B = B.toarray()
         U, S, V = np.linalg.svd(B, full_matrices=False)
+        
     else:
         p = out_mat.shape[1]
         q = in_mat.shape[1]
@@ -49,9 +50,9 @@ def svdmor(G, in_mat, out_mat, threshold, load_path=None):
                 sp.csr_matrix((p, q)), 
                 sp.eye(q),              
         ])
-        U = np.load(load_path+r"/U1.npy")
-        S = np.load(load_path+r"/S1.npy")
-        V = np.load(load_path+r"/V1.npy")
+        U = np.load(load_path+r"/U.npy")
+        S = np.load(load_path+r"/S.npy")
+        V = np.load(load_path+r"/V.npy")
 
     indices = S >= threshold
     U_new = U[:, indices]               
@@ -70,7 +71,7 @@ if __name__ == '__main__':
     # C = E, G = A
     data = spio.loadmat("./IBM_transient/ibmpg3t.mat")
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
-    port_num = 1500
+    port_num = 2000
     B = B.tocsc()
     C = C.tocsc()
     G = G.tocsc()
@@ -111,7 +112,7 @@ if __name__ == '__main__':
     IS = np.vstack([IS1, IS1])
     x0 = np.zeros((N, 1))
 
-    f = np.array([1e2, 1e9])
+    f = np.array([1e2])
     m = 2
     s = 1j * 2 * np.pi * f  # array of expansion points
 
@@ -147,8 +148,6 @@ if __name__ == '__main__':
     print('MOR completed. Time used: ', str(tprima), 's')
     print('The original order is', N, 'the reduced order is', nr_2)
 
-
-
     xAll, time, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
     
     y = O.T@xAll
@@ -183,6 +182,7 @@ if __name__ == '__main__':
     plt.ylabel("result", fontsize=12)
     plt.grid(alpha=0.5)
     plt.tight_layout()
-    plt.show()
+    # plt.show()
+    plt.savefig("SVDMOR.png", dpi=300)
     plt.close()
     pass

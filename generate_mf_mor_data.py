@@ -210,22 +210,22 @@ def generate_sin(port_num, circuit_size, seed):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="generate mf_mor data for model")
     parser.add_argument("--port_num", type=int, default= 2000)
-    parser.add_argument("--circuit_size", type=int, default= 1)
+    parser.add_argument("--circuit_size", type=int, default = 1)
     parser.add_argument("--threshold", type=float, default= 1.0)
-    parser.add_argument("--svd_type", type=int, default= 1)
-    parser.add_argument("--load", type=int, default= 1)
-    parser.add_argument("--generate", type=int, default= 1)
-    parser.add_argument("--data_num", type=int, default= 100)
+    parser.add_argument("--svd_type", type=int, default= 0)
+    parser.add_argument("--load", type=int, default= 0)
+    parser.add_argument("--generate", type=int, default= 0)
+    parser.add_argument("--data_num", type=int, default= 200)
     ## srcType: 'pulse' or 'sin'
     parser.add_argument("--srcType", type=str, default= 'pulse')
     args = parser.parse_args()
-    save_path = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_over3_change')
+    save_path = os.path.join(sys.path[0], 'train_data/h1/sim_100_port2000_multiper')
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
                         handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/data_generate.log")])
     logging.info(args)
-    data = spio.loadmat("./IBM_transient/ibmpg1t.mat")
+    data = spio.loadmat("./IBM_transient/thupg1t.mat")
     circuit_size = args.circuit_size
     port_num = args.port_num
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
@@ -249,7 +249,7 @@ if __name__ == '__main__':
     if args.load == 0:
         if args.svd_type == 0:
             # svd mor
-            left, right, B_r, O_r = svdmor(G, B, B, threshold = args.threshold, load_path ="/home/fillip/桌面/CPM-MOR/SVD_data/5t")
+            left, right, B_r, O_r = svdmor(G, B, B, threshold = args.threshold, load_path ="/home/fillip/home/CPM-MOR/SVDMOR_result/thupg1t/")
         else:
             # my svd mor
             B_r ,right = svd_try(B, threshold = args.threshold)
@@ -288,26 +288,26 @@ if __name__ == '__main__':
         # save the reduced order model
         np.savez(save_path + '/mf_mor_data.npz', Cr_2 = Cr_2, Gr_2 = Gr_2, Br_2 = Br_2, Or_2 = Or_2, XX_2 = XX_2)
 
-        f = np.array([1e9])
-        m = 2
-        s = 1j * 2 * np.pi * f
+        # f = np.array([1e9])
+        # m = 2
+        # s = 1j * 2 * np.pi * f
 
-        q = m * B.shape[1]
-        # perform svd mor
-        tic = datetime.now()
-        XX_1 = PRIMA.PRIMA_mp(C, G, B, s, q)
-        Cr_1 = (XX_1.T@ C)@XX_1
-        Gr_1 = (XX_1.T@ G)@XX_1
-        Br_1 = (XX_1.T@ B)
-        Or_1 = XX_1.T@ O
-        nr_1 = Cr_1.shape[0]
+        # q = m * B.shape[1]
+        # # perform svd mor
+        # tic = datetime.now()
+        # XX_1 = PRIMA.PRIMA_mp(C, G, B, s, q)
+        # Cr_1 = (XX_1.T@ C)@XX_1
+        # Gr_1 = (XX_1.T@ G)@XX_1
+        # Br_1 = (XX_1.T@ B)
+        # Or_1 = XX_1.T@ O
+        # nr_1 = Cr_1.shape[0]
         
-        toc = datetime.now()
-        tprima = toc - tic
-        logging.info("PRIMA-MOR:")
-        logging.info('MOR completed. Time used:{} s '.format(tprima))
-        logging.info('The original order is{}, the reduced order is {}'.format(N, nr_1))
-        np.savez(save_path + '/prima_mor_data.npz', Cr_1 = Cr_1, Gr_1 = Gr_1, Br_1 = Br_1, Or_1 = Or_1, XX_1 = XX_1)
+        # toc = datetime.now()
+        # tprima = toc - tic
+        # logging.info("PRIMA-MOR:")
+        # logging.info('MOR completed. Time used:{} s '.format(tprima))
+        # logging.info('The original order is{}, the reduced order is {}'.format(N, nr_1))
+        # np.savez(save_path + '/prima_mor_data.npz', Cr_1 = Cr_1, Gr_1 = Gr_1, Br_1 = Br_1, Or_1 = Or_1, XX_1 = XX_1)
 
 
     else:
@@ -342,8 +342,8 @@ if __name__ == '__main__':
             logging.info("Generating {}th input data".format(i))
             seed = i
             # IS, VS = generate_u(port_num, circuit_size, seed)
-            # IS, VS = generate_udiff(port_num, circuit_size, seed)
-            IS, VS = generate_uover(port_num, circuit_size, seed)
+            IS, VS = generate_udiff(port_num, circuit_size, seed)
+            # IS, VS = generate_uover(port_num, circuit_size, seed)
             # IS, VS = generate_sin(port_num, circuit_size, seed)
             t1 = time.time()
             xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = args.srcType)
@@ -389,8 +389,8 @@ if __name__ == '__main__':
     else:
         # use to check the data
         # IS, VS = generate_u(port_num, circuit_size, seed = 1)
-        # IS, VS = generate_udiff(port_num,circuit_size, seed=1)
-        IS, VS = generate_uover(port_num,circuit_size, seed=1)
+        IS, VS = generate_udiff(port_num,circuit_size, seed=1)
+        # IS, VS = generate_uover(port_num,circuit_size, seed=1)
         # IS, VS = generate_sin(port_num, circuit_size, seed = 1)
         
         xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, t_all, dt, C, -G, B, VS, IS, x0, srcType = args.srcType)
@@ -399,8 +399,8 @@ if __name__ == '__main__':
         xAll_svd, time_svd, dtAll_svd, urAll_svd = tdIntLinBE_new(t0, t_all, dt, Cr_2, -Gr_2, Br_2, VS, IS, xr2, srcType = args.srcType)
         y_svd = Or_2.T@xAll_svd
 
-        xAll_mor, time_mor, dtAll_mor, urAll_mor = tdIntLinBE_new(t0, t_all, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr1, srcType = args.srcType)
-        y_mor = Or_1.T@xAll_mor
+        # xAll_mor, time_mor, dtAll_mor, urAll_mor = tdIntLinBE_new(t0, t_all, dt, Cr_1, -Gr_1, Br_1, VS, IS, xr1, srcType = args.srcType)
+        # y_mor = Or_1.T@xAll_mor
 
         yy = np.zeros((y.shape[1]))
         for i in range(y.shape[0]):
@@ -408,13 +408,13 @@ if __name__ == '__main__':
         yy_svd = np.zeros((y_svd.shape[1]))
         for i in range(y_svd.shape[0]):
             yy_svd += np.real(y_svd[i, :])   
-        yy_mor = np.zeros((y_mor.shape[1]))
-        for i in range(y_mor.shape[0]):
-            yy_mor += np.real(y_mor[i,:]) 
+        # yy_mor = np.zeros((y_mor.shape[1]))
+        # for i in range(y_mor.shape[0]):
+        #     yy_mor += np.real(y_mor[i,:]) 
         plt.figure(figsize=(8, 5))
         plt.plot(time1, yy, color='black', linestyle='-.', marker='*', label='High-fidelity-data', markevery = 35, markersize=6, linewidth=1.5)
         plt.plot(time_svd, yy_svd, color='red', linestyle='--', marker='s', label='Low-fidelity-data', markersize=6, markevery = 45, linewidth=1.5)
-        plt.plot(time_mor, yy_mor, color='green', linestyle='-', marker='o', label='PRIMA', markersize=6, markevery = 40, linewidth=1.5)
+        # plt.plot(time_mor, yy_mor, color='green', linestyle='-', marker='o', label='PRIMA', markersize=6, markevery = 40, linewidth=1.5)
         plt.legend(fontsize=14)
         plt.title("MF-data", fontsize=14)
         plt.xlabel("Time (s)", fontsize=12)
@@ -422,6 +422,6 @@ if __name__ == '__main__':
         plt.grid(alpha=0.5)
         plt.tight_layout()
         # plt.show()
-        plt.savefig("1t_over10.png")
+        plt.savefig("th1.png")
         plt.close()    
     pass

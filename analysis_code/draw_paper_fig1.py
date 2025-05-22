@@ -15,9 +15,12 @@ low = high - np.array([0, 8, 30, 60, 80, 100, 90, 70, 50, 40])
 
 # 绘图
 plt.figure(figsize=(5.5, 4))
-plt.plot(time, high, label='Ground Truth', marker='*', color='brown')
-plt.plot(time, medium, label='Compensated result', marker='^', linestyle='--', color='orange')
-plt.plot(time, low, label='Low Fidelity', marker='o', linestyle=':', color='green')
+# plt.plot(time, high, label='Ground Truth', marker='*', color='brown')
+# plt.plot(time, medium, label='Compensated result', marker='^', linestyle='--', color='orange')
+# plt.plot(time, low, label='Low Fidelity', marker='o', linestyle=':', color='green')
+plt.plot(time, high, label='                  ', marker='*', color='brown')
+plt.plot(time, medium, label='                ', marker='^', linestyle='--', color='orange')
+plt.plot(time, low, label='                       ', marker='o', linestyle=':', color='green')
 
 # plt.xlabel('Time (s)')
 # plt.ylabel('result')
@@ -25,4 +28,5 @@ plt.plot(time, low, label='Low Fidelity', marker='o', linestyle=':', color='gree
 plt.legend()
 # plt.grid(True)
 plt.tight_layout()
-plt.show()
+# plt.show()
+plt.savefig('fig1.png', dpi=300, bbox_inches='tight')
