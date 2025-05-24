@@ -26,9 +26,6 @@ def mcpack(C, G, B, L, zQ, k, g, r):
     # Step 1: Define A_zQ = -(G + zQ C)^-1 C
     #         R_zQ = (G + zQ C)^-1 B
     GzC = G + zQ * C
-    # lu = spla.splu(GzC)
-    # A_zQ = lu.solve(-C.toarray())  # shape: (n, m)
-    # R_zQ = lu.solve(B.toarray()) 
 
     A_zQ = spla.spsolve(GzC, -C)
     R_zQ = spla.spsolve(GzC, B)
@@ -125,7 +122,8 @@ if __name__ == "__main__":
     O = B
     # f = np.array([1e2])
     m = 2
-    s = 1j * 2 * np.pi * 1e2
+    # s = 1j * 2 * np.pi * 1e2
+    s = 2 * np.pi * 1e-9
     t1 = time.time()
     Cr, Gr, Br, Lr, XX = mcpack(C, G, B, O, s, m, m, r=60)
     t2 = time.time()

@@ -16,6 +16,7 @@ from scipy.sparse.linalg import lgmres
 from scipy.sparse.linalg import inv
 import psutil
 from tqdm import tqdm
+import gc
 def get_memory_usage():
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / (1024 ** 2)  # 返回 MB
@@ -87,6 +88,59 @@ def svdmor(G, in_mat, out_mat, threshold):
 
     return U,S,V
 
+def svdmor_2(G, in_mat, out_mat):
+    t1 = time.time()
+    L = out_mat
+    R = spsolve(G, in_mat)
+    # chunk_size = 200  # 根据内存调整
+    # R = sp.lil_matrix(in_mat.shape, dtype=in_mat.dtype)  # 使用 lil_matrix 便于按列填充
+    
+    # for i in tqdm(range(0, in_mat.shape[1], chunk_size)):
+    #     # 提取当前块（保持稀疏性）
+    #     chunk = in_mat[:, i:i+chunk_size].tocsc()  # CSC 格式列切片效率更高
+        
+    #     solution_chunk = spsolve(G, chunk)
+    #     R[:, i:i+chunk_size] = solution_chunk.tolil()
+    #     del chunk, solution_chunk
+    #     gc.collect()
+    
+    # R = R.toarray()
+    # R1 = R1.toarray()
+    # logging.info(np.allclose(R, R1, atol=1e-9))
+    logging.info("Finish R")
+    B = sp.hstack([L, R])
+    sp.save_npz("B_sparse.npz", B, compressed=True)
+    logging.info("Finish B sparse save")
+    # B = sp.load_npz("B_sparse.npz")
+    # logging.info("Finish B sparse load")
+    B = B.toarray()
+    U, S, V = np.linalg.svd(B, full_matrices=False)
+    t2 = time.time()
+    logging.info("Finish SVD ,time: {}".format(t2-t1))
+    return U, S, V
+    pass
+
+def svdmor_3(G, in_mat):
+    '''
+    for thumpg1t but fail(oom)
+    '''
+    n = in_mat.shape[1]
+    chunk_size = 200
+    half_n = n // 2  # 前一半的列数
+
+    # 初始化 R_part1 (前一半列)
+    R_part1 = sp.lil_matrix((in_mat.shape[0], half_n), dtype=in_mat.dtype)
+
+    for i in tqdm(range(0, half_n, chunk_size)):
+        chunk = in_mat[:, i:i+chunk_size].tocsc()
+        solution_chunk = spsolve(G, chunk)
+        R_part1[:, i:i+chunk_size] = solution_chunk.tolil()
+        del chunk, solution_chunk
+        gc.collect()
+
+    # 保存前一半结果
+    sp.save_npz("R_part1_thumpg.npz", R_part1.tocsc(), compressed=True)
+
 def svd_try(B):
 
     B_1 = csc_matrix(B, dtype=np.float64)
@@ -103,26 +157,28 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SVD MOR')
     parser.add_argument('--threshold', type=float, default=1e-3, help='Threshold for SVD')
     parser.add_argument('--port_num', type=int, default=2000, help='Number of ports')
-    parser.add_argument('--circuit', type=int, default=1, help='Circuit number')
+    parser.add_argument('--circuit', type=int, default=6, help='Circuit number')
     args = parser.parse_args()
-    save_path = os.path.join('/home/fillip/home/CPM-MOR/SVDMOR_result/{}t'.format(args.circuit))
-    # save_path = os.path.join('/home/fillip/home/CPM-MOR/SVDMOR_result/thupg1t')
+    # save_path = os.path.join('/home/fillip/home/CPM-MOR/SVDMOR2_res/{}t'.format(args.circuit))
+    save_path = os.path.join('/home/fillip/home/CPM-MOR/SVDMOR2_res/thupg1t')
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
                         handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/data_generate.log")])
     logging.info(args)
-    data = spio.loadmat("./IBM_transient/ibmpg{}t.mat".format(args.circuit))
-    # data = spio.loadmat("./IBM_transient/thupg1t.mat")
+    # data = spio.loadmat("./IBM_transient/ibmpg{}t.mat".format(args.circuit))
+    data = spio.loadmat("./IBM_transient/thupg1t.mat")
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
     B = B.tocsc()
-    C = C.tocsc()
+    # C = C.tocsc()
     G = G.tocsc()
     B = B[:, 0:args.port_num]
     # output matrix
     O = B
     logging.info("Finish B, C, G")
-    U,S,V = svdmor(G, B, B, threshold = args.threshold)
+    U,S,V = svdmor_2(G, B, O)
+    # svdmor_2(G, B, O)
+    # svdmor_3(G, B)
     # U,S,V = svd_try(B)
     np.save(save_path + "/U.npy",U)
     np.save(save_path + "/S.npy",S)

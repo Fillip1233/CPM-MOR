@@ -22,8 +22,28 @@ def svdmor(G, in_mat, out_mat, threshold, load_path=None):
         # R = lu.solve(in_mat.toarray(), trans='N')
         # L = lu.L.T @ L
         # R = lu.U @ R
-        L = spsolve(lu.U.T, out_mat)
-        R = spsolve(lu.L, in_mat)
+
+        #method 1
+        # L = spsolve(lu.U.T, out_mat)
+        # R = spsolve(lu.L, in_mat)
+        # B = sp.hstack([L, R])
+        # p = L.shape[1]
+        # q = R.shape[1]
+        # E_l = sp.vstack([
+        #         sp.eye(p),
+        #         sp.csr_matrix((q, p))
+        # ])
+        # E_r = sp.vstack([  
+        #         sp.csr_matrix((p, q)), 
+        #         sp.eye(q),              
+        # ])
+
+        # B = B.toarray()
+        # U, S, V = np.linalg.svd(B, full_matrices=False)
+
+        #method 2
+        L = out_mat
+        R = spsolve(G, in_mat)
         B = sp.hstack([L, R])
         p = L.shape[1]
         q = R.shape[1]
@@ -35,7 +55,6 @@ def svdmor(G, in_mat, out_mat, threshold, load_path=None):
                 sp.csr_matrix((p, q)), 
                 sp.eye(q),              
         ])
-
         B = B.toarray()
         U, S, V = np.linalg.svd(B, full_matrices=False)
         
@@ -66,10 +85,52 @@ def svdmor(G, in_mat, out_mat, threshold, load_path=None):
 
     return left, right, B_r, O_r
 
+def svdmor_2(G, in_mat, out_mat, threshold, load_path=None):
+    if load_path == None:
+        L = out_mat
+        R = spsolve(G, in_mat)
+        B = sp.hstack([out_mat, R])
+        p = L.shape[1]
+        q = R.shape[1]
+        E_l = sp.vstack([
+                sp.eye(p),
+                sp.csr_matrix((q, p))
+        ])
+        E_r = sp.vstack([  
+                sp.csr_matrix((p, q)), 
+                sp.eye(q),              
+        ])
+        B = B.toarray()
+        U, S, V = np.linalg.svd(B, full_matrices=False)
+    else:
+        p = out_mat.shape[1]
+        q = in_mat.shape[1]
+        E_l = sp.vstack([
+                sp.eye(p),
+                sp.csr_matrix((q, p))
+        ])
+        E_r = sp.vstack([  
+                sp.csr_matrix((p, q)), 
+                sp.eye(q),              
+        ])
+        U = np.load(load_path+r"/U.npy")
+        S = np.load(load_path+r"/S.npy")
+        V = np.load(load_path+r"/V.npy")
+    indices = S >= threshold
+    U_new = U[:, indices]               
+    S_new = S[indices]                  
+    V_new = V[indices, :]
+    left = np.diag(S_new)@V_new@E_l
+    right = np.diag(S_new)@V_new@E_r
+    B_r = G@ U_new
+    O_r = U_new
+
+    return left, right, B_r, O_r
+
 
 if __name__ == '__main__':
     # C = E, G = A
-    data = spio.loadmat("./IBM_transient/ibmpg3t.mat")
+    data = spio.loadmat("./IBM_transient/ibmpg6t.mat")
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
     port_num = 2000
     B = B.tocsc()
@@ -80,7 +141,7 @@ if __name__ == '__main__':
     O = B
     
     tic = datetime.now()
-    left, right, B_r, O_r = svdmor(G, B, B, threshold = 2)
+    left, right, B_r, O_r = svdmor_2(G, B, O, threshold = 2,load_path='/home/fillip/home/CPM-MOR/SVDMOR2_res/6t/')
     toc = datetime.now()
     ts = toc - tic
     print("SVD completed. Time used: ", str(ts), 's')
@@ -112,7 +173,7 @@ if __name__ == '__main__':
     IS = np.vstack([IS1, IS1])
     x0 = np.zeros((N, 1))
 
-    f = np.array([1e2])
+    f = np.array([1e9])
     m = 2
     s = 1j * 2 * np.pi * f  # array of expansion points
 
@@ -183,6 +244,6 @@ if __name__ == '__main__':
     plt.grid(alpha=0.5)
     plt.tight_layout()
     # plt.show()
-    plt.savefig("SVDMOR.png", dpi=300)
+    plt.savefig("SVDMOR_6t.png", dpi=300)
     plt.close()
     pass
