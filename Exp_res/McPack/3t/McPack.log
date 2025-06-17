@@ -1,0 +1,6 @@
+2025-05-26 11:41:35,572 - INFO - Namespace(circuit=3, port_num=2000, threshold=2)
+2025-05-26 11:41:35,912 - INFO - Circuit : 3
+2025-05-26 13:10:35,672 - INFO - Original order size: 1043444
+2025-05-26 13:10:35,672 - INFO - Reduced order size: 29
+2025-05-26 13:10:35,672 - INFO - McPack time: 5339.722227811813
+2025-05-26 13:10:35,672 - INFO - port_num: 29

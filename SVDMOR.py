@@ -1,6 +1,8 @@
 '''
 2025-3-3
 SVDMOR baseline
+2025-5-27
+Modify the method use G@I decomposition
 '''
 import scipy.io as spio
 import numpy as np
@@ -11,6 +13,9 @@ import matplotlib.pyplot as plt
 from scipy.sparse.linalg import splu
 from scipy.sparse.linalg import spsolve
 import scipy.sparse as sp
+import argparse
+import os
+import logging
 
 def svdmor(G, in_mat, out_mat, threshold, load_path=None):
     
@@ -130,9 +135,20 @@ def svdmor_2(G, in_mat, out_mat, threshold, load_path=None):
 
 if __name__ == '__main__':
     # C = E, G = A
-    data = spio.loadmat("./IBM_transient/ibmpg6t.mat")
+    parser = argparse.ArgumentParser(description='SVDMOR')
+    parser.add_argument('--circuit', type=int, default=1, help='Circuit number')
+    parser.add_argument("--port_num", type=int, default= 2000)
+    parser.add_argument("--threshold", type=int, default= 2)
+    args = parser.parse_args()
+    save_path = os.path.join('/home/fillip/home/CPM-MOR/Exp_res/SVDMOR/{}t/'.format(args.circuit))
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
+                        handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/SVDMOR.log")])
+    logging.info(args)
+    data = spio.loadmat("./IBM_transient/ibmpg{}t.mat".format(args.circuit))
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
-    port_num = 2000
+    port_num = args.port_num
     B = B.tocsc()
     C = C.tocsc()
     G = G.tocsc()
@@ -141,10 +157,10 @@ if __name__ == '__main__':
     O = B
     
     tic = datetime.now()
-    left, right, B_r, O_r = svdmor_2(G, B, O, threshold = 2,load_path='/home/fillip/home/CPM-MOR/SVDMOR2_res/6t/')
+    left, right, B_r, O_r = svdmor_2(G, B, O, threshold = 2,load_path='/home/fillip/home/CPM-MOR/SVDMOR2_res/{}t/'.format(args.circuit))    
     toc = datetime.now()
     ts = toc - tic
-    print("SVD completed. Time used: ", str(ts), 's')
+    logging.info("SVD completed. Time used: {}s".format(ts))
 
     t0 = 0
     tf = 1e-09
@@ -205,9 +221,10 @@ if __name__ == '__main__':
     nr_2 = Cr_2.shape[0]
     toc = datetime.now()
     tprima = toc - tic
-    print("SVD-PRIMA-MOR:")
-    print('MOR completed. Time used: ', str(tprima), 's')
-    print('The original order is', N, 'the reduced order is', nr_2)
+    logging.info("SVD-PRIMA-MOR:")
+    logging.info('MOR completed. Time used:{}'.format(tprima))
+    logging.info('The original order is{}'.format(N))
+    logging.info('The reduced order is{}'.format(nr_2))
 
     xAll, time, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
     
@@ -225,6 +242,7 @@ if __name__ == '__main__':
     
     xr1 = XX_2.T@ x0
     Br_2 = Br_2@right
+    logging.info("B reduced order: {}".format(Br_2.shape[0]))
     xAll_svd, time_svd, dtAll_svd, urAll_svd = tdIntLinBE_new(t0, tf, dt, Cr_2, -Gr_2, Br_2, VS, IS, xr1, srcType)
     y_svd = (Or_2@left).T@ xAll_svd
     yy_svd = np.zeros((y_svd.shape[1]))
@@ -244,6 +262,6 @@ if __name__ == '__main__':
     plt.grid(alpha=0.5)
     plt.tight_layout()
     # plt.show()
-    plt.savefig("SVDMOR_6t.png", dpi=300)
+    plt.savefig(save_path+"SVDMOR_{}t.png".format(args.circuit))
     plt.close()
     pass

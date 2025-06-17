@@ -1,0 +1,11 @@
+2025-06-17 16:38:52,426 - INFO - Namespace(circuit=7, port_num=100, threshold=0.05)
+2025-06-17 16:38:52,761 - INFO - Circuit : 7
+2025-06-17 16:50:45,871 - INFO - RGA computation time: 712.9706 seconds
+2025-06-17 16:50:45,872 - INFO - RGA matrix computed and normalized.
+2025-06-17 16:56:59,162 - INFO - Namespace(circuit=7, port_num=200, threshold=0.05)
+2025-06-17 16:56:59,498 - INFO - Circuit : 7
+2025-06-17 17:14:26,669 - INFO - RGA computation time: 1047.0301 seconds
+2025-06-17 17:14:26,669 - INFO - RGA matrix computed and normalized.
+2025-06-17 17:36:07,732 - INFO - Namespace(circuit=7, port_num=200, threshold=0.05)
+2025-06-17 17:36:08,068 - INFO - Circuit : 7
+2025-06-17 17:36:08,210 - INFO - RGA matrix computed and normalized.

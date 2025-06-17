@@ -16,6 +16,7 @@ from scipy.sparse.linalg import lgmres
 from scipy.sparse.linalg import inv
 import psutil
 from tqdm import tqdm
+from scipy.sparse.linalg import svds
 import gc
 def get_memory_usage():
     process = psutil.Process(os.getpid())
@@ -120,26 +121,51 @@ def svdmor_2(G, in_mat, out_mat):
     return U, S, V
     pass
 
-def svdmor_3(G, in_mat):
+def svdmor_3(G, in_mat, out_mat=None):
     '''
     for thumpg1t but fail(oom)
+    try to solve by solve 4 parts
     '''
-    n = in_mat.shape[1]
-    chunk_size = 200
-    half_n = n // 2  # 前一半的列数
+    # n = in_mat.shape[1]
+    # chunk_size = 100
+    # half_n = n // 4  # 前一半的列数
 
-    # 初始化 R_part1 (前一半列)
-    R_part1 = sp.lil_matrix((in_mat.shape[0], half_n), dtype=in_mat.dtype)
+    # # 初始化 R_part1 (前一半列)
+    # R_part1 = sp.lil_matrix((in_mat.shape[0], half_n), dtype=in_mat.dtype)
 
-    for i in tqdm(range(0, half_n, chunk_size)):
-        chunk = in_mat[:, i:i+chunk_size].tocsc()
-        solution_chunk = spsolve(G, chunk)
-        R_part1[:, i:i+chunk_size] = solution_chunk.tolil()
-        del chunk, solution_chunk
-        gc.collect()
+    # for i in tqdm(range(3*half_n, 4*half_n, chunk_size)):
+    #     chunk = in_mat[:, i:i+chunk_size].tocsc()
+    #     solution_chunk = spsolve(G, chunk)
+    #     R_part1[:, i-3*half_n:i-3*half_n+chunk_size] = solution_chunk.tolil()
+    #     del chunk, solution_chunk
+    #     gc.collect()
 
-    # 保存前一半结果
-    sp.save_npz("R_part1_thumpg.npz", R_part1.tocsc(), compressed=True)
+    # # 保存前一半结果
+    # logging.info("Finish R_part4")
+    # sp.save_npz("R_part4_thumpg.npz", R_part1.tocsc(), compressed=True)
+    # t1 = time.time()
+    # R1 = sp.load_npz("R_part1_thumpg.npz")
+    # R2 = sp.load_npz("R_part2_thumpg.npz")
+    # R3 = sp.load_npz("R_part3_thumpg.npz")
+    # R4 = sp.load_npz("R_part4_thumpg.npz")
+    # logging.info("Finish B sparse load")
+    # R = sp.hstack([R1, R2, R3, R4])
+    # logging.info("Finish R sparse hstack")
+    # del R1, R2, R3, R4
+    # gc.collect()
+    # L = out_mat
+    # B = sp.hstack([L, R])
+    # sp.save_npz("B.npz", B.tocsc(), compressed=True)
+    # logging.info("Finish B")
+    # del L, R
+    # gc.collect()
+    B = sp.load_npz("B.npz")
+    U, S, Vt = svds(B, k=200)
+    # B = B.toarray()
+    # U, S, V = np.linalg.svd(B, full_matrices=False)
+    # t2 = time.time()
+    # logging.info("Finish SVD ,time: {}".format(t2-t1))
+    return U, S, Vt
 
 def svd_try(B):
 
@@ -176,9 +202,9 @@ if __name__ == '__main__':
     # output matrix
     O = B
     logging.info("Finish B, C, G")
-    U,S,V = svdmor_2(G, B, O)
+    # U,S,V = svdmor_2(G, B, O)
     # svdmor_2(G, B, O)
-    # svdmor_3(G, B)
+    U,S,V = svdmor_3(G, B, O)
     # U,S,V = svd_try(B)
     np.save(save_path + "/U.npy",U)
     np.save(save_path + "/S.npy",S)

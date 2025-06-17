@@ -1,0 +1,7 @@
+2025-05-26 15:36:31,675 - INFO - Namespace(circuit=4, port_num=2000, threshold=2)
+2025-05-26 15:40:16,914 - INFO - SVD completed. Time used: 0:03:44.806395s
+2025-05-26 16:43:53,004 - INFO - SVD-PRIMA-MOR:
+2025-05-26 16:43:53,004 - INFO - MOR completed. Time used:1:03:36.085027
+2025-05-26 16:43:53,004 - INFO - The original order is1214288
+2025-05-26 16:43:53,005 - INFO - The reduced order is466
+2025-05-26 16:45:49,571 - INFO - B reduced order: 466

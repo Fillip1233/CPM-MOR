@@ -74,6 +74,7 @@ def PRIMA_sp(E=None, A=None, B=None, s=None, q=None):
     nr = math.ceil(q / N)
 
     qrtol = 1e-12
+    qrtol = 1e-30
     X = []
     x0, _ = qr_deflated(R, qrtol)
     X.append(x0)
@@ -91,7 +92,7 @@ def PRIMA_sp(E=None, A=None, B=None, s=None, q=None):
         XX = np.hstack([XX, X[i]])
     # XX = np.real(XX)
     # print('The original order is', n, 'the reduced order is', q)
-    XX,_ = qr_deflated(XX, tol=1e-3)
+    XX,_ = qr_deflated(XX, tol=1e-30)
 
     return XX
 

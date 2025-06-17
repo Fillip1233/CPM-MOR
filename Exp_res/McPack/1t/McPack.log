@@ -1,0 +1,26 @@
+2025-05-26 11:19:54,245 - INFO - Namespace(circuit=1, port_num=2000, threshold=2)
+2025-05-26 11:21:25,242 - INFO - Namespace(circuit=1, port_num=2000, threshold=2)
+2025-05-26 11:21:25,248 - INFO - Circuit : 1
+2025-05-26 11:22:22,396 - INFO - Original order size: 54265
+2025-05-26 11:22:22,397 - INFO - Reduced order size: 38
+2025-05-26 11:22:22,397 - INFO - McPack time: 57.14625000953674
+2025-05-26 11:34:41,786 - INFO - Namespace(circuit=1, port_num=2000, threshold=2)
+2025-05-26 11:34:41,792 - INFO - Circuit : 1
+2025-05-26 11:35:49,149 - INFO - Original order size: 54265
+2025-05-26 11:35:49,150 - INFO - Reduced order size: 38
+2025-05-26 11:35:49,150 - INFO - McPack time: 67.35586285591125
+2025-05-26 11:35:49,150 - INFO - port_num: 38
+2025-05-26 15:59:30,323 - INFO - Namespace(circuit=1, port_num=100, threshold=2)
+2025-05-26 15:59:30,332 - INFO - Circuit : 1
+2025-05-27 15:29:21,241 - INFO - Namespace(circuit=1, port_num=100, threshold=2)
+2025-05-27 15:29:21,247 - INFO - Circuit : 1
+2025-05-27 15:29:22,304 - INFO - Computing V_block 1
+2025-05-27 15:29:23,274 - INFO - Computing V_block 2
+2025-05-27 15:29:39,386 - INFO - Namespace(circuit=1, port_num=100, threshold=1)
+2025-05-27 15:29:39,392 - INFO - Circuit : 1
+2025-05-27 15:29:40,453 - INFO - Computing V_block 1
+2025-05-27 15:29:41,200 - INFO - Computing V_block 2
+2025-05-27 15:30:26,173 - INFO - Namespace(circuit=1, port_num=100, threshold=1)
+2025-05-27 15:30:26,180 - INFO - Circuit : 1
+2025-05-27 15:30:27,245 - INFO - Computing V_block 1
+2025-05-27 15:30:28,221 - INFO - Computing V_block 2

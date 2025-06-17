@@ -94,7 +94,7 @@ def generate_udiff(port_num, circuit_size, seed):
     elif circuit_size == 5:
         vl_range = (3.764e-8, 6.408e-8)
         vh_range = (9.410e-5, 3.108e-4)
-    elif circuit_size == 6:
+    elif circuit_size == 6 or circuit_size == 7:
         vl_range = (4.228e-8, 2.075e-7)
         vh_range = (1.488e-4, 5.244e-4)
     # td_range = (0, 1.2e-9)

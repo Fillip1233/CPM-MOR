@@ -1,0 +1,13 @@
+2025-05-26 11:25:15,555 - INFO - Namespace(circuit=2, port_num=2000, threshold=2)
+2025-05-26 11:25:15,622 - INFO - Circuit : 2
+2025-05-26 11:26:49,233 - INFO - Namespace(circuit=2, port_num=2000, threshold=2)
+2025-05-26 11:26:49,248 - INFO - Circuit : 2
+2025-05-26 11:31:47,940 - INFO - Original order size: 164897
+2025-05-26 11:31:47,941 - INFO - Reduced order size: 22
+2025-05-26 11:31:47,941 - INFO - McPack time: 298.68535017967224
+2025-05-26 11:36:33,502 - INFO - Namespace(circuit=2, port_num=2000, threshold=2)
+2025-05-26 11:36:33,516 - INFO - Circuit : 2
+2025-05-26 11:41:20,548 - INFO - Original order size: 164897
+2025-05-26 11:41:20,548 - INFO - Reduced order size: 22
+2025-05-26 11:41:20,548 - INFO - McPack time: 287.024968624115
+2025-05-26 11:41:20,548 - INFO - port_num: 22
