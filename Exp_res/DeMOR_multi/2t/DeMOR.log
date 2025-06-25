@@ -1,0 +1,57 @@
+2025-06-18 09:43:25,767 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 09:43:25,783 - INFO - Circuit : 2
+2025-06-18 09:43:31,078 - INFO - RGA computation time: 5.2891 seconds
+2025-06-18 09:44:56,831 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 09:44:56,847 - INFO - Circuit : 2
+2025-06-18 09:45:02,246 - INFO - RGA computation time: 5.3916 seconds
+2025-06-18 09:57:46,484 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 09:57:46,501 - INFO - Circuit : 2
+2025-06-18 09:57:51,798 - INFO - RGA computation time: 5.2905 seconds
+2025-06-18 09:58:31,445 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 09:58:31,462 - INFO - Circuit : 2
+2025-06-18 09:58:36,786 - INFO - RGA computation time: 5.3165 seconds
+2025-06-18 09:59:35,149 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 09:59:35,166 - INFO - Circuit : 2
+2025-06-18 09:59:40,471 - INFO - RGA computation time: 5.2982 seconds
+2025-06-18 10:02:55,003 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 10:02:55,018 - INFO - Circuit : 2
+2025-06-18 10:03:00,329 - INFO - RGA computation time: 5.3036 seconds
+2025-06-18 10:06:26,571 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 10:06:26,588 - INFO - Circuit : 2
+2025-06-18 10:06:32,248 - INFO - RGA computation time: 5.6540 seconds
+2025-06-18 10:09:24,991 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 10:09:25,008 - INFO - Circuit : 2
+2025-06-18 10:09:30,283 - INFO - RGA computation time: 5.2680 seconds
+2025-06-18 10:10:34,604 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 10:10:34,621 - INFO - Circuit : 2
+2025-06-18 10:10:39,988 - INFO - RGA computation time: 5.3597 seconds
+2025-06-18 10:11:04,791 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 10:11:04,808 - INFO - Circuit : 2
+2025-06-18 10:11:10,101 - INFO - RGA computation time: 5.2858 seconds
+2025-06-18 10:11:51,601 - INFO - Output 1: Reduced order model size: 6, Time taken: 33.8836 seconds
+2025-06-18 10:11:52,093 - INFO - Simulation for output 1 took 0.4916 seconds.
+2025-06-18 10:12:24,885 - INFO - Output 8: Reduced order model size: 8, Time taken: 66.6534 seconds
+2025-06-18 10:12:25,405 - INFO - Simulation for output 8 took 0.5197 seconds.
+2025-06-18 10:12:43,973 - INFO - Output 2: Reduced order model size: 6, Time taken: 51.8796 seconds
+2025-06-18 10:12:44,439 - INFO - Simulation for output 2 took 0.4650 seconds.
+2025-06-18 10:12:49,199 - INFO - Output 9: Reduced order model size: 8, Time taken: 23.7938 seconds
+2025-06-18 10:12:49,818 - INFO - Simulation for output 9 took 0.6188 seconds.
+2025-06-18 10:12:51,947 - INFO - Output 3: Reduced order model size: 6, Time taken: 7.5073 seconds
+2025-06-18 10:12:52,397 - INFO - Simulation for output 3 took 0.4502 seconds.
+2025-06-18 10:12:59,192 - INFO - Output 15: Reduced order model size: 8, Time taken: 100.4897 seconds
+2025-06-18 10:12:59,653 - INFO - Simulation for output 15 took 0.4608 seconds.
+2025-06-18 10:13:02,810 - INFO - Output 16: Reduced order model size: 8, Time taken: 3.1558 seconds
+2025-06-18 10:13:03,236 - INFO - Simulation for output 16 took 0.4264 seconds.
+2025-06-18 10:13:06,374 - INFO - Output 17: Reduced order model size: 8, Time taken: 3.1362 seconds
+2025-06-18 10:13:06,784 - INFO - Simulation for output 17 took 0.4099 seconds.
+2025-06-18 10:13:10,010 - INFO - Output 18: Reduced order model size: 8, Time taken: 3.2244 seconds
+2025-06-18 10:13:10,475 - INFO - Simulation for output 18 took 0.4651 seconds.
+2025-06-18 10:14:44,276 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 10:14:44,292 - INFO - Circuit : 2
+2025-06-18 10:14:49,603 - INFO - RGA computation time: 5.3037 seconds
+2025-06-18 10:16:54,413 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 10:16:54,428 - INFO - Circuit : 2
+2025-06-18 10:16:59,742 - INFO - RGA computation time: 5.3077 seconds
+2025-06-18 10:20:29,548 - INFO - Namespace(circuit=2, port_num=100, threshold=0.05)
+2025-06-18 10:20:29,564 - INFO - Circuit : 2
+2025-06-18 10:20:34,842 - INFO - RGA computation time: 5.2712 seconds

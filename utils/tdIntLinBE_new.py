@@ -27,7 +27,7 @@ def tdIntLinBE_new(t0=None, tf=None, dt=None, Cl=None, Gl=None, Bl=None, VS=None
     lu = scipy.sparse.linalg.splu(M)
     while told < tf - np.spacing(1):
         ui, uv = computeInputs_new(VS, IS, told, srcType)
-        b = Bl @ np.vstack((ui, uv))
+        b = Bl @ np.vstack((ui, uv)) #akhab setting is current sources first and voltage sources later
         f = Cl @ xtold + dt * b
         # interesting thing
         if type(M) is np.ndarray:

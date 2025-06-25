@@ -74,25 +74,26 @@ def PRIMA_sp(E=None, A=None, B=None, s=None, q=None):
     nr = math.ceil(q / N)
 
     qrtol = 1e-12
-    qrtol = 1e-30
     X = []
     x0, _ = qr_deflated(R, qrtol)
     X.append(x0)
 
-    for k in range(nr): # nr-1
-        V = E @ X[k]
-        X.append(lu.solve(V))
-        print('iteration', k + 1)
-        for j in range(k + 1):
-            X[k + 1] = X[k + 1] - X[k - j] @ (X[k - j].conj().T @ X[k + 1])
-        # X[k + 1], _ = np.linalg.qr(X[k + 1], mode='full')
-        X[k + 1], _ = qr_deflated(X[k + 1], qrtol)
+    if(E.nnz != 0): # if a circuit has only R , E is empty
+        for k in range(nr): # nr-1
+            V = E @ X[k]
+            X.append(lu.solve(V))
+            print('iteration', k + 1)
+            for j in range(k + 1):
+                X[k + 1] = X[k + 1] - X[k - j] @ (X[k - j].conj().T @ X[k + 1])
+            # X[k + 1], _ = np.linalg.qr(X[k + 1], mode='full')
+            X[k + 1], _ = qr_deflated(X[k + 1], qrtol)
     XX = X[0]
-    for i in range(1, nr):
-        XX = np.hstack([XX, X[i]])
+    if(E.nnz != 0):
+        for i in range(1, nr):
+            XX = np.hstack([XX, X[i]])
     # XX = np.real(XX)
     # print('The original order is', n, 'the reduced order is', q)
-    XX,_ = qr_deflated(XX, tol=1e-30)
+    XX,_ = qr_deflated(XX, tol=1e-3)
 
     return XX
 

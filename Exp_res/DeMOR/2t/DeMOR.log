@@ -272,3 +272,63 @@
 2025-06-17 15:49:43,613 - INFO - Simulation for output 32 took 0.4054 seconds.
 2025-06-17 15:49:47,049 - INFO - Output 33: Reduced order model size: 8, Time taken: 3.4356 seconds
 2025-06-17 15:49:47,452 - INFO - Simulation for output 33 took 0.4034 seconds.
+2025-06-18 21:15:41,791 - INFO - Namespace(circuit=2, port_num=10, threshold=0.05)
+2025-06-18 21:15:41,808 - INFO - Circuit : 2
+2025-06-19 10:22:13,827 - INFO - Namespace(circuit=2, port_num=10, threshold=0.05)
+2025-06-19 10:22:13,844 - INFO - Circuit : 2
+2025-06-19 10:22:15,449 - INFO - RGA computation time: 1.5982 seconds
+2025-06-19 10:22:15,450 - INFO - RGA matrix computed and normalized.
+2025-06-19 10:27:08,375 - INFO - Namespace(circuit=2, port_num=100, threshold=0)
+2025-06-19 10:27:08,391 - INFO - Circuit : 2
+2025-06-19 10:27:13,669 - INFO - RGA computation time: 5.2717 seconds
+2025-06-19 10:27:13,669 - INFO - RGA matrix computed and normalized.
+2025-06-19 10:27:48,590 - INFO - Output 1: Reduced order model size: 200, Time taken: 27.8245 seconds
+2025-06-19 10:27:49,294 - INFO - Simulation for output 1 took 0.7043 seconds.
+2025-06-19 10:28:14,105 - INFO - Output 2: Reduced order model size: 200, Time taken: 24.8107 seconds
+2025-06-19 10:28:14,776 - INFO - Simulation for output 2 took 0.6704 seconds.
+2025-06-19 10:28:39,295 - INFO - Output 3: Reduced order model size: 200, Time taken: 24.5187 seconds
+2025-06-19 10:28:39,932 - INFO - Simulation for output 3 took 0.6363 seconds.
+2025-06-19 10:29:02,591 - INFO - Output 4: Reduced order model size: 200, Time taken: 22.6591 seconds
+2025-06-19 10:29:03,228 - INFO - Simulation for output 4 took 0.6367 seconds.
+2025-06-19 10:29:25,788 - INFO - Output 5: Reduced order model size: 200, Time taken: 22.5590 seconds
+2025-06-19 10:29:26,425 - INFO - Simulation for output 5 took 0.6366 seconds.
+2025-06-19 10:29:48,972 - INFO - Output 6: Reduced order model size: 200, Time taken: 22.5466 seconds
+2025-06-19 10:29:49,619 - INFO - Simulation for output 6 took 0.6475 seconds.
+2025-06-19 10:30:12,375 - INFO - Output 7: Reduced order model size: 200, Time taken: 22.7549 seconds
+2025-06-19 10:30:13,156 - INFO - Simulation for output 7 took 0.7808 seconds.
+2025-06-19 10:30:35,945 - INFO - Output 8: Reduced order model size: 200, Time taken: 22.7884 seconds
+2025-06-19 10:30:36,591 - INFO - Simulation for output 8 took 0.6458 seconds.
+2025-06-19 10:32:38,233 - INFO - Namespace(circuit=2, port_num=100, threshold=0.0001)
+2025-06-19 10:32:38,250 - INFO - Circuit : 2
+2025-06-19 10:32:43,562 - INFO - RGA computation time: 5.3050 seconds
+2025-06-19 10:32:43,562 - INFO - RGA matrix computed and normalized.
+2025-06-19 10:32:57,643 - INFO - Output 1: Reduced order model size: 46, Time taken: 6.9396 seconds
+2025-06-19 10:32:58,147 - INFO - Simulation for output 1 took 0.5034 seconds.
+2025-06-19 10:33:04,310 - INFO - Output 2: Reduced order model size: 36, Time taken: 6.1625 seconds
+2025-06-19 10:33:04,787 - INFO - Simulation for output 2 took 0.4768 seconds.
+2025-06-19 10:33:11,487 - INFO - Output 3: Reduced order model size: 44, Time taken: 6.6992 seconds
+2025-06-19 10:33:11,958 - INFO - Simulation for output 3 took 0.4711 seconds.
+2025-06-19 10:33:18,240 - INFO - Output 4: Reduced order model size: 38, Time taken: 6.2816 seconds
+2025-06-19 10:33:18,718 - INFO - Simulation for output 4 took 0.4778 seconds.
+2025-06-19 10:33:48,166 - INFO - Namespace(circuit=2, port_num=100, threshold=0)
+2025-06-19 10:33:48,182 - INFO - Circuit : 2
+2025-06-19 10:33:53,494 - INFO - RGA computation time: 5.3048 seconds
+2025-06-19 10:33:53,495 - INFO - RGA matrix computed and normalized.
+2025-06-19 10:34:12,602 - INFO - Output 1: Reduced order model size: 100, Time taken: 11.9541 seconds
+2025-06-19 10:34:13,151 - INFO - Simulation for output 1 took 0.5483 seconds.
+2025-06-19 10:34:25,061 - INFO - Output 2: Reduced order model size: 100, Time taken: 11.9099 seconds
+2025-06-19 10:34:25,579 - INFO - Simulation for output 2 took 0.5177 seconds.
+2025-06-19 10:34:37,420 - INFO - Output 3: Reduced order model size: 100, Time taken: 11.8409 seconds
+2025-06-19 10:34:37,937 - INFO - Simulation for output 3 took 0.5165 seconds.
+2025-06-19 10:34:49,773 - INFO - Output 4: Reduced order model size: 100, Time taken: 11.8353 seconds
+2025-06-19 10:34:50,293 - INFO - Simulation for output 4 took 0.5201 seconds.
+2025-06-19 10:35:02,132 - INFO - Output 5: Reduced order model size: 100, Time taken: 11.8380 seconds
+2025-06-19 10:35:02,646 - INFO - Simulation for output 5 took 0.5143 seconds.
+2025-06-19 10:35:14,527 - INFO - Output 6: Reduced order model size: 100, Time taken: 11.8805 seconds
+2025-06-19 10:35:15,056 - INFO - Simulation for output 6 took 0.5289 seconds.
+2025-06-19 10:35:26,650 - INFO - Output 7: Reduced order model size: 100, Time taken: 11.5927 seconds
+2025-06-19 10:35:27,249 - INFO - Simulation for output 7 took 0.5991 seconds.
+2025-06-22 15:28:55,982 - INFO - Namespace(circuit=2, port_num=100, threshold=0)
+2025-06-22 15:28:55,999 - INFO - Circuit : 2
+2025-06-22 15:29:01,280 - INFO - RGA computation time: 5.2747 seconds
+2025-06-22 15:29:01,281 - INFO - RGA matrix computed and normalized.

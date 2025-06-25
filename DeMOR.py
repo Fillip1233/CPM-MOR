@@ -14,28 +14,32 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from generate_mf_mor_data import generate_u, generate_udiff
 from utils.tdIntLinBE_new import *
+from scipy.sparse import hstack
 
 def DeMOR(G, C, B, args, savepath, threshold=0.5):
     f = np.array([1e9])
     m = 2
     s = 1j * 2 * np.pi * f
-    # t1 = time.time()
-    # M0 = spla.spsolve(G+s[0]*C, B) # Step 1: Solve GM = B for M0
+    t1 = time.time()
+    M0 = spla.spsolve(G, B) # Step 1: Solve GM = B for M0
 
-    # H_DC = B.T @ M0  # Step 2: Compute H_DC = B^T * M0
-    # H_DC = H_DC.toarray()
-    # RGA = H_DC * np.linalg.inv(H_DC.T)  # Step 3: Compute relative gain array (RGA)
-    
-    # for i in range(RGA.shape[0]): # step 4: Normalize RGA values to [0, 1]
-    #     for j in range(RGA.shape[1]):
-    #         val = abs(RGA[i, j])
-    #         if val <= 1:
-    #             RGA[i, j] = val
-    #         else:
-    #             RGA[i, j] = 1 / val
-    # t2 = time.time() - t1
-    # logging.info(f"RGA computation time: {t2:.4f} seconds")
-    RGA = np.load("RGA7t.npy")
+    H_DC = B.T @ M0  # Step 2: Compute H_DC = B^T * M0
+    H_DC = H_DC.toarray()
+    try:
+        RGA = H_DC * np.linalg.inv(H_DC.T)  # Step 3: Compute relative gain array (RGA)
+    except:
+        logging.warning("Matrix inversion failed, using pseudo-inverse instead.")
+        RGA = H_DC * np.linalg.pinv(H_DC.T)
+    for i in range(RGA.shape[0]): # step 4: Normalize RGA values to [0, 1]
+        for j in range(RGA.shape[1]):
+            val = abs(RGA[i, j])
+            if val <= 1:
+                RGA[i, j] = val
+            else:
+                RGA[i, j] = 1 / val
+    t2 = time.time() - t1
+    logging.info(f"RGA computation time: {t2:.4f} seconds")
+    # RGA = np.load("RGA7t.npy")
     logging.info("RGA matrix computed and normalized.")
     # plt.figure(figsize=(15, 12))
     # # 绘制热力图
@@ -57,11 +61,12 @@ def DeMOR(G, C, B, args, savepath, threshold=0.5):
 
     # # 显示图形
     # plt.tight_layout()
-    # plt.savefig('RGA_7t.png', dpi=300)  # 保存图像
+    # plt.savefig('RGA_4t.png', dpi=300)  # 保存图像
+    # plt.close()
 
     dominant_inputs = [] # Step 6-7: Based on threshold, select dominant input indices for each output
     for i in range(RGA.shape[0]):
-        indices = np.where(RGA[i] >= threshold)[0]
+        indices = np.where(RGA[i] > threshold)[0]
         dominant_inputs.append(indices)
     
     # simulate y 
@@ -135,9 +140,9 @@ def simulate(Cr_i, Gr_i, Br_i, XX, port_idx, x0, y, IS, VS, select_port, args, s
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='DeMOR')
-    parser.add_argument('--circuit', type=int, default=7, help='Circuit number')
-    parser.add_argument("--port_num", type=int, default= 200)
-    parser.add_argument("--threshold", type=int, default= 0.05)
+    parser.add_argument('--circuit', type=int, default=4, help='Circuit number')
+    parser.add_argument("--port_num", type=int, default= 2000)
+    parser.add_argument("--threshold", type=int, default= 0)
     args = parser.parse_args()
     save_path = os.path.join('/home/fillip/home/CPM-MOR/Exp_res/DeMOR/{}t/'.format(args.circuit))
     if not os.path.exists(save_path):
@@ -145,8 +150,16 @@ if __name__ == "__main__":
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
                         handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/DeMOR.log")])
     logging.info(args)
-    # data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/ibmpg{}t.mat".format(args.circuit))
-    data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/thupg1t.mat")
+    data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/ibmpg{}t.mat".format(args.circuit))
+    # data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/thupg1t.mat")
+    # data1 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/ibmpg1t_B1.mat")
+    # data2 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/ibmpg1t_B2.mat")
+    # B1 = data1['B']
+    # B2 = data2['B']
+    # B1 = B1.tocsc()
+    # B2 = B2.tocsc()
+    # B = hstack([B1, B2], format='csc')
+
     port_num = args.port_num
     logging.info("Circuit : {}".format(args.circuit))
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
@@ -155,6 +168,7 @@ if __name__ == "__main__":
     C = C.tocsc()
     G = G.tocsc()
     B = B[:, 0:0+port_num]
+    # B = B[:, -port_num:]
     # output matrix
     O = B
     DeMOR(G, C, O, args, save_path, threshold=args.threshold)

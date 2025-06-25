@@ -22,3 +22,104 @@
 2025-06-17 10:18:54,801 - INFO - Circuit : 1
 2025-06-17 10:33:31,961 - INFO - Namespace(circuit=1, port_num=500, threshold=0.5)
 2025-06-17 10:33:31,968 - INFO - Circuit : 1
+2025-06-17 20:39:01,077 - INFO - Namespace(circuit=1, port_num=200, threshold=0.05)
+2025-06-17 20:39:01,084 - INFO - Circuit : 1
+2025-06-17 20:39:28,385 - INFO - Namespace(circuit=1, port_num=200, threshold=0.05)
+2025-06-17 20:39:28,392 - INFO - Circuit : 1
+2025-06-17 20:39:43,922 - INFO - Namespace(circuit=1, port_num=200, threshold=0.05)
+2025-06-17 20:39:43,929 - INFO - Circuit : 1
+2025-06-17 20:41:31,451 - INFO - Namespace(circuit=1, port_num=2, threshold=0.05)
+2025-06-17 20:41:31,458 - INFO - Circuit : 1
+2025-06-17 20:41:31,666 - INFO - RGA computation time: 0.2050 seconds
+2025-06-17 20:41:31,666 - INFO - RGA matrix computed and normalized.
+2025-06-17 20:41:33,554 - INFO - Output 1: Reduced order model size: 2, Time taken: 0.2334 seconds
+2025-06-17 20:41:34,040 - INFO - Simulation for output 1 took 0.4853 seconds.
+2025-06-17 20:41:34,286 - INFO - Output 2: Reduced order model size: 2, Time taken: 0.2451 seconds
+2025-06-17 20:41:34,749 - INFO - Simulation for output 2 took 0.4633 seconds.
+2025-06-17 20:41:34,751 - INFO - Finish DeMOR
+2025-06-17 20:42:16,608 - INFO - Namespace(circuit=1, port_num=2, threshold=0.05)
+2025-06-17 20:42:16,615 - INFO - Circuit : 1
+2025-06-17 20:42:16,824 - INFO - RGA computation time: 0.2052 seconds
+2025-06-17 20:42:16,824 - INFO - RGA matrix computed and normalized.
+2025-06-17 20:42:19,526 - INFO - Output 1: Reduced order model size: 2, Time taken: 0.2311 seconds
+2025-06-17 20:42:20,333 - INFO - Simulation for output 1 took 0.8067 seconds.
+2025-06-17 20:42:20,563 - INFO - Output 2: Reduced order model size: 2, Time taken: 0.2296 seconds
+2025-06-17 20:42:21,007 - INFO - Simulation for output 2 took 0.4438 seconds.
+2025-06-17 20:42:21,009 - INFO - Finish DeMOR
+2025-06-17 20:42:51,544 - INFO - Namespace(circuit=1, port_num=2, threshold=0.05)
+2025-06-17 20:42:51,551 - INFO - Circuit : 1
+2025-06-17 20:43:03,368 - INFO - RGA computation time: 8.3156 seconds
+2025-06-17 20:43:19,782 - INFO - RGA matrix computed and normalized.
+2025-06-17 20:44:20,017 - INFO - Output 1: Reduced order model size: 2, Time taken: 14.3252 seconds
+2025-06-17 20:46:59,446 - INFO - Namespace(circuit=1, port_num=2, threshold=0.05)
+2025-06-17 20:46:59,453 - INFO - Circuit : 1
+2025-06-17 20:46:59,662 - INFO - RGA computation time: 0.2058 seconds
+2025-06-17 20:46:59,662 - INFO - RGA matrix computed and normalized.
+2025-06-17 20:48:03,261 - INFO - Namespace(circuit=1, port_num=2, threshold=0.05)
+2025-06-17 20:48:03,267 - INFO - Circuit : 1
+2025-06-17 20:48:03,475 - INFO - RGA computation time: 0.2051 seconds
+2025-06-17 20:48:03,476 - INFO - RGA matrix computed and normalized.
+2025-06-17 20:49:50,499 - INFO - Output 1: Reduced order model size: 2, Time taken: 103.9037 seconds
+2025-06-17 20:52:11,996 - INFO - Simulation for output 1 took 139.5762 seconds.
+2025-06-17 20:53:16,034 - INFO - Output 2: Reduced order model size: 2, Time taken: 46.6801 seconds
+2025-06-17 20:55:12,193 - INFO - Namespace(circuit=1, port_num=3, threshold=0.05)
+2025-06-17 20:55:12,200 - INFO - Circuit : 1
+2025-06-17 20:55:12,426 - INFO - RGA computation time: 0.2221 seconds
+2025-06-17 20:55:12,426 - INFO - RGA matrix computed and normalized.
+2025-06-17 20:56:17,122 - INFO - Namespace(circuit=1, port_num=4, threshold=0.05)
+2025-06-17 20:56:17,129 - INFO - Circuit : 1
+2025-06-17 20:56:17,368 - INFO - RGA computation time: 0.2366 seconds
+2025-06-17 20:56:17,369 - INFO - RGA matrix computed and normalized.
+2025-06-17 20:56:58,948 - INFO - Namespace(circuit=1, port_num=5, threshold=0.05)
+2025-06-17 20:56:58,956 - INFO - Circuit : 1
+2025-06-17 20:56:59,212 - INFO - RGA computation time: 0.2532 seconds
+2025-06-17 20:56:59,212 - INFO - RGA matrix computed and normalized.
+2025-06-17 20:57:19,331 - INFO - Namespace(circuit=1, port_num=10, threshold=0.05)
+2025-06-17 20:57:19,338 - INFO - Circuit : 1
+2025-06-17 21:02:14,881 - INFO - Namespace(circuit=1, port_num=2000, threshold=0.05)
+2025-06-17 21:02:14,888 - INFO - Circuit : 1
+2025-06-17 21:05:50,388 - INFO - Namespace(circuit=1, port_num=10, threshold=0.05)
+2025-06-17 21:05:50,395 - INFO - Circuit : 1
+2025-06-17 21:06:00,613 - INFO - Namespace(circuit=1, port_num=10, threshold=0.05)
+2025-06-17 21:06:00,620 - INFO - Circuit : 1
+2025-06-18 16:16:39,739 - INFO - Namespace(circuit=1, port_num=10, threshold=0.05)
+2025-06-18 16:16:39,746 - INFO - Circuit : 1
+2025-06-19 11:28:11,850 - INFO - Namespace(circuit=1, port_num=100, threshold=0)
+2025-06-19 11:28:11,856 - INFO - Circuit : 1
+2025-06-19 11:37:01,580 - INFO - Namespace(circuit=1, port_num=100, threshold=0)
+2025-06-19 11:37:01,585 - INFO - Circuit : 1
+2025-06-19 12:03:51,363 - INFO - Namespace(circuit=1, port_num=100, threshold=0)
+2025-06-19 12:03:51,369 - INFO - Circuit : 1
+2025-06-19 18:17:41,500 - INFO - Namespace(circuit=1, port_num=100, threshold=0)
+2025-06-19 18:17:41,505 - INFO - Circuit : 1
+2025-06-22 15:28:28,847 - INFO - Namespace(circuit=1, port_num=100, threshold=0)
+2025-06-22 15:28:28,853 - INFO - Circuit : 1
+2025-06-25 09:53:21,825 - INFO - Namespace(circuit=1, port_num=2000, threshold=0)
+2025-06-25 09:53:21,832 - INFO - Circuit : 1
+2025-06-25 09:53:40,697 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-25 09:54:03,874 - INFO - RGA computation time: 42.0389 seconds
+2025-06-25 09:54:03,875 - INFO - RGA matrix computed and normalized.
+2025-06-25 09:55:15,288 - INFO - Namespace(circuit=1, port_num=100, threshold=0)
+2025-06-25 09:55:15,294 - INFO - Circuit : 1
+2025-06-25 09:55:16,366 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-25 09:55:16,470 - INFO - RGA computation time: 1.1724 seconds
+2025-06-25 09:55:16,470 - INFO - RGA matrix computed and normalized.
+2025-06-25 10:02:18,838 - INFO - Namespace(circuit=1, port_num=2000, threshold=0)
+2025-06-25 10:02:18,845 - INFO - Circuit : 1
+2025-06-25 10:02:37,893 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-25 10:02:41,597 - INFO - RGA computation time: 22.7488 seconds
+2025-06-25 10:02:41,597 - INFO - RGA matrix computed and normalized.
+2025-06-25 10:03:10,176 - INFO - Output 1: Reduced order model size: 816, Time taken: 25.8811 seconds
+2025-06-25 10:03:15,699 - INFO - Simulation for output 1 took 5.5226 seconds.
+2025-06-25 10:03:57,119 - INFO - Output 2: Reduced order model size: 1222, Time taken: 41.4195 seconds
+2025-06-25 10:04:08,491 - INFO - Simulation for output 2 took 11.3716 seconds.
+2025-06-25 10:04:33,258 - INFO - Output 3: Reduced order model size: 816, Time taken: 24.7665 seconds
+2025-06-25 10:04:37,466 - INFO - Simulation for output 3 took 4.2078 seconds.
+2025-06-25 10:05:24,890 - INFO - Output 4: Reduced order model size: 1222, Time taken: 47.4234 seconds
+2025-06-25 10:05:36,328 - INFO - Simulation for output 4 took 11.4378 seconds.
+2025-06-25 10:05:59,453 - INFO - Output 5: Reduced order model size: 816, Time taken: 23.1250 seconds
+2025-06-25 10:06:03,684 - INFO - Simulation for output 5 took 4.2299 seconds.
+2025-06-25 10:06:46,838 - INFO - Output 6: Reduced order model size: 1222, Time taken: 43.1535 seconds
+2025-06-25 10:06:58,504 - INFO - Simulation for output 6 took 11.6662 seconds.
+2025-06-25 10:07:20,992 - INFO - Output 7: Reduced order model size: 816, Time taken: 22.4873 seconds
+2025-06-25 10:07:25,319 - INFO - Simulation for output 7 took 4.3270 seconds.
