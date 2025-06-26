@@ -1,0 +1,4 @@
+2025-06-25 19:13:25,800 - INFO - Namespace(circuit=2, port_num=2, threshold=0)
+2025-06-25 19:13:25,817 - INFO - Circuit : 2
+2025-06-25 19:13:48,293 - INFO - Namespace(circuit=2, port_num=5, threshold=0)
+2025-06-25 19:13:48,309 - INFO - Circuit : 2

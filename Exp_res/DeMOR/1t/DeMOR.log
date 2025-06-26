@@ -123,3 +123,151 @@
 2025-06-25 10:06:58,504 - INFO - Simulation for output 6 took 11.6662 seconds.
 2025-06-25 10:07:20,992 - INFO - Output 7: Reduced order model size: 816, Time taken: 22.4873 seconds
 2025-06-25 10:07:25,319 - INFO - Simulation for output 7 took 4.3270 seconds.
+2025-06-25 17:08:24,069 - INFO - Namespace(circuit=1, port_num=2000, threshold=0)
+2025-06-25 17:08:24,077 - INFO - Circuit : 1
+2025-06-25 17:15:43,997 - INFO - Namespace(circuit=1, port_num=2000, threshold=0)
+2025-06-25 17:15:44,004 - INFO - Circuit : 1
+2025-06-25 17:17:58,059 - INFO - Namespace(circuit=1, port_num=2000, threshold=0)
+2025-06-25 17:17:58,066 - INFO - Circuit : 1
+2025-06-25 17:38:27,962 - INFO - Namespace(circuit=1, port_num=100, threshold=0)
+2025-06-25 17:38:27,969 - INFO - Circuit : 1
+2025-06-25 17:38:29,024 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-25 17:38:29,128 - INFO - RGA computation time: 1.1559 seconds
+2025-06-25 17:38:29,128 - INFO - RGA matrix computed and normalized.
+2025-06-25 17:39:19,442 - INFO - Namespace(circuit=1, port_num=20, threshold=0)
+2025-06-25 17:39:19,449 - INFO - Circuit : 1
+2025-06-25 17:39:19,768 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-25 17:39:19,771 - INFO - RGA computation time: 0.3196 seconds
+2025-06-25 17:39:19,771 - INFO - RGA matrix computed and normalized.
+2025-06-25 17:40:10,325 - INFO - Namespace(circuit=1, port_num=20, threshold=0)
+2025-06-25 17:40:10,331 - INFO - Circuit : 1
+2025-06-25 17:40:10,651 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-25 17:40:10,655 - INFO - RGA computation time: 0.3203 seconds
+2025-06-25 17:40:10,655 - INFO - RGA matrix computed and normalized.
+2025-06-25 17:41:01,982 - INFO - Namespace(circuit=1, port_num=20, threshold=0)
+2025-06-25 17:41:01,989 - INFO - Circuit : 1
+2025-06-25 17:41:02,307 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-25 17:41:02,310 - INFO - RGA computation time: 0.3188 seconds
+2025-06-25 17:41:02,311 - INFO - RGA matrix computed and normalized.
+2025-06-25 17:41:15,218 - INFO - Namespace(circuit=1, port_num=20, threshold=0)
+2025-06-25 17:41:15,226 - INFO - Circuit : 1
+2025-06-25 17:41:15,544 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-25 17:41:15,547 - INFO - RGA computation time: 0.3187 seconds
+2025-06-25 17:41:15,547 - INFO - RGA matrix computed and normalized.
+2025-06-25 17:50:19,919 - INFO - Namespace(circuit=1, port_num=20, threshold=0)
+2025-06-25 17:50:19,926 - INFO - Circuit : 1
+2025-06-26 11:18:27,473 - INFO - Namespace(circuit=1, port_num=2000, threshold=0.01)
+2025-06-26 11:18:27,479 - INFO - Circuit : 1
+2025-06-26 11:18:59,689 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-26 11:19:05,183 - INFO - RGA computation time: 37.7003 seconds
+2025-06-26 11:19:05,183 - INFO - RGA matrix computed and normalized.
+2025-06-26 11:19:08,090 - INFO - Output 1: Reduced order model size: 6, Time taken: 0.2760 seconds
+2025-06-26 11:19:08,570 - INFO - Simulation for output 1 took 0.4800 seconds.
+2025-06-26 11:19:08,870 - INFO - Output 2: Reduced order model size: 8, Time taken: 0.2988 seconds
+2025-06-26 11:19:09,319 - INFO - Simulation for output 2 took 0.4492 seconds.
+2025-06-26 11:19:09,716 - INFO - Output 3: Reduced order model size: 12, Time taken: 0.3960 seconds
+2025-06-26 11:19:10,144 - INFO - Simulation for output 3 took 0.4282 seconds.
+2025-06-26 11:19:10,625 - INFO - Output 4: Reduced order model size: 10, Time taken: 0.4803 seconds
+2025-06-26 11:19:11,065 - INFO - Simulation for output 4 took 0.4395 seconds.
+2025-06-26 11:19:11,442 - INFO - Output 5: Reduced order model size: 14, Time taken: 0.3773 seconds
+2025-06-26 11:19:11,869 - INFO - Simulation for output 5 took 0.4262 seconds.
+2025-06-26 11:19:12,111 - INFO - Output 6: Reduced order model size: 4, Time taken: 0.2416 seconds
+2025-06-26 11:19:41,436 - INFO - Namespace(circuit=1, port_num=2000, threshold=0)
+2025-06-26 11:19:41,444 - INFO - Circuit : 1
+2025-06-26 11:20:13,675 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-26 11:20:19,027 - INFO - RGA computation time: 37.5802 seconds
+2025-06-26 11:20:19,027 - INFO - RGA matrix computed and normalized.
+2025-06-26 11:20:44,338 - INFO - Output 1: Reduced order model size: 816, Time taken: 22.6607 seconds
+2025-06-26 11:20:48,631 - INFO - Simulation for output 1 took 4.2925 seconds.
+2025-06-26 11:21:32,273 - INFO - Output 2: Reduced order model size: 1224, Time taken: 43.6417 seconds
+2025-06-26 11:21:43,864 - INFO - Simulation for output 2 took 11.5906 seconds.
+2025-06-26 11:22:06,530 - INFO - Output 3: Reduced order model size: 816, Time taken: 22.6653 seconds
+2025-06-26 11:22:10,770 - INFO - Simulation for output 3 took 4.2401 seconds.
+2025-06-26 11:22:52,906 - INFO - Output 4: Reduced order model size: 1224, Time taken: 42.1353 seconds
+2025-06-26 11:23:07,413 - INFO - Simulation for output 4 took 14.5065 seconds.
+2025-06-26 11:23:29,018 - INFO - Output 5: Reduced order model size: 816, Time taken: 21.6047 seconds
+2025-06-26 11:23:34,859 - INFO - Simulation for output 5 took 5.8406 seconds.
+2025-06-26 11:24:15,880 - INFO - Output 6: Reduced order model size: 1224, Time taken: 41.0199 seconds
+2025-06-26 11:24:30,371 - INFO - Simulation for output 6 took 14.4911 seconds.
+2025-06-26 11:24:54,409 - INFO - Output 7: Reduced order model size: 816, Time taken: 24.0372 seconds
+2025-06-26 11:25:00,277 - INFO - Simulation for output 7 took 5.8682 seconds.
+2025-06-26 11:25:39,288 - INFO - Output 8: Reduced order model size: 1224, Time taken: 39.0096 seconds
+2025-06-26 11:25:53,705 - INFO - Simulation for output 8 took 14.4169 seconds.
+2025-06-26 11:26:14,727 - INFO - Output 9: Reduced order model size: 816, Time taken: 21.0221 seconds
+2025-06-26 11:26:19,009 - INFO - Simulation for output 9 took 4.2813 seconds.
+2025-06-26 11:26:57,624 - INFO - Output 10: Reduced order model size: 1224, Time taken: 38.6149 seconds
+2025-06-26 11:27:09,096 - INFO - Simulation for output 10 took 11.4711 seconds.
+2025-06-26 11:27:32,885 - INFO - Output 11: Reduced order model size: 816, Time taken: 23.7890 seconds
+2025-06-26 11:27:37,307 - INFO - Simulation for output 11 took 4.4213 seconds.
+2025-06-26 11:28:16,198 - INFO - Output 12: Reduced order model size: 1224, Time taken: 38.8903 seconds
+2025-06-26 11:28:30,515 - INFO - Simulation for output 12 took 14.3172 seconds.
+2025-06-26 11:28:51,287 - INFO - Output 13: Reduced order model size: 816, Time taken: 20.7717 seconds
+2025-06-26 11:28:55,587 - INFO - Simulation for output 13 took 4.2988 seconds.
+2025-06-26 11:29:39,593 - INFO - Output 14: Reduced order model size: 1224, Time taken: 44.0062 seconds
+2025-06-26 11:29:51,110 - INFO - Simulation for output 14 took 11.5163 seconds.
+2025-06-26 11:30:11,957 - INFO - Output 15: Reduced order model size: 816, Time taken: 20.8468 seconds
+2025-06-26 11:30:16,184 - INFO - Simulation for output 15 took 4.2266 seconds.
+2025-06-26 11:31:55,631 - INFO - Namespace(circuit=1, port_num=2000, threshold=0)
+2025-06-26 11:31:55,638 - INFO - Circuit : 1
+2025-06-26 11:32:27,988 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-26 11:32:50,097 - INFO - RGA computation time: 54.4552 seconds
+2025-06-26 11:34:52,311 - INFO - Namespace(circuit=1, port_num=2000, threshold=0)
+2025-06-26 11:34:52,318 - INFO - Circuit : 1
+2025-06-26 11:35:24,827 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-26 11:35:47,592 - INFO - RGA computation time: 55.2708 seconds
+2025-06-26 11:35:57,062 - INFO - RGA matrix computed and normalized.
+2025-06-26 11:35:57,063 - INFO - Using threshold: 0.0035 for dominant input selection.
+2025-06-26 11:35:59,986 - INFO - Output 1: Reduced order model size: 6, Time taken: 0.2814 seconds
+2025-06-26 11:36:00,459 - INFO - Simulation for output 1 took 0.4730 seconds.
+2025-06-26 11:36:00,758 - INFO - Output 2: Reduced order model size: 8, Time taken: 0.2979 seconds
+2025-06-26 11:36:01,201 - INFO - Simulation for output 2 took 0.4427 seconds.
+2025-06-26 11:36:01,594 - INFO - Output 3: Reduced order model size: 12, Time taken: 0.3932 seconds
+2025-06-26 11:36:02,029 - INFO - Simulation for output 3 took 0.4345 seconds.
+2025-06-26 11:36:02,599 - INFO - Output 4: Reduced order model size: 10, Time taken: 0.5693 seconds
+2025-06-26 11:36:03,051 - INFO - Simulation for output 4 took 0.4521 seconds.
+2025-06-26 11:36:03,460 - INFO - Output 5: Reduced order model size: 14, Time taken: 0.4083 seconds
+2025-06-26 11:36:03,895 - INFO - Simulation for output 5 took 0.4347 seconds.
+2025-06-26 11:36:04,318 - INFO - Output 6: Reduced order model size: 6, Time taken: 0.4232 seconds
+2025-06-26 11:36:04,785 - INFO - Simulation for output 6 took 0.4667 seconds.
+2025-06-26 11:36:05,153 - INFO - Output 7: Reduced order model size: 12, Time taken: 0.3674 seconds
+2025-06-26 11:36:05,645 - INFO - Simulation for output 7 took 0.4918 seconds.
+2025-06-26 11:36:06,070 - INFO - Output 8: Reduced order model size: 6, Time taken: 0.4238 seconds
+2025-06-26 11:36:06,537 - INFO - Simulation for output 8 took 0.4674 seconds.
+2025-06-26 11:36:06,944 - INFO - Output 9: Reduced order model size: 14, Time taken: 0.4063 seconds
+2025-06-26 11:36:07,377 - INFO - Simulation for output 9 took 0.4329 seconds.
+2025-06-26 11:36:07,842 - INFO - Output 10: Reduced order model size: 6, Time taken: 0.4646 seconds
+2025-06-26 11:36:08,305 - INFO - Simulation for output 10 took 0.4623 seconds.
+2025-06-26 11:36:08,673 - INFO - Output 11: Reduced order model size: 12, Time taken: 0.3677 seconds
+2025-06-26 11:36:09,110 - INFO - Simulation for output 11 took 0.4362 seconds.
+2025-06-26 11:36:09,506 - INFO - Output 12: Reduced order model size: 6, Time taken: 0.3956 seconds
+2025-06-26 11:36:09,944 - INFO - Simulation for output 12 took 0.4385 seconds.
+2025-06-26 11:36:10,312 - INFO - Output 13: Reduced order model size: 12, Time taken: 0.3676 seconds
+2025-06-26 11:36:10,758 - INFO - Simulation for output 13 took 0.4456 seconds.
+2025-06-26 11:36:11,141 - INFO - Output 14: Reduced order model size: 6, Time taken: 0.3819 seconds
+2025-06-26 11:36:11,580 - INFO - Simulation for output 14 took 0.4397 seconds.
+2025-06-26 11:36:11,931 - INFO - Output 15: Reduced order model size: 10, Time taken: 0.3497 seconds
+2025-06-26 11:36:12,376 - INFO - Simulation for output 15 took 0.4449 seconds.
+2025-06-26 11:36:12,773 - INFO - Output 16: Reduced order model size: 6, Time taken: 0.3965 seconds
+2025-06-26 11:36:13,213 - INFO - Simulation for output 16 took 0.4395 seconds.
+2025-06-26 11:36:13,537 - INFO - Output 17: Reduced order model size: 10, Time taken: 0.3243 seconds
+2025-06-26 11:36:13,965 - INFO - Simulation for output 17 took 0.4271 seconds.
+2025-06-26 11:36:14,361 - INFO - Output 18: Reduced order model size: 6, Time taken: 0.3963 seconds
+2025-06-26 11:36:14,801 - INFO - Simulation for output 18 took 0.4390 seconds.
+2025-06-26 11:36:15,125 - INFO - Output 19: Reduced order model size: 10, Time taken: 0.3241 seconds
+2025-06-26 11:36:15,552 - INFO - Simulation for output 19 took 0.4268 seconds.
+2025-06-26 11:36:16,016 - INFO - Output 20: Reduced order model size: 6, Time taken: 0.4633 seconds
+2025-06-26 11:36:16,457 - INFO - Simulation for output 20 took 0.4409 seconds.
+2025-06-26 11:36:16,780 - INFO - Output 21: Reduced order model size: 10, Time taken: 0.3230 seconds
+2025-06-26 11:36:17,208 - INFO - Simulation for output 21 took 0.4271 seconds.
+2025-06-26 11:36:17,616 - INFO - Output 22: Reduced order model size: 6, Time taken: 0.4077 seconds
+2025-06-26 11:36:18,058 - INFO - Simulation for output 22 took 0.4423 seconds.
+2025-06-26 11:36:18,383 - INFO - Output 23: Reduced order model size: 10, Time taken: 0.3239 seconds
+2025-06-26 11:36:18,821 - INFO - Simulation for output 23 took 0.4381 seconds.
+2025-06-26 11:36:19,229 - INFO - Output 24: Reduced order model size: 6, Time taken: 0.4068 seconds
+2025-06-26 11:36:19,729 - INFO - Simulation for output 24 took 0.4999 seconds.
+2025-06-26 11:36:20,056 - INFO - Output 25: Reduced order model size: 10, Time taken: 0.3268 seconds
+2025-06-26 11:36:20,496 - INFO - Simulation for output 25 took 0.4399 seconds.
+2025-06-26 11:36:20,893 - INFO - Output 26: Reduced order model size: 6, Time taken: 0.3962 seconds
+2025-06-26 11:36:21,333 - INFO - Simulation for output 26 took 0.4400 seconds.
+2025-06-26 11:36:21,659 - INFO - Output 27: Reduced order model size: 10, Time taken: 0.3260 seconds
+2025-06-26 11:36:22,099 - INFO - Simulation for output 27 took 0.4391 seconds.

@@ -21,7 +21,7 @@ def DeMOR(G, C, B, args, savepath, threshold=0.5):
     m = 2
     s = 1j * 2 * np.pi * f
     t1 = time.time()
-    M0 = spla.spsolve(G, B) # Step 1: Solve GM = B for M0
+    M0 = spla.spsolve(G+s[0]*C, B) # Step 1: Solve GM = B for M0
 
     H_DC = B.T @ M0  # Step 2: Compute H_DC = B^T * M0
     H_DC = H_DC.toarray()
@@ -49,7 +49,7 @@ def DeMOR(G, C, B, args, savepath, threshold=0.5):
     #     center=0.5,         # 颜色中心为 0
     #     vmin=0,          # 最小值 -1
     #     vmax=1,           # 最大值 1
-    #     annot=False,      # 不显示数值（避免 100x100 过于密集）
+    #     annot=True,      # 不显示数值（避免 100x100 过于密集）
     #     square=True,      # 保持单元格为方形
     #     cbar_kws={"shrink": 0.8}  # 调整颜色条大小
     # )
@@ -61,12 +61,18 @@ def DeMOR(G, C, B, args, savepath, threshold=0.5):
 
     # # 显示图形
     # plt.tight_layout()
-    # plt.savefig('RGA_4t.png', dpi=300)  # 保存图像
+    # plt.savefig('HDC_1t-1e10.png', dpi=300)  # 保存图像
     # plt.close()
 
     dominant_inputs = [] # Step 6-7: Based on threshold, select dominant input indices for each output
+    threshold = np.min(np.diagonal(RGA.real))
+    logging.info(f"Using threshold: {threshold:.4f} for dominant input selection.")
     for i in range(RGA.shape[0]):
-        indices = np.where(RGA[i] > threshold)[0]
+        indices = np.where(RGA[i] >= threshold)[0]
+        # 如果 0 不在 indices 里，就插入到最前面
+        if 0 not in indices:
+            indices = np.insert(indices, 0, 0)  # 在位置 0 插入 0
+        
         dominant_inputs.append(indices)
     
     # simulate y 
@@ -140,7 +146,7 @@ def simulate(Cr_i, Gr_i, Br_i, XX, port_idx, x0, y, IS, VS, select_port, args, s
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='DeMOR')
-    parser.add_argument('--circuit', type=int, default=4, help='Circuit number')
+    parser.add_argument('--circuit', type=int, default=2, help='Circuit number')
     parser.add_argument("--port_num", type=int, default= 2000)
     parser.add_argument("--threshold", type=int, default= 0)
     args = parser.parse_args()
@@ -171,5 +177,9 @@ if __name__ == "__main__":
     # B = B[:, -port_num:]
     # output matrix
     O = B
+    i = 0
+    # while i< port_num:
+    #     print("({},{},{})".format(B.indices[i], B.indptr[i], B.data[i]))
+    #     i += 1
     DeMOR(G, C, O, args, save_path, threshold=args.threshold)
     logging.info("Finish DeMOR")

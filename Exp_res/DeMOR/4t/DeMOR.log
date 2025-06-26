@@ -21,3 +21,8 @@
 2025-06-25 15:40:09,181 - INFO - Simulation for output 2 took 0.4183 seconds.
 2025-06-25 15:41:57,662 - INFO - Namespace(circuit=4, port_num=2000, threshold=0)
 2025-06-25 15:41:57,754 - INFO - Circuit : 4
+2025-06-25 15:59:57,870 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-25 16:00:01,552 - INFO - RGA computation time: 1083.7532 seconds
+2025-06-25 16:00:01,552 - INFO - RGA matrix computed and normalized.
+2025-06-25 16:51:47,456 - INFO - Output 1: Reduced order model size: 2000, Time taken: 2991.4069 seconds
+2025-06-25 16:52:29,169 - INFO - Simulation for output 1 took 41.7125 seconds.
