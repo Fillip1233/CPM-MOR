@@ -25,15 +25,15 @@ if __name__ == "__main__":
     parser.add_argument("--epoch", type= int, default= 300)
     parser.add_argument("--bs", type= int, default= 100)
     parser.add_argument("--hidden_size", type= int, default= 128)
-    parser.add_argument("--draw_type", type= int, default= 0)
+    parser.add_argument("--draw_type", type= int, default= 2)
     parser.add_argument("--module_name", type= str, default= "tensor_ann")
     parser.add_argument("--test_over", type= int, default= 0)
-    parser.add_argument("--cir", type= int, default= 3)
+    parser.add_argument("--cir", type= int, default= 1)
 
     args = parser.parse_args()
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_path = os.path.join(sys.path[0], f'train_data/{args.cir}t/sim_100_port2000_multiper_diff')
+    data_path = os.path.join(f'./Exp_res/DeMOR_data/{args.cir}t/')
     # x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1,pr = prepare_data_mix(data_path,prima = True)
     x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path,prima=False)
     if args.test_over:
@@ -149,45 +149,49 @@ if __name__ == "__main__":
             fig.suptitle(f"ibmpg{args.cir}t time and voltage model predictions and errors for each port", fontsize=14)
             # plt.tight_layout()
             fig.subplots_adjust(left=0.05, right=0.92, top=0.85, bottom=0.1)
-            plt.show()
+            # plt.show()
+            plt.savefig(f'./Exp_res/DeMOR_data/{args.cir}t/ibmpg{args.cir}t_example_{i}_response.png')
             plt.clf()
+            break
     
     if args.draw_type == 1:
         #端口响应总和
         plt.figure(figsize=(8, 5))
-        for i in range(100):
-            # i = 0
-            y_1 = ypred[i]
-            yy_1 = torch.zeros((y_1.shape[1])).to(device)
-            for j in range(y_1.shape[0]):
-                yy_1 += y_1[j, :]
-            y_te = yte[i]
-            yy_te = torch.zeros((y_te.shape[1])).to(device)
-            for k in range(y_te.shape[0]):
-                yy_te += y_te[k, :]
-            y_low = yl_test[i]
-            yy_low = torch.zeros((y_low.shape[1])).to(device)
-            for e in range(y_low.shape[0]):
-                yy_low += y_low[e, :]
-            if pr is not None:
-                pr1 = pr[i]
-                ppr = torch.zeros((pr1.shape[1])).to(device)
-                for p in range(pr1.shape[0]):
-                    ppr += pr1[p, :]
-            plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
-            plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
-            if pr is not None:
-                plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
-            
-            plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
-            plt.legend(fontsize=12)
-            plt.title(f"ibmpg{args.cir}t total port response", fontsize=14)
-            plt.xlabel("Time (s)", fontsize=12)
-            plt.ylabel("Response result (V)", fontsize=12)
-            plt.grid()
-            plt.tight_layout()
-            plt.show()
-            plt.clf()
+        # for i in range(100):
+        i = 99
+        y_1 = ypred[i]
+        yy_1 = torch.zeros((y_1.shape[1])).to(device)
+        for j in range(y_1.shape[0]):
+            yy_1 += y_1[j, :]
+        y_te = yte[i]
+        yy_te = torch.zeros((y_te.shape[1])).to(device)
+        for k in range(y_te.shape[0]):
+            yy_te += y_te[k, :]
+        y_low = yl_test[i]
+        yy_low = torch.zeros((y_low.shape[1])).to(device)
+        for e in range(y_low.shape[0]):
+            yy_low += y_low[e, :]
+        if pr is not None:
+            pr1 = pr[i]
+            ppr = torch.zeros((pr1.shape[1])).to(device)
+            for p in range(pr1.shape[0]):
+                ppr += pr1[p, :]
+        plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
+        plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
+        if pr is not None:
+            plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
+        
+        plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
+        plt.legend(fontsize=12)
+        plt.title(f"ibmpg{args.cir}t total port response", fontsize=14)
+        plt.xlabel("Time (s)", fontsize=12)
+        plt.ylabel("Response result (V)", fontsize=12)
+        plt.grid()
+        plt.tight_layout()
+        # plt.show()
+        plt.savefig(f'./Exp_res/DeMOR_data/{args.cir}t/ibmpg{args.cir}t_total_port_response.png')
+        plt.clf()
+        # break
     if args.draw_type == 2:
         #单个端口响应波形图
         plt.figure(figsize=(8, 5))
@@ -198,15 +202,16 @@ if __name__ == "__main__":
         if pr is not None:
             pr1 = pr[example]
         for i in range(100):
+            i = 300
             yy_1 = torch.zeros((y_1.shape[1])).to(device)
-            yy_1 = y_1[i+300, :]
+            yy_1 = y_1[i, :]
             yy_te = torch.zeros((y_te.shape[1])).to(device)
-            yy_te = y_te[i+300, :]
+            yy_te = y_te[i, :]
             yy_low = torch.zeros((y_low.shape[1])).to(device)
-            yy_low = y_low[i+300, :]
+            yy_low = y_low[i, :]
             if pr is not None:
                 ppr = torch.zeros((pr1.shape[1])).to(device)
-                ppr = pr1[i+300, :]
+                ppr = pr1[i, :]
             
             plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
             plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
@@ -224,7 +229,8 @@ if __name__ == "__main__":
             plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
-            plt.show()
+            plt.savefig(f'./Exp_res/DeMOR_data/{args.cir}t/ibmpg{args.cir}t_example_{example}_response_port99.png', dpi=300)
             plt.clf()
+            break
     if args.draw_type == 3:
         pass

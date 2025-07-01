@@ -271,3 +271,14 @@
 2025-06-26 11:36:21,333 - INFO - Simulation for output 26 took 0.4400 seconds.
 2025-06-26 11:36:21,659 - INFO - Output 27: Reduced order model size: 10, Time taken: 0.3260 seconds
 2025-06-26 11:36:22,099 - INFO - Simulation for output 27 took 0.4391 seconds.
+2025-06-27 15:06:59,300 - INFO - Namespace(circuit=1, port_num=20, threshold=0)
+2025-06-27 15:06:59,307 - INFO - Circuit : 1
+2025-06-27 15:06:59,796 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-27 15:06:59,797 - INFO - RGA computation time: 0.4873 seconds
+2025-06-27 15:06:59,797 - INFO - RGA matrix computed and normalized.
+2025-06-27 15:06:59,797 - INFO - Using threshold: 0.0263 for dominant input selection.
+2025-06-27 15:07:01,740 - INFO - Output 1: Reduced order model size: 8, Time taken: 0.2982 seconds
+2025-06-27 15:07:02,225 - INFO - Simulation for output 1 took 0.4841 seconds.
+2025-06-27 15:07:02,499 - INFO - Output 2: Reduced order model size: 6, Time taken: 0.2744 seconds
+2025-06-27 15:07:02,905 - INFO - Simulation for output 2 took 0.4049 seconds.
+2025-06-27 15:07:03,199 - INFO - Output 3: Reduced order model size: 8, Time taken: 0.2940 seconds

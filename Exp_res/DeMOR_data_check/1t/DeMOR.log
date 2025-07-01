@@ -1,0 +1,12 @@
+2025-06-27 15:55:37,036 - INFO - Namespace(circuit=1, port_num=20, threshold=0)
+2025-06-27 15:55:37,043 - INFO - Circuit : 1
+2025-06-27 15:55:37,534 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-27 15:55:37,535 - INFO - RGA computation time: 0.4893 seconds
+2025-06-27 15:56:12,479 - INFO - Namespace(circuit=1, port_num=20, threshold=0)
+2025-06-27 15:56:12,486 - INFO - Circuit : 1
+2025-06-27 15:56:12,979 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-27 15:56:12,980 - INFO - RGA computation time: 0.4916 seconds
+2025-06-27 15:57:37,251 - INFO - Namespace(circuit=1, port_num=20, threshold=0)
+2025-06-27 15:57:37,259 - INFO - Circuit : 1
+2025-06-27 15:57:37,753 - WARNING - Matrix inversion failed, using pseudo-inverse instead.
+2025-06-27 15:57:37,757 - INFO - RGA computation time: 0.4951 seconds

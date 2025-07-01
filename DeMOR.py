@@ -1,5 +1,5 @@
 '''
-2025-6-9 DeMOR GPT
+2025-6-9 DeMOR
 6-16 revise
 '''
 import scipy.sparse.linalg as spla
@@ -84,7 +84,7 @@ def DeMOR(G, C, B, args, savepath, threshold=0.5):
     x0 = np.zeros((C.shape[0], 1))
 
     xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
-    y = O.T@xAll
+    y = B.T@xAll
 
     f = np.array([1e9])
     m = 2
@@ -101,16 +101,6 @@ def DeMOR(G, C, B, args, savepath, threshold=0.5):
         nr_i = Cr_i.shape[0]
         toc = time.time() - tic
         logging.info(f"Output {i+1}: Reduced order model size: {nr_i}, Time taken: {toc:.4f} seconds")
-        # save_path = os.path.join('/home/fillip/home/CPM-MOR/Exp_res/DeMOR/{}t/'.format(args.circuit))
-        # if not os.path.exists(save_path):
-        #     os.makedirs(save_path)
-        # spio.savemat(os.path.join(save_path, f"DeMOR_{i+1}.mat"), {
-        #     'Cr': Cr_i,
-        #     'Gr': Gr_i,
-        #     'Br': Br_i,
-        #     'XX': XX
-        # })
-        # break
         s1 = time.time()
         simulate(Cr_i, Gr_i, Br_i, XX, idx_list, x0, y, IS, VS, i, args, savepath)
         s2 = time.time() - s1
@@ -128,9 +118,6 @@ def simulate(Cr_i, Gr_i, Br_i, XX, port_idx, x0, y, IS, VS, select_port, args, s
 
     yy = y[select_port,:]
     yy_mor = y_mor[locat,:]
-    # for i in range(1, port_num):
-    #     yy = yy + y[i,:]
-    #     yy_mor = yy_mor + y_mor[i,:]
 
     plt.plot(time1, yy, color='green', linestyle='-.', marker='*', label='GT', markevery = 35, markersize=6, linewidth=1.5)
     plt.plot(time1, yy_mor.reshape(-1), color='purple', linestyle='--', marker='*', label='DeMOR', markevery = 25, markersize=6, linewidth=1.5)
@@ -146,7 +133,7 @@ def simulate(Cr_i, Gr_i, Br_i, XX, port_idx, x0, y, IS, VS, select_port, args, s
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='DeMOR')
-    parser.add_argument('--circuit', type=int, default=2, help='Circuit number')
+    parser.add_argument('--circuit', type=int, default=1, help='Circuit number')
     parser.add_argument("--port_num", type=int, default= 2000)
     parser.add_argument("--threshold", type=int, default= 0)
     args = parser.parse_args()
@@ -157,14 +144,6 @@ if __name__ == "__main__":
                         handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/DeMOR.log")])
     logging.info(args)
     data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/ibmpg{}t.mat".format(args.circuit))
-    # data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/thupg1t.mat")
-    # data1 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/ibmpg1t_B1.mat")
-    # data2 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/ibmpg1t_B2.mat")
-    # B1 = data1['B']
-    # B2 = data2['B']
-    # B1 = B1.tocsc()
-    # B2 = B2.tocsc()
-    # B = hstack([B1, B2], format='csc')
 
     port_num = args.port_num
     logging.info("Circuit : {}".format(args.circuit))
@@ -174,12 +153,7 @@ if __name__ == "__main__":
     C = C.tocsc()
     G = G.tocsc()
     B = B[:, 0:0+port_num]
-    # B = B[:, -port_num:]
-    # output matrix
     O = B
-    i = 0
-    # while i< port_num:
-    #     print("({},{},{})".format(B.indices[i], B.indptr[i], B.data[i]))
-    #     i += 1
+
     DeMOR(G, C, O, args, save_path, threshold=args.threshold)
     logging.info("Finish DeMOR")

@@ -390,3 +390,5 @@
 2025-06-26 15:34:49,091 - INFO - Output 26: Reduced order model size: 8, Time taken: 3.4136 seconds
 2025-06-26 15:34:49,517 - INFO - Simulation for output 26 took 0.4249 seconds.
 2025-06-26 15:34:52,971 - INFO - Output 27: Reduced order model size: 8, Time taken: 3.4543 seconds
+2025-06-27 15:06:37,449 - INFO - Namespace(circuit=2, port_num=2000, threshold=0)
+2025-06-27 15:06:37,466 - INFO - Circuit : 2
