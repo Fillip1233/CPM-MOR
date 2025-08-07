@@ -10,11 +10,13 @@ import scipy.io as spio
 import numpy as np
 import time
 import utils.PRIMA as PRIMA
+import utils.PRIMA_demor as PRIMA1
 import matplotlib.pyplot as plt
 import seaborn as sns
 from generate_mf_mor_data import generate_u, generate_udiff
 from utils.tdIntLinBE_new import *
 from scipy.sparse import hstack
+import scipy as sp
 
 def DeMOR(G, C, B, args, savepath, threshold=0.5):
     f = np.array([1e9])
@@ -129,6 +131,54 @@ def simulate(Cr_i, Gr_i, Br_i, XX, port_idx, x0, y, IS, VS, select_port, args, s
     plt.tight_layout()
     plt.savefig(save_path+'DeMOR_{}t_port{}.png'.format(args.circuit,select_port), dpi=300)
     plt.close()
+
+def DeMOR_2(G, C, B, args, savepath):
+    f = np.array([1e9])
+    m = 2
+    s = 1j * 2 * np.pi * f
+    M = s[0] * C + G
+    lu = sp.sparse.linalg.splu(M)
+    RGA = np.load(os.path.join(savepath, 'RGA.npy'))
+
+    dominant_inputs = [] # Step 6-7: Based on threshold, select dominant input indices for each output
+    threshold = np.min(np.diagonal(RGA.real))
+    logging.info(f"Using threshold: {threshold:.4f} for dominant input selection.")
+    for i in range(RGA.shape[0]):
+        indices = np.where(RGA[i] >= threshold)[0]
+        # 如果 0 不在 indices 里，就插入到最前面
+        if 0 not in indices:
+            indices = np.insert(indices, 0, 0)  # 在位置 0 插入 0
+        
+        dominant_inputs.append(indices)
+    
+    IS, VS = generate_udiff(args.port_num, args.circuit, seed = 0)
+    t0 = 0
+    tf = 1e-09
+    dt = 1e-11
+    x0 = np.zeros((C.shape[0], 1))
+    srcType = 'pulse'
+    xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
+    y = B.T@xAll
+
+    f = np.array([1e9])
+    m = 2
+    s = 1j * 2 * np.pi * f
+
+    y_mor_combined = np.zeros_like(y)
+    for i, idx_list in enumerate(dominant_inputs):
+        print(i)
+        B_i = B[:, idx_list] if len(idx_list) > 0 else B[:, [i]]
+        q = m * B_i.shape[1]
+        XX = PRIMA1.PRIMA_sp(C, B_i, q, lu)
+        Cr_i = (XX.T@ C)@XX
+        Gr_i = (XX.T@ G)@XX
+        Br_i = (XX.T@ B_i)
+        xr0 = XX.T@ x0
+        xrAll, time1, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr_i, -Gr_i, Br_i, VS, IS[idx_list,:], xr0, srcType)
+        locat = np.where(idx_list == i)[0]
+        y_mor = Br_i.T@xrAll
+        yy_mor = y_mor[locat,:]
+        y_mor_combined[i, :] = yy_mor.squeeze()
     
 if __name__ == "__main__":
     
@@ -137,7 +187,7 @@ if __name__ == "__main__":
     parser.add_argument("--port_num", type=int, default= 2000)
     parser.add_argument("--threshold", type=int, default= 0)
     args = parser.parse_args()
-    save_path = os.path.join('/home/fillip/home/CPM-MOR/Exp_res/DeMOR/{}t/'.format(args.circuit))
+    save_path = os.path.join('/home/fillip/home/CPM-MOR/Exp_res/DeMOR_data/{}t_time/'.format(args.circuit))
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -155,5 +205,9 @@ if __name__ == "__main__":
     B = B[:, 0:0+port_num]
     O = B
 
-    DeMOR(G, C, O, args, save_path, threshold=args.threshold)
+    # DeMOR(G, C, O, args, save_path, threshold=args.threshold)
+    t1 = time.time()
+    DeMOR_2(G, C, O, args, save_path)
+    t2 = time.time() - t1
+    logging.info(f"DeMOR completed in {t2:.4f} seconds.")
     logging.info("Finish DeMOR")

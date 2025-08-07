@@ -18,6 +18,7 @@ from utils.tensor_rnn import *
 from utils.tensor_lstm import *
 from utils.single_gar import *
 import matplotlib.ticker as ticker
+from scipy.io import savemat
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An example program with command-line arguments")
@@ -28,14 +29,15 @@ if __name__ == "__main__":
     parser.add_argument("--draw_type", type= int, default= 2)
     parser.add_argument("--module_name", type= str, default= "tensor_ann")
     parser.add_argument("--test_over", type= int, default= 0)
-    parser.add_argument("--cir", type= int, default= 1)
+    parser.add_argument("--cir", type= int, default= 6)
 
     args = parser.parse_args()
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_path = os.path.join(f'./Exp_res/DeMOR_data/{args.cir}t/')
+    # data_path = os.path.join(f'./Exp_res/DeMOR_data/{args.cir}t/')
+    data_path = os.path.join(f'./train_data/{args.cir}t/sim_100_port2000_multiper_diff')
     # x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1,pr = prepare_data_mix(data_path,prima = True)
-    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path,prima=False)
+    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, prima=False)
     if args.test_over:
         data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_sin')
         x_test, y_test, yl_test, time1, pr = load_over_data(data_path1)
@@ -107,6 +109,9 @@ if __name__ == "__main__":
     ##plot the results
     yte = y_test
 
+    # savemat('ypred.mat', {'ypred': ypred.cpu().numpy()})
+    # savemat('yte.mat', {'yte': yte.cpu().numpy()})
+
     recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[],'train_time':[]}
     # metrics = calculate_metrix(y_test = yte[:10,:], y_mean_pre = ypred[:10,:])
     metrics = calculate_metrix(y_test = yte, y_mean_pre = ypred)
@@ -120,7 +125,7 @@ if __name__ == "__main__":
     if args.test_over:
         record.to_csv(data_path1 + '/{}_over_res.csv'.format(args.module_name), index = False)
     else:
-        record.to_csv(data_path + '/{}_res_improve.csv'.format(args.module_name), index = False)
+        record.to_csv(data_path + '/{}_res.csv'.format(args.module_name), index = False)
 
     if args.draw_type == 0:
         #全端口波形图
@@ -202,7 +207,7 @@ if __name__ == "__main__":
         if pr is not None:
             pr1 = pr[example]
         for i in range(100):
-            i = 300
+            i = 100
             yy_1 = torch.zeros((y_1.shape[1])).to(device)
             yy_1 = y_1[i, :]
             yy_te = torch.zeros((y_te.shape[1])).to(device)
@@ -229,7 +234,7 @@ if __name__ == "__main__":
             plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
-            plt.savefig(f'./Exp_res/DeMOR_data/{args.cir}t/ibmpg{args.cir}t_example_{example}_response_port99.png', dpi=300)
+            plt.savefig(f'./Exp_res/DeMOR_data/{args.cir}t/ibmpg{args.cir}t_example_{example}_response_port.png', dpi=300)
             plt.clf()
             break
     if args.draw_type == 3:

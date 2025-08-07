@@ -24,3 +24,29 @@
 2025-05-27 15:30:26,180 - INFO - Circuit : 1
 2025-05-27 15:30:27,245 - INFO - Computing V_block 1
 2025-05-27 15:30:28,221 - INFO - Computing V_block 2
+2025-07-16 19:22:13,088 - INFO - Namespace(circuit=1, port_num=100, threshold=1)
+2025-07-16 19:22:13,109 - INFO - Circuit : 1
+2025-07-16 19:23:50,199 - INFO - Computing V_block 1
+2025-07-16 19:23:51,085 - INFO - Computing V_block 2
+2025-07-16 19:23:52,482 - INFO - Original order size: 54265
+2025-07-16 19:23:52,483 - INFO - Reduced order size: 4
+2025-07-16 19:23:52,483 - INFO - McPack time: 99.37033104896545
+2025-07-16 19:23:52,483 - INFO - port_num: 4
+2025-07-16 19:33:29,537 - INFO - Namespace(circuit=1, port_num=100, threshold=1)
+2025-07-16 19:33:29,544 - INFO - Circuit : 1
+2025-07-16 19:33:30,615 - INFO - Computing V_block 1
+2025-07-16 19:33:31,595 - INFO - Computing V_block 2
+2025-07-16 19:33:33,008 - INFO - Original order size: 54265
+2025-07-16 19:33:33,009 - INFO - Reduced order size: 4
+2025-07-16 19:33:33,009 - INFO - McPack time: 3.461528778076172
+2025-07-16 19:33:33,009 - INFO - port_num: 4
+2025-07-16 19:33:58,582 - INFO - Namespace(circuit=1, port_num=100, threshold=1)
+2025-07-16 19:33:58,589 - INFO - Circuit : 1
+2025-07-16 19:33:59,659 - INFO - Computing V_block 1
+2025-07-16 19:34:00,639 - INFO - Computing V_block 2
+2025-07-16 19:34:02,048 - INFO - Original order size: 54265
+2025-07-16 19:34:02,048 - INFO - Reduced order size: 4
+2025-07-16 19:34:02,049 - INFO - McPack time: 3.4572346210479736
+2025-07-16 19:34:02,049 - INFO - port_num: 4
+2025-07-18 15:15:09,189 - INFO - Namespace(circuit=1, port_num=100, threshold=1)
+2025-07-18 15:15:09,209 - INFO - Circuit : 1

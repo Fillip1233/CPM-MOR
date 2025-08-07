@@ -130,7 +130,7 @@ def save_rga(G, C, B, savepath):
     # plt.savefig(os.path.join(savepath, 'RGA1.png'), dpi=300)  # 保存图像
     # plt.close()
 
-def generate_DeMOR_data(G, C, B, args, savepath, seed):
+def generate_DeMOR_data(G, C, B, y, args, savepath, seed):
     f = np.array([1e9])
     m = 2
     s = 1j * 2 * np.pi * f
@@ -206,14 +206,14 @@ def process_output(i, idx_list, x0, IS, VS, m):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='DeMOR_data_generate')
-    parser.add_argument('--circuit', type=int, default=2, help='Circuit number')
+    parser.add_argument('--circuit', type=int, default=1, help='Circuit number')
     parser.add_argument("--port_num", type=int, default= 2000)
     parser.add_argument("--threshold", type=int, default= 0)
-    parser.add_argument("--generate", type=int, default= 1)
+    parser.add_argument("--generate", type=int, default= 0)
     parser.add_argument("--data_num", type=int, default= 200)
     parser.add_argument("--process", type=int, default= 10)
     args = parser.parse_args()
-    save_path = os.path.join('./Exp_res/DeMOR_data/{}t/'.format(args.circuit))
+    save_path = os.path.join('./Exp_res/DeMOR_data/{}t_time/'.format(args.circuit))
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -252,7 +252,7 @@ if __name__ == "__main__":
             logging.info(f"Origin data generate time for {i}th input: {t2:.4f} seconds")
 
             t3 = time.time()
-            y_low = generate_DeMOR_data(G, C, B, args, save_path, seed=i)
+            y_low = generate_DeMOR_data(G, C, B, y, args, save_path, seed=i)
             t4 = time.time() - t3
             logging.info(f"DeMOR data generation time for {i}th input: {t4:.4f} seconds")
 

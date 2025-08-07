@@ -1,0 +1,27 @@
+2025-07-16 18:19:57,545 - INFO - Namespace(circuit=4, port_num=2000, threshold=2, method='svdmor', test_num=10)
+2025-07-16 18:23:39,265 - INFO - SVD completed. Time used: 0:03:41.280941s
+2025-07-16 21:35:50,334 - INFO - Namespace(circuit=4, port_num=2000, threshold=2, method='svdmor', test_num=10, process=1)
+2025-07-16 21:36:42,407 - INFO - SVD completed. Time used: 0:00:51.941840s
+2025-07-16 21:49:02,436 - INFO - SVD-PRIMA-MOR:
+2025-07-16 21:49:02,436 - INFO - MOR completed. Time used: 0:12:20.027676
+2025-07-16 21:49:02,436 - INFO - The original order is 1214288
+2025-07-16 21:49:02,436 - INFO - The reduced order is 466
+2025-07-16 21:49:02,595 - INFO - B reduced order: 466
+2025-07-22 19:18:55,472 - INFO - Namespace(circuit=4, port_num=2000, threshold=1, method='mcpack', test_num=10, process=10)
+2025-07-22 19:38:16,754 - INFO - Computing V_block 1
+2025-07-22 19:56:35,050 - INFO - Computing V_block 2
+2025-07-22 20:31:11,388 - INFO - McPack time: 1:12:15.785535
+2025-07-22 20:31:11,388 - INFO - The original order is 1214288
+2025-07-22 20:31:11,388 - INFO - Reduced order size: 50
+2025-07-24 17:46:53,940 - INFO - Namespace(circuit=4, port_num=2000, threshold=1, method='demor', test_num=10, process=20)
+2025-07-24 17:48:48,749 - INFO - Using threshold: 0.019730767808226662
+2025-07-25 03:04:49,273 - INFO - DeMOR time: 9:16:00.874882
+2025-07-25 03:06:38,280 - INFO - Using threshold: 0.019730767808226662
+2025-07-25 12:33:54,253 - INFO - DeMOR time: 9:27:15.994603
+2025-07-25 12:35:43,347 - INFO - Using threshold: 0.019730767808226662
+2025-07-25 23:01:35,861 - INFO - DeMOR time: 10:25:52.535032
+2025-07-25 23:03:24,920 - INFO - Using threshold: 0.019730767808226662
+2025-07-26 08:19:47,858 - INFO - DeMOR time: 9:16:22.958987
+2025-07-26 08:21:36,942 - INFO - Using threshold: 0.019730767808226662
+2025-07-26 17:44:54,720 - INFO - DeMOR time: 9:23:17.798486
+2025-07-26 17:46:41,919 - INFO - Using threshold: 0.019730767808226662

@@ -50,5 +50,7 @@ def calculate_metrix(**kwargs):
 
     mae = mean_absolute_error(kwargs['y_test'], kwargs['y_mean_pre'])
 
+    #relative_error不计算 因为数值为0的地方小误差被过度放大
+
     # return {'r2': r2, 'rmse': rmse, 'nll': nll, 'nrmse': NRMSE}
     return {'r2': r2, 'rmse': rmse, 'nrmse': NRMSE, 'mae': mae}

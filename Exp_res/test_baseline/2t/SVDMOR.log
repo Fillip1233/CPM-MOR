@@ -1,0 +1,34 @@
+2025-07-16 18:02:03,648 - INFO - Namespace(circuit=2, port_num=2000, threshold=2, method='svdmor', test_num=10)
+2025-07-16 18:02:27,417 - INFO - SVD completed. Time used: 0:00:23.658410s
+2025-07-16 18:02:44,445 - INFO - SVD-PRIMA-MOR:
+2025-07-16 18:02:44,446 - INFO - MOR completed. Time used: 0:00:17.028118
+2025-07-16 18:02:44,446 - INFO - The original order is 164897
+2025-07-16 18:02:44,446 - INFO - The reduced order is 126
+2025-07-16 18:02:44,459 - INFO - B reduced order: 126
+2025-07-16 19:50:32,521 - INFO - Namespace(circuit=2, port_num=2000, threshold=1, method='mcpack', test_num=10)
+2025-07-16 19:51:53,298 - INFO - Computing V_block 1
+2025-07-16 19:53:21,929 - INFO - Computing V_block 2
+2025-07-16 19:55:33,076 - INFO - McPack time: 0:05:00.532938
+2025-07-16 19:55:33,076 - INFO - The original order is 164897
+2025-07-16 19:55:33,077 - INFO - Reduced order size: 49
+2025-07-17 12:43:11,380 - INFO - Namespace(circuit=2, port_num=2000, threshold=1, method='demor', test_num=10, process=20)
+2025-07-17 12:43:19,712 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 12:47:14,549 - INFO - DeMOR time: 0:03:55.187230
+2025-07-17 12:47:21,813 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 12:51:19,545 - INFO - DeMOR time: 0:03:57.751433
+2025-07-17 12:51:26,888 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 12:55:16,692 - INFO - DeMOR time: 0:03:49.827470
+2025-07-17 12:55:24,040 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 12:59:14,928 - INFO - DeMOR time: 0:03:50.910936
+2025-07-17 12:59:22,261 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 13:03:12,966 - INFO - DeMOR time: 0:03:50.727894
+2025-07-17 13:03:20,228 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 13:07:17,329 - INFO - DeMOR time: 0:03:57.123250
+2025-07-17 13:07:24,629 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 13:11:17,730 - INFO - DeMOR time: 0:03:53.123525
+2025-07-17 13:11:25,059 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 13:15:14,312 - INFO - DeMOR time: 0:03:49.274811
+2025-07-17 13:15:21,646 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 13:19:10,710 - INFO - DeMOR time: 0:03:49.085763
+2025-07-17 13:19:18,213 - INFO - Using threshold: 0.3962632810203192
+2025-07-17 13:23:12,252 - INFO - DeMOR time: 0:03:54.060990

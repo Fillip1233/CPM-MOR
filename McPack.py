@@ -10,6 +10,7 @@ import time
 import argparse
 import os
 import logging
+from generate_mf_mor_data import generate_u, generate_udiff 
 
 def mcpack(C, G, B, L, zQ, k, g, r):
     """
@@ -240,35 +241,37 @@ if __name__ == "__main__":
     #             np.dot(np.ones([Nb, 1]), 1e-09)])
     VS = []
     VS = np.array(VS)
-    is_num = int(port_num/2)
-    IS1 = np.hstack(
-        [np.zeros([is_num, 1]), 
-            np.dot(np.ones([is_num, 1]), 0.01),
-            np.dot(np.ones([is_num, 1]), tf) / 5,
-            np.dot(np.ones([is_num, 1]), 1e-10),
-            np.dot(np.ones([is_num, 1]), 1e-10),
-            np.dot(np.ones([is_num, 1]), 5e-10),
-            np.dot(np.ones([is_num, 1]), 1e-09)])
-    IS2 = np.hstack([
-        np.zeros([is_num, 1]),
-        np.dot(np.ones([is_num, 1]), 0.2),
-        np.dot(np.ones([is_num, 1]), tf) / 6,
-        np.dot(np.ones([is_num, 1]), 2e-09),
-        np.dot(np.ones([is_num, 1]), 2e-09),
-        np.dot(np.ones([is_num, 1]), 4e-09),
-        np.dot(np.ones([is_num, 1]), 1e-08)])
-    IS = np.vstack([IS1, IS1])
+    # is_num = int(port_num/2)
+    # IS1 = np.hstack(
+    #     [np.zeros([is_num, 1]), 
+    #         np.dot(np.ones([is_num, 1]), 0.01),
+    #         np.dot(np.ones([is_num, 1]), tf) / 5,
+    #         np.dot(np.ones([is_num, 1]), 1e-10),
+    #         np.dot(np.ones([is_num, 1]), 1e-10),
+    #         np.dot(np.ones([is_num, 1]), 5e-10),
+    #         np.dot(np.ones([is_num, 1]), 1e-09)])
+    # IS2 = np.hstack([
+    #     np.zeros([is_num, 1]),
+    #     np.dot(np.ones([is_num, 1]), 0.2),
+    #     np.dot(np.ones([is_num, 1]), tf) / 6,
+    #     np.dot(np.ones([is_num, 1]), 2e-09),
+    #     np.dot(np.ones([is_num, 1]), 2e-09),
+    #     np.dot(np.ones([is_num, 1]), 4e-09),
+    #     np.dot(np.ones([is_num, 1]), 1e-08)])
+    # IS = np.vstack([IS1, IS1])
+    IS, VS = generate_udiff(args.port_num, args.circuit, seed = 0)
+
     x0 = np.zeros((C.shape[0], 1))
     # B[:,1] = 0
 
     from utils.tdIntLinBE_new import *
 
-    xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
+    xAll, time1, dtAll, uAll = tdIntLinBE_adaptive(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
     y = O.T@xAll
 
     xr0 = XX.T@ x0
     # main.m:66
-    xrAll, time1, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr, -Gr, Br, VS, IS, xr0, srcType)
+    xrAll, time2, dtAll, urAll = tdIntLinBE_adaptive(t0, tf, dt, Cr, -Gr, Br, VS, IS, xr0, srcType)
     # main.m:67
     xAll_mor = XX@xrAll
 
@@ -281,7 +284,7 @@ if __name__ == "__main__":
         yy_mor = yy_mor + y_mor[i,:]
 
     plt.plot(time1, yy, color='green', linestyle='-.', marker='*', label='GT', markevery = 35, markersize=6, linewidth=1.5)
-    plt.plot(time1, yy_mor, color='orange', linestyle='--', marker='*', label='McPack', markevery = 25, markersize=6, linewidth=1.5)
+    plt.plot(time2, yy_mor, color='orange', linestyle='--', marker='*', label='McPack', markevery = 25, markersize=6, linewidth=1.5)
     plt.xlabel("Time (s)", fontsize=12)
     plt.ylabel("Response result (V)", fontsize=12)
     plt.legend(fontsize=12)
