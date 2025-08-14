@@ -1,0 +1,5 @@
+2025-08-12 21:44:25,150 - INFO - Namespace(circuit=3, port_num=2000, threshold=1)
+2025-08-12 21:44:25,442 - INFO - Circuit : 3
+2025-08-12 22:59:05,489 - INFO - Permutation time: 4470.754229545593
+2025-08-14 15:24:40,388 - INFO - Namespace(circuit=3, port_num=2000, threshold=2)
+2025-08-14 15:24:40,485 - INFO - Circuit : 3

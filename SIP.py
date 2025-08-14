@@ -1,69 +1,198 @@
 import numpy as np
-from scipy.sparse import csr_matrix, eye
-from scipy.sparse.linalg import splu
+from scipy.sparse import csr_matrix, lil_matrix, dok_matrix, find, eye, csc_matrix, identity
+from scipy.sparse.linalg import inv,spsolve,splu
+import scipy.io as spio
+import argparse
+import os
+import logging
+import time
+from generate_mf_mor_data import generate_u, generate_udiff 
+from utils.tdIntLinBE_new import *
+import matplotlib.pyplot as plt
+import scipy.sparse as sp
 
-def SIPcore(G, C, E, ports):
-    """
-    SIPcore: 稀疏隐式投影算法，用于化简多端网络矩阵
     
-    参数:
-        G: 导纳矩阵 (n x n, 稀疏对称正定)
-        C: 电容/电感矩阵 (n x n, 稀疏)
-        E: 端口激励矩阵 (n x m)
-        ports: 端口节点索引列表 (长度 m)
+def SIPcore3(G, C, E, ports, threshold=2):
     
-    返回:
-        G_hat: 化简后的导纳矩阵 (m x m)
-        C_hat: 化简后的电容矩阵 (m x m)
-        E_hat: 化简后的激励矩阵 (m x m)
-    """
     n = G.shape[0]
-    m = len(ports)
     
-    # 1. 节点重排序：将端口节点移到矩阵底部，并优化填充减少（此处简化为直接移动）
-    non_ports = [i for i in range(n) if i not in ports]
-    perm = non_ports + ports  # 非端口节点在前，端口节点在后
-    G = G[perm, :][:, perm]   # 重排列行和列
-    C = C[perm, :][:, perm]
-    E = E[perm, :]
-    
-    # 2. 递归消元非端口节点 (i from 1 to n-m)
-    for i in range(n - m):
-        # 提取当前分块
-        a_ii = G[i, i]
-        b_i = G[i, i+1:n]
-        B_i = G[i+1:n, i+1:n]
-        
-        # 计算 Schur 补并更新 G 和 C
-        schur_G = B_i - np.outer(b_i, b_i) / a_ii
-        schur_C = C[i+1:n, i+1:n] - np.outer(C[i+1:n, i], b_i) / a_ii
-        
-        # 更新矩阵 (仅保留右下角部分)
-        G[i+1:n, i+1:n] = schur_G
-        C[i+1:n, i+1:n] = schur_C
-    
-    # 3. 提取端口节点对应的子矩阵
-    G_hat = G[-m:, -m:]
-    C_hat = C[-m:, -m:]
-    E_hat = E[-m:, :]
-    
-    return G_hat, C_hat, E_hat
+    t1 = time.time()
 
-# 示例测试
-if __name__ == "__main__":
-    # 构造一个简单的 4 节点电路 MNA 矩阵 (n=4, m=2 个端口)
-    n, m = 4, 2
-    G = np.array([
-        [2, -1, 0, 0],
-        [-1, 3, -1, 0],
-        [0, -1, 2, -1],
-        [0, 0, -1, 1]
-    ], dtype=float)
-    C = np.eye(n)  # 假设电容矩阵为单位阵
-    E = np.array([[1, 0], [0, 0], [0, 1], [0, 0]])  # 端口激励
-    ports = [2, 3]  # 最后两个节点为端口
+    # floating_nodes = [i for i in range(n) if abs(G[i,i]) < 1e-12]
+    # ports = list(set(floating_nodes) | set(ports))
+    m = len(ports) # ports + floating nodes
+
+    non_ports = [i for i in range(n) if i not in ports]
+    perm = non_ports + ports
+    G = G[perm, :][:, perm]
+    C = C[perm, :][:, perm]
+    C = C + 1e-15 * eye(n, format='csc') #避免奇异
+    E = E[perm, :]
+    t2 = time.time()
+    logging.info("Permutation time: {}".format(t2 - t1))
     
-    G_hat, C_hat, E_hat = SIPcore(G, C, E, ports)
-    print("化简后的 G_hat:\n", G_hat)
-    print("化简后的 C_hat:\n", C_hat)
-    print("化简后的 E_hat:\n", E_hat)
+    subG = G
+    subC = C
+    for i in range(0, n - m):
+        # if i >= 20000:
+        #     break
+        k = n - i
+        
+        t3 = time.time()
+
+        diag_vals = np.abs(subG[:-m, :-m].diagonal())
+        pivot_idx = np.argmax(diag_vals)
+        pivot_val = diag_vals[pivot_idx]
+
+        logging.info(f"Processing column {i+1}/{n-m}..., pivot value: {pivot_val}, pivot index: {pivot_idx}")
+        
+        if pivot_val < threshold:
+            logging.info(f"Column {i+1}, pivot value is too small: {pivot_val}")
+            logging.info("End of reduction, pivot value is too small.")
+            break
+
+        if pivot_idx != 0:
+            # 交换 pivot 节点到第 0 个位置
+            idx = np.arange(k)
+            idx[[0, pivot_idx]] = idx[[pivot_idx, 0]]
+            subG = subG[idx, :][:, idx]
+            subC = subC[idx, :][:, idx]
+
+        a_ii = subG[0, 0]
+            
+        b_i = subG[0, 1:k].toarray().flatten()
+        # B_i = G[i+1:n, i+1:n]
+        
+        M_sub = lil_matrix(eye(k))
+        # M_sub[0, 0] = -np.sqrt(a_ii)
+        M_sub[0,1:] = -b_i / a_ii
+        M_sub = csr_matrix(M_sub)
+        
+        subG = M_sub.T @ subG @ M_sub
+        subC = M_sub.T @ subC @ M_sub
+        subG = subG[1:, 1:]
+        subC = subC[1:, 1:]
+        t4 = time.time()
+        logging.info(f"Time taken for column {i+1}: {t4 - t3:.4f} seconds")
+    
+    G_hat = subG
+    C_hat = subC
+    E_hat = E[-G_hat.shape[0]:, :]
+    logging.info(f"Total reduction time: {time.time() - t1:.4f} seconds")
+    
+    return G_hat.tocsc(), C_hat.tocsc(), E_hat.tocsc()
+
+def is_singular_lu(G):
+    try:
+        lu = splu(G)  # 如果成功，则 G 非奇异
+        return False
+    except RuntimeError as e:
+        if "Factor is exactly singular" in str(e):
+            return True
+        raise e
+
+if __name__ == "__main__":
+    
+    parser = argparse.ArgumentParser(description='SIP')
+    parser.add_argument('--circuit', type=int, default=2, help='Circuit number')
+    parser.add_argument("--port_num", type=int, default= 2000)
+    parser.add_argument("--threshold", type=float, default=2)
+    args = parser.parse_args()
+    save_path = os.path.join('/home/fillip/桌面/CPM-MOR/Exp_res/SIP/{}t/'.format(args.circuit))
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
+                        handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/SIP.log")])
+    logging.info(args)
+    data = spio.loadmat("/home/fillip/桌面/CPM-MOR/IBM_transient/ibmpg{}t.mat".format(args.circuit))
+    port_num = args.port_num
+    threshold = args.threshold
+    logging.info("Circuit : {}".format(args.circuit))
+    C, G, B = data['E'] * 1e-0, data['A'], data['B']
+    Node_size = C.shape[0]
+    B = B.tocsc()
+    C = C.tocsc()
+    G = G.tocsc()
+
+    # print(is_singular_lu(G))
+
+    # B = B[:, 0:0+port_num]
+    B = B
+    # output matrix
+    O = B
+    m = 2
+    s = 1j * 2 * np.pi * 1e9
+    time_start = time.time()
+    
+    ports = []
+    for j in range(B.shape[1]):
+        rows, _ = B[:, j].nonzero()
+        if len(rows) > 0:
+            ports.append(rows[0])
+    ports = np.unique(ports)
+    
+    Gr, Cr, Br = SIPcore3(-G, C, B, ports=list(ports),threshold=threshold)
+    sp.save_npz(f'Gr_{args.circuit}.npz', Gr)
+    sp.save_npz(f'Cr_{args.circuit}.npz', Cr)
+    sp.save_npz(f'Br_{args.circuit}.npz', Br)
+    # Gr = sp.load_npz(f'Gr_{args.circuit}.npz')
+    # Cr = sp.load_npz(f'Cr_{args.circuit}.npz')
+    # Br = sp.load_npz(f'Br_{args.circuit}.npz')
+    Br = Br[:, :port_num]
+    nr_size = Cr.shape[0]
+    logging.info("Original order size: {}".format(Node_size))
+    logging.info("Reduced order size: {}".format(nr_size))
+    time_end = time.time()
+    logging.info("SIP time: {}".format(time_end - time_start))
+
+    t0 = 0
+    tf = 1e-09
+    dt = 1e-11
+    srcType = 'pulse'
+    VS = []
+    VS = np.array(VS)
+    IS, VS = generate_udiff(args.port_num, args.circuit, seed = 0)
+
+    x0 = np.zeros((C.shape[0], 1))
+    B = B[:, :port_num]
+    xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
+    y = O.T@xAll
+
+    xr0 = np.zeros((Cr.shape[0], 1))
+    xrAll, time2, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr, Gr, Br, VS, IS, xr0, srcType)
+    y_mor = Br.T@xrAll
+
+    yy = y[0,:]
+    yy_mor = y_mor[0,:]
+    for i in range(1, port_num):
+        yy = yy + y[i,:]
+        yy_mor = yy_mor + y_mor[i,:]
+    
+    port = 1
+    plt.plot(time1, yy, color='green', linestyle='-.', marker='*', label='GT', markevery = 35, markersize=6, linewidth=1.5)
+    plt.plot(time2, yy_mor, color='purple', linestyle='--', marker='*', label='SIP', markevery = 25, markersize=6, linewidth=1.5)
+    plt.xlabel("Time (s)", fontsize=12)
+    plt.ylabel("Response result (V)", fontsize=12)
+    plt.legend(fontsize=12)
+    plt.grid()
+    plt.title("SIP test", fontsize=14)
+    plt.tight_layout()
+    plt.savefig(save_path+'SIP_{}t_{}.png'.format(args.circuit,port_num,port), dpi=300)
+    pass
+    
+
+    # n, m = 4, 2
+    # G = np.array([
+    #     [2, -1, 0, 0],
+    #     [-1, 3, -1, 0],
+    #     [0, -1, 2, -1],
+    #     [0, 0, -1, 1]
+    # ], dtype=float)
+    # C = np.eye(n) 
+    # E = np.array([[1, 0], [0, 0], [0, 1], [0, 0]])
+    # ports = [2, 3]
+    
+    # G_hat, C_hat, E_hat = SIPcore(G, C, E, ports)
+    # print("化简后的 G_hat:\n", G_hat)
+    # print("化简后的 C_hat:\n", C_hat)
+    # print("化简后的 E_hat:\n", E_hat)
