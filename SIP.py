@@ -22,8 +22,13 @@ def SIPcore3(G, C, E, ports, threshold=2):
     # ports = list(set(floating_nodes) | set(ports))
     m = len(ports) # ports + floating nodes
 
-    non_ports = [i for i in range(n) if i not in ports]
-    perm = non_ports + ports
+    # non_ports = [i for i in range(n) if i not in ports]
+    mask = np.ones(n, dtype=bool)
+    mask[ports] = False
+    non_ports = np.nonzero(mask)[0]
+
+    perm = np.concatenate([non_ports, ports])
+
     G = G[perm, :][:, perm]
     C = C[perm, :][:, perm]
     C = C + 1e-15 * eye(n, format='csc') #避免奇异
@@ -34,8 +39,45 @@ def SIPcore3(G, C, E, ports, threshold=2):
     subG = G
     subC = C
     for i in range(0, n - m):
-        # if i >= 20000:
-        #     break
+        
+        if i % 10000 == 0:
+            t0 = 0
+            tf = 1e-09
+            dt = 1e-11
+            srcType = 'pulse'
+            VS = []
+            VS = np.array(VS)
+            IS, VS = generate_udiff(args.port_num, args.circuit, seed = 0)
+
+            x0 = np.zeros((C.shape[0], 1))
+            B = E[:, :port_num]
+            xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, G, B, VS, IS, x0, srcType)
+            y = B.T@xAll
+
+            Gr = subG
+            Cr = subC
+            Br = E[-Gr.shape[0]:, :port_num]
+            xr0 = np.zeros((Cr.shape[0], 1))
+            xrAll, time2, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr, Gr, Br, VS, IS, xr0, srcType)
+            y_mor = Br.T@xrAll
+
+            yy = y[0,:]
+            yy_mor = y_mor[0,:]
+            for k in range(1, port_num):
+                yy = yy + y[k,:]
+                yy_mor = yy_mor + y_mor[k,:]
+            
+            plt.plot(time1, yy, color='green', linestyle='-.', marker='*', label='GT', markevery = 35, markersize=6, linewidth=1.5)
+            plt.plot(time2, yy_mor, color='purple', linestyle='--', marker='*', label='SIP', markevery = 25, markersize=6, linewidth=1.5)
+            plt.xlabel("Time (s)", fontsize=12)
+            plt.ylabel("Response result (V)", fontsize=12)
+            plt.legend(fontsize=12)
+            plt.grid()
+            plt.title("SIP test", fontsize=14)
+            plt.tight_layout()
+            plt.savefig('SIP_{}t_{}-process{}.png'.format(args.circuit,port_num,i), dpi=300)
+            plt.close()
+            # break
         k = n - i
         
         t3 = time.time()
@@ -94,7 +136,7 @@ def is_singular_lu(G):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='SIP')
-    parser.add_argument('--circuit', type=int, default=2, help='Circuit number')
+    parser.add_argument('--circuit', type=int, default=3, help='Circuit number')
     parser.add_argument("--port_num", type=int, default= 2000)
     parser.add_argument("--threshold", type=float, default=2)
     args = parser.parse_args()
@@ -124,12 +166,15 @@ if __name__ == "__main__":
     s = 1j * 2 * np.pi * 1e9
     time_start = time.time()
     
-    ports = []
-    for j in range(B.shape[1]):
-        rows, _ = B[:, j].nonzero()
-        if len(rows) > 0:
-            ports.append(rows[0])
-    ports = np.unique(ports)
+    # ports = []
+    # for j in range(B.shape[1]):
+    #     rows, _ = B[:, j].nonzero()
+    #     if len(rows) > 0:
+    #         ports.append(rows[0])
+    # ports = np.unique(ports)
+
+    rows, _ = B.nonzero()
+    ports = np.unique(rows)
     
     Gr, Cr, Br = SIPcore3(-G, C, B, ports=list(ports),threshold=threshold)
     sp.save_npz(f'Gr_{args.circuit}.npz', Gr)
@@ -156,7 +201,7 @@ if __name__ == "__main__":
     x0 = np.zeros((C.shape[0], 1))
     B = B[:, :port_num]
     xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C, -G, B, VS, IS, x0, srcType)
-    y = O.T@xAll
+    y = B.T@xAll
 
     xr0 = np.zeros((Cr.shape[0], 1))
     xrAll, time2, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr, Gr, Br, VS, IS, xr0, srcType)
