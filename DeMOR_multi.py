@@ -124,7 +124,7 @@ if __name__ == "__main__":
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
                         handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/DeMOR.log")])
     logging.info(args)
-    data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/ibmpg{}t.mat".format(args.circuit))
+    data = spio.loadmat("/home/fillip/桌面/CPM-MOR/IBM_transient/ibmpg{}t.mat".format(args.circuit))
     # data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/thupg1t.mat")
     port_num = args.port_num
     logging.info("Circuit : {}".format(args.circuit))

@@ -23,16 +23,16 @@ def SIPcore3(G, C, E, ports, threshold=2):
     m = len(ports) # ports + floating nodes
 
     # non_ports = [i for i in range(n) if i not in ports]
-    mask = np.ones(n, dtype=bool)
-    mask[ports] = False
-    non_ports = np.nonzero(mask)[0]
+    # mask = np.ones(n, dtype=bool)
+    # mask[ports] = False
+    # non_ports = np.nonzero(mask)[0]
 
-    perm = np.concatenate([non_ports, ports])
+    # perm = np.concatenate([non_ports, ports])
 
-    G = G[perm, :][:, perm]
-    C = C[perm, :][:, perm]
+    # G = G[perm, :][:, perm]
+    # C = C[perm, :][:, perm]
     C = C + 1e-15 * eye(n, format='csc') #避免奇异
-    E = E[perm, :]
+    # E = E[perm, :]
     t2 = time.time()
     logging.info("Permutation time: {}".format(t2 - t1))
     
@@ -136,7 +136,7 @@ def is_singular_lu(G):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='SIP')
-    parser.add_argument('--circuit', type=int, default=3, help='Circuit number')
+    parser.add_argument('--circuit', type=int, default=1, help='Circuit number')
     parser.add_argument("--port_num", type=int, default= 2000)
     parser.add_argument("--threshold", type=float, default=2)
     args = parser.parse_args()
@@ -147,10 +147,12 @@ if __name__ == "__main__":
                         handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/SIP.log")])
     logging.info(args)
     data = spio.loadmat("/home/fillip/桌面/CPM-MOR/IBM_transient/ibmpg{}t.mat".format(args.circuit))
+    # data = spio.loadmat("/home/fillip/桌面/CPM-MOR/IBM_transient/{}t_final.mat".format(args.circuit))
     port_num = args.port_num
     threshold = args.threshold
     logging.info("Circuit : {}".format(args.circuit))
     C, G, B = data['E'] * 1e-0, data['A'], data['B']
+    # C, G, B = data['C_final'] * 1e-0, data['G_final'], data['B_final']
     Node_size = C.shape[0]
     B = B.tocsc()
     C = C.tocsc()
@@ -166,12 +168,6 @@ if __name__ == "__main__":
     s = 1j * 2 * np.pi * 1e9
     time_start = time.time()
     
-    # ports = []
-    # for j in range(B.shape[1]):
-    #     rows, _ = B[:, j].nonzero()
-    #     if len(rows) > 0:
-    #         ports.append(rows[0])
-    # ports = np.unique(ports)
 
     rows, _ = B.nonzero()
     ports = np.unique(rows)
@@ -225,19 +221,3 @@ if __name__ == "__main__":
     plt.savefig(save_path+'SIP_{}t_{}.png'.format(args.circuit,port_num,port), dpi=300)
     pass
     
-
-    # n, m = 4, 2
-    # G = np.array([
-    #     [2, -1, 0, 0],
-    #     [-1, 3, -1, 0],
-    #     [0, -1, 2, -1],
-    #     [0, 0, -1, 1]
-    # ], dtype=float)
-    # C = np.eye(n) 
-    # E = np.array([[1, 0], [0, 0], [0, 1], [0, 0]])
-    # ports = [2, 3]
-    
-    # G_hat, C_hat, E_hat = SIPcore(G, C, E, ports)
-    # print("化简后的 G_hat:\n", G_hat)
-    # print("化简后的 C_hat:\n", C_hat)
-    # print("化简后的 E_hat:\n", E_hat)
