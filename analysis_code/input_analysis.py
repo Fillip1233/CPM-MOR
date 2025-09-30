@@ -46,10 +46,10 @@ def npy2mat():
 
 # 示例用法
 if __name__ == "__main__":
-    # data = spio.loadmat("./IBM_transient/thupg1t.mat")
-    # C, G, B = data['E'] * 1e-0, data['A'], data['B']
-    # B = B.tocsc()
-    # mat = csr_matrix(B)
-    # find_rows_with_multiple_nonz(mat)
-    npy2mat()
+    data = spio.loadmat("./IBM_transient/ibmpg3t.mat")
+    C, G, B = data['E'] * 1e-0, data['A'], data['B']
+    B = B.tocsc()
+    mat = csr_matrix(B)
+    find_rows_with_multiple_nonz(mat)
+    # npy2mat()
     pass
