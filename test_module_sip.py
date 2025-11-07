@@ -22,8 +22,8 @@ from scipy.io import savemat
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="test MSIP_BDSM_MF-MOR")
-    parser.add_argument("--lr", type= float, default= 1e-2)
-    parser.add_argument("--epoch", type= int, default= 600)
+    parser.add_argument("--lr", type= float, default= 1e-1)
+    parser.add_argument("--epoch", type= int, default= 300)
     parser.add_argument("--bs", type= int, default= 100)
     parser.add_argument("--hidden_size", type= int, default= 128)
     parser.add_argument("--draw_type", type= int, default= 1)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         
     elif args.module_name == 'tensor_ann':
         mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=101).to(device)
-        mynn.load_state_dict(torch.load(data_path + '/tensor_ann.pth'))
+        mynn.load_state_dict(torch.load(data_path + '/tensor_ann_fft.pth'))
         
     elif args.module_name == 'tensor_rnn':
         mynn = tensor_rnn(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     if args.test_over:
         record.to_csv(data_path1 + '/{}_over_res.csv'.format(args.module_name), index = False)
     else:
-        record.to_csv(data_path + '/test_{}_res.csv'.format(args.module_name), index = False)
+        record.to_csv(data_path + '/test_{}_res_fft.csv'.format(args.module_name), index = False)
 
     if args.draw_type == 0:
         #全端口波形图
@@ -133,7 +133,7 @@ if __name__ == "__main__":
             # plt.tight_layout()
             fig.subplots_adjust(left=0.05, right=0.92, top=0.85, bottom=0.1)
             # plt.show()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/ibmpg{args.cir}t_example_{i}_response.png')
+            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/ibmpg{args.cir}t_example_{i}_response.pdf')
             plt.clf()
             break
     
@@ -172,7 +172,7 @@ if __name__ == "__main__":
         plt.grid()
         plt.tight_layout()
         # plt.show()
-        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/ibmpg{args.cir}t_total_port_response.png')
+        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/FFT_ibmpg{args.cir}t_total_port_response.png')
         plt.clf()
         # break
     if args.draw_type == 2:
