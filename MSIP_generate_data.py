@@ -17,12 +17,12 @@ import time
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="generate mf_mor data for model")
     parser.add_argument("--port_num", type=int, default= 10000)
-    parser.add_argument("--circuit", type=int, default = 2)
+    parser.add_argument("--circuit", type=int, default = 1)
     parser.add_argument("--generate", type=int, default= 0)
     parser.add_argument("--block", type=int, default= 2)
-    parser.add_argument("--data_num", type=int, default= 200)
+    parser.add_argument("--data_num", type=int, default= 400)
     args = parser.parse_args()
-    save_path = os.path.join(sys.path[0], 'MSIP_BDSM/train_data/{}t2'.format(args.circuit))
+    save_path = os.path.join(sys.path[0], 'MSIP_BDSM/train_data/{}t_2per'.format(args.circuit))
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     f = 9
     t0 = 0
-    tf = 1e-09
+    tf = 2e-09
     dt = 1e-11
     srcType = 'pulse'
 

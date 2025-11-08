@@ -98,12 +98,16 @@ def generate_udiff(port_num, circuit_size, seed):
         vl_range = (4.228e-8, 2.075e-7)
         vh_range = (1.488e-4, 5.244e-4)
     # td_range = (0, 1.2e-9)
-    td_range = (0, 5e-11)
-    tr_range = (5e-11, 8e-11)
-    tf_range = (5e-11, 8e-11) 
-    pw_range = (5e-11, 8e-11)
-    # per = 3e-10
-    per_range = (3e-10, 7e-10)
+    # td_range = (0, 5e-11)
+    # tr_range = (5e-11, 8e-11)
+    # tf_range = (5e-11, 8e-11) 
+    # pw_range = (5e-11, 8e-11)
+    td_range = (0, 2e-10)
+    tr_range = (1e-10, 2e-10)
+    tf_range = (1e-10, 2e-10) 
+    pw_range = (2e-10, 4e-10)
+    per = 1e-9
+    # per_range = (3e-10, 7e-10)
     # tr = 1e-10
     # tf = 1e-10
     # pw = 1e-11
@@ -121,7 +125,8 @@ def generate_udiff(port_num, circuit_size, seed):
         # tf = 1e-10
         pw = random.uniform(*pw_range)
         # pw = 1e-11
-        per = random.uniform(*per_range)
+        # per = random.uniform(*per_range)
+        per = 1e-9
         IS.append([vl, vh, td, tr, tf, pw, per])
     IS = np.vstack(IS)
     return IS, VS
