@@ -34,8 +34,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_path = os.path.join(f'./MSIP_BDSM/train_data/{args.cir}t/')
-    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, prima=False)
+    data_path = os.path.join(f'./MSIP_BDSM/train_data/{args.cir}t_2per/')
+    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, train_data_num=300, prima=False)
     if args.test_over:
         data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_sin')
         x_test, y_test, yl_test, time1, pr = load_over_data(data_path1)
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         mynn.load_state_dict(torch.load(data_path + '/alpha_ann.pth'))
         
     elif args.module_name == 'tensor_ann':
-        mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=101).to(device)
+        mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=201).to(device)
         mynn.load_state_dict(torch.load(data_path + '/tensor_ann_fft.pth'))
         
     elif args.module_name == 'tensor_rnn':
@@ -92,12 +92,13 @@ if __name__ == "__main__":
     ##plot the results
     yte = y_test
 
-    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[]}
+    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[], 'relative_error':[]}
     metrics = calculate_metrix(y_test = yte, y_mean_pre = ypred)
     recording['rmse'].append(metrics['rmse'])
     recording['nrmse'].append(metrics['nrmse'])
     recording['r2'].append(metrics['r2'])
     recording['mae'].append(metrics['mae'])
+    recording['relative_error'].append(metrics['relative_error'])
     recording['pred_time'].append(pre_t2 - pre_t1)
     record = pd.DataFrame(recording)
     if args.test_over:
@@ -133,7 +134,7 @@ if __name__ == "__main__":
             # plt.tight_layout()
             fig.subplots_adjust(left=0.05, right=0.92, top=0.85, bottom=0.1)
             # plt.show()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/ibmpg{args.cir}t_example_{i}_response.pdf')
+            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_response.pdf')
             plt.clf()
             break
     
@@ -172,7 +173,7 @@ if __name__ == "__main__":
         plt.grid()
         plt.tight_layout()
         # plt.show()
-        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/FFT_ibmpg{args.cir}t_total_port_response.png')
+        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/FFT_ibmpg{args.cir}t_total_port_response.pdf')
         plt.clf()
         # break
     if args.draw_type == 2:
@@ -212,7 +213,7 @@ if __name__ == "__main__":
             plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/ibmpg{args.cir}t_example_{example}_response_port.png', dpi=300)
+            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.pdf', dpi=300)
             plt.clf()
             break
     if args.draw_type == 3:

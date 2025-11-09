@@ -17,14 +17,15 @@ from utils.res_ann import *
 from utils.tensor_rnn import *
 from utils.tensor_lstm import *
 from utils.single_gar import *
+from utils.MF_data import *
 import matplotlib.ticker as ticker
 from scipy.io import savemat
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An example program with command-line arguments")
     parser.add_argument("--lr", type= float, default= 1e-2)
-    parser.add_argument("--epoch", type= int, default= 2000)
-    parser.add_argument("--bs", type= int, default= 100)
+    parser.add_argument("--epoch", type= int, default= 200)
+    parser.add_argument("--bs", type= int, default= 32)
     parser.add_argument("--hidden_size", type= int, default= 128)
     parser.add_argument("--draw_type", type= int, default= 0)
     parser.add_argument("--module_name", type= str, default= "tensor_ann")
@@ -35,9 +36,11 @@ if __name__ == "__main__":
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # data_path = os.path.join(f'./Exp_res/DeMOR_data/{args.cir}t/')
-    data_path = os.path.join(f'./MSIP_BDSM/train_data/{args.cir}t/')
+    data_path = os.path.join(f'./MSIP_BDSM/train_data/{args.cir}t_2per/')
     # x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1,pr = prepare_data_mix(data_path,prima = True)
-    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, prima=False)
+    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, train_data_num=300, prima=False)
+
+    # x_normalizer = min_max_normalizer_2(min_value= 0.0, max_value= 1.0)
     if args.test_over:
         data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_sin')
         x_test, y_test, yl_test, time1, pr = load_over_data(data_path1)
@@ -70,10 +73,10 @@ if __name__ == "__main__":
         print('alpha:', mynn.alpha)
         tr_time2 = time.time()
     elif args.module_name == 'tensor_ann':
-        mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=101).to(device)
+        mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=201).to(device)
         tr_time1 = time.time()
         # train_tensor_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
-        train_tensor_ann_fft(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=1.0, beta=0.01, normal = True)
+        train_tensor_ann_fft(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=1.0,batch_size=args.bs, beta=0.00)
         tr_time2 = time.time()
         torch.save(mynn.state_dict(), data_path + '/tensor_ann_fft.pth')
         
@@ -113,13 +116,14 @@ if __name__ == "__main__":
     # savemat('ypred.mat', {'ypred': ypred.cpu().numpy()})
     # savemat('yte.mat', {'yte': yte.cpu().numpy()})
 
-    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[],'train_time':[]}
+    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[],'train_time':[], 'relative_error':[]}
     # metrics = calculate_metrix(y_test = yte[:10,:], y_mean_pre = ypred[:10,:])
     metrics = calculate_metrix(y_test = yte, y_mean_pre = ypred)
     recording['rmse'].append(metrics['rmse'])
     recording['nrmse'].append(metrics['nrmse'])
     recording['r2'].append(metrics['r2'])
     recording['mae'].append(metrics['mae'])
+    recording['relative_error'].append(metrics['relative_error'])
     recording['pred_time'].append(pre_t2 - pre_t1)
     recording['train_time'].append(tr_time2 - tr_time1)
     record = pd.DataFrame(recording)
@@ -157,7 +161,7 @@ if __name__ == "__main__":
             # plt.tight_layout()
             fig.subplots_adjust(left=0.05, right=0.92, top=0.85, bottom=0.1)
             # plt.show()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/ibmpg{args.cir}t_example_{i}_fft.png')
+            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_fft.png')
             plt.clf()
             break
     
@@ -196,7 +200,7 @@ if __name__ == "__main__":
         plt.grid()
         plt.tight_layout()
         # plt.show()
-        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/ibmpg{args.cir}t_total_port_response.png')
+        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_total_port_response.png')
         plt.clf()
         # break
     if args.draw_type == 2:
@@ -236,7 +240,7 @@ if __name__ == "__main__":
             plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t/ibmpg{args.cir}t_example_{example}_response_port.png', dpi=300)
+            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.png', dpi=300)
             plt.clf()
             break
     if args.draw_type == 3:
