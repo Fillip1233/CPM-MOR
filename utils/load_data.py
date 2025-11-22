@@ -85,3 +85,22 @@ def load_over_data(data_path):
     yl_test = yl
 
     return x_test, y_test, yl_test, time, pr
+
+def load_over_data_sip(data_path):
+    x1 = np.load(data_path+'/mf_inall.npy')
+    x = torch.tensor(x1, dtype=torch.float32)
+   
+    yl1= np.load(data_path+'/mf_low_f.npy')
+    yl = torch.tensor(yl1, dtype=torch.float32)
+
+    yh1 = np.load(data_path+'/mf_high_f.npy')
+    yh = torch.tensor(yh1, dtype=torch.float32)
+
+    time = np.load(data_path+'/mf_time.npy')
+
+    x_test = x
+    y_test = yh
+    yl_test = yl
+    pr = None
+
+    return x_test, y_test, yl_test, time, pr

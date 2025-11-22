@@ -120,8 +120,8 @@ def save_aligned_coo_mumps(G, C, circuit, index, prefix="matrix"):
                 f.write(f"{r} {c} ({np.real(v):.18e},{np.imag(v):.18e})\n")
 
     # 保存 G, C
-    write_matrix(f"./MSIP_BDSM/SIP_matrix/{circuit}t/{prefix}_G{index}", G_val)
-    write_matrix(f"./MSIP_BDSM/SIP_matrix/{circuit}t/{prefix}_C{index}", C_val)
+    write_matrix(f"./MSIP_BDSM/4w0/{circuit}t/{prefix}_G{index}", G_val)
+    write_matrix(f"./MSIP_BDSM/4w0/{circuit}t/{prefix}_C{index}", C_val)
 
     print(f"Saved aligned matrices to {prefix}_G{index} and {prefix}_C{index} (MUMPS format)")
 
@@ -162,8 +162,8 @@ def save_aligned_coo_mumps_gt(G, C, circuit, prefix="matrix"):
                 f.write(f"{r} {c} ({np.real(v):.18e},{np.imag(v):.18e})\n")
 
     # 保存 G, C
-    write_matrix(f"./MSIP_BDSM/SIP_matrix/{circuit}t/{prefix}_G", G_val)
-    write_matrix(f"./MSIP_BDSM/SIP_matrix/{circuit}t/{prefix}_C", C_val)
+    write_matrix(f"./MSIP_BDSM/4w3/{circuit}t/{prefix}_G", G_val)
+    write_matrix(f"./MSIP_BDSM/4w3/{circuit}t/{prefix}_C", C_val)
 
     print(f"Saved aligned matrices to {prefix}_G and {prefix}_C (MUMPS format)")
 
@@ -171,33 +171,76 @@ def save_aligned_coo_mumps_gt(G, C, circuit, prefix="matrix"):
 # 示例
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="generate mf_mor data for model")
-    parser.add_argument("--circuit", type=int, default=2)
+    parser.add_argument("--circuit", type=int, default=6)
     args = parser.parse_args()
-    save_path = os.path.join(sys.path[0], 'MSIP_BDSM/SIP_matrix/{}t/'.format(args.circuit))
+    save_path = os.path.join(sys.path[0], 'MSIP_BDSM/4w1/{}t/'.format(args.circuit))
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
-                        handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/data_generate1.log")])
+                        handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/data_generate_1.log")])
     logging.info(args)
     
     # 构造一个简单的稀疏矩阵
     circuit = args.circuit
     t1 = time.time()
-    # data1 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/{}t_SIP1.mat".format(circuit))
-    # C1, G1, B1 = data1['C_final'] * 1e-0, data1['G_final'], data1['B_final']
-    # B1 = B1.tocsc()
-    # C1 = C1.tocsc()
-    # G1 = G1.tocsc()
-    # # G = G + 1e-10 * identity(G.shape[0], format="csc")
-    # C1 = C1 + 1e-20 * identity(C1.shape[0], format="csc")
+    data1 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/4w/{}t_4w0_gt.mat".format(circuit))
+    C1, G1, B1 = data1['C_final'] * 1e-0, data1['G_final'], data1['B_final']
+    B1 = B1.tocsc()
+    C1 = C1.tocsc()
+    G1 = G1.tocsc()
+    # G = G + 1e-10 * identity(G.shape[0], format="csc")
+    C1 = C1 + 1e-20 * identity(C1.shape[0], format="csc")
 
-    # data2 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/{}t_SIP2.mat".format(circuit))
+    # data2 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/4w/{}t_4w0_SIP2.mat".format(circuit))
     # C2, G2, B2 = data2['C_final'] * 1e-0, data2['G_final'], data2['B_final']
     # B2 = B2.tocsc()
     # C2 = C2.tocsc()
     # G2 = G2.tocsc()
     # C2 = C2 + 1e-20 * identity(C2.shape[0], format="csc")
+
+    # data3 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/4w/{}t_4w3_SIP3.mat".format(circuit))
+    # C3, G3, B3 = data3['C_final'] * 1e-0, data3['G_final'], data3['B_final']
+    # B3 = B3.tocsc()
+    # C3 = C3.tocsc()
+    # G3 = G3.tocsc()
+    # C3 = C3 + 1e-20 * identity(C3.shape[0], format="csc")
+
+    # data4 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/4w/{}t_4w3_SIP4.mat".format(circuit))
+    # C4, G4, B4 = data4['C_final'] * 1e-0, data4['G_final'], data4['B_final']
+    # B4 = B4.tocsc()
+    # C4 = C4.tocsc()
+    # G4 = G4.tocsc()
+    # C4 = C4 + 1e-20 * identity(C4.shape[0], format="csc")
+
+    # data5 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/4w/{}t_4w3_SIP5.mat".format(circuit))
+    # C5, G5, B5 = data5['C_final'] * 1e-0, data5['G_final'], data5['B_final']
+    # B5 = B5.tocsc()
+    # C5 = C5.tocsc()
+    # G5 = G5.tocsc()
+    # # G = G + 1e-10 * identity(G.shape[0], format="csc")
+    # C5 = C5 + 1e-20 * identity(C5.shape[0], format="csc")
+
+    # data6 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/4w/{}t_4w3_SIP6.mat".format(circuit))
+    # C6, G6, B6 = data6['C_final'] * 1e-0, data6['G_final'], data6['B_final']
+    # B6 = B6.tocsc()
+    # C6 = C6.tocsc()
+    # G6 = G6.tocsc()
+    # C6 = C6 + 1e-20 * identity(C6.shape[0], format="csc")
+
+    # data7 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/4w/{}t_4w3_SIP7.mat".format(circuit))
+    # C7, G7, B7 = data7['C_final'] * 1e-0, data7['G_final'], data7['B_final']
+    # B7 = B7.tocsc()
+    # C7 = C7.tocsc()
+    # G7 = G7.tocsc()
+    # C7 = C7 + 1e-20 * identity(C7.shape[0], format="csc")
+
+    # data8 = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/4w/{}t_4w3_SIP8.mat".format(circuit))
+    # C8, G8, B8 = data8['C_final'] * 1e-0, data8['G_final'], data8['B_final']
+    # B8 = B8.tocsc()
+    # C8 = C8.tocsc()
+    # G8 = G8.tocsc()
+    # C8 = C8 + 1e-20 * identity(C8.shape[0], format="csc")
 
     # f = np.array(1e9)  # array of targeting frequencies
     # s = 1j * 2 * np.pi * f
@@ -210,21 +253,27 @@ if __name__ == "__main__":
     # # save_sparse_to_coo_txt(G + C, "1tcoo_GC")
     # save_aligned_coo_mumps(G1, C1, circuit, index=1, prefix="aligned")
     # save_aligned_coo_mumps(G2, C2, circuit, index=2, prefix="aligned")
+    # save_aligned_coo_mumps(G3, C3, circuit, index=3, prefix="aligned")
+    # save_aligned_coo_mumps(G4, C4, circuit, index=4, prefix="aligned")
+    # save_aligned_coo_mumps(G5, C5, circuit, index=5, prefix="aligned")
+    # save_aligned_coo_mumps(G6, C6, circuit, index=6, prefix="aligned")
+    # save_aligned_coo_mumps(G7, C7, circuit, index=7, prefix="aligned")
+    # save_aligned_coo_mumps(G8, C8, circuit, index=8, prefix="aligned")
     # t2 = time.time()
     # logging.info(f"Time taken to save matrices: {t2 - t1:.2f} seconds")
 
-    data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/{}t_SIP_gt.mat".format(circuit))
-    C, G, B = data['C_final'] * 1e-0, data['G_final'], data['B_final']
-    B = B.tocsc()
-    C = C.tocsc()
-    G = G.tocsc()
-    # G = G + 1e-10 * identity(G.shape[0], format="csc")
-    C = C + 1e-20 * identity(C.shape[0], format="csc")
+    # data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/{}t_SIP_gt.mat".format(circuit))
+    # C, G, B = data['C_final'] * 1e-0, data['G_final'], data['B_final']
+    # B = B.tocsc()
+    # C = C.tocsc()
+    # G = G.tocsc()
+    # # G = G + 1e-10 * identity(G.shape[0], format="csc")
+    # C = C + 1e-20 * identity(C.shape[0], format="csc")
 
-    f = np.array(1e9)  # array of targeting frequencies
-    s = 1j * 2 * np.pi * f
-    G = G + s * C
+    # f = np.array(1e9)  # array of targeting frequencies
+    # s = 1j * 2 * np.pi * f
+    # G = G + s * C
 
-    save_aligned_coo_mumps_gt(G, C, circuit, prefix="aligned")
+    save_aligned_coo_mumps_gt(G1, C1, circuit, prefix="aligned")
     t2 = time.time()
     logging.info(f"Time taken to save matrices: {t2 - t1:.2f} seconds")

@@ -3,7 +3,7 @@ import argparse
 import scipy.io as spio
 from scipy.sparse import coo_matrix
 import matplotlib.pyplot as plt
-from generate_mf_mor_data import generate_u, generate_udiff
+from generate_mf_mor_data import generate_u, generate_udiff, generate_uover
 from utils.tdIntLinBE_new import *
 from utils.calculate_metrix import calculate_metrix
 import pandas as pd
@@ -84,7 +84,7 @@ def load_coo_txt(path, shape=None, delimiter=None, comment='#', to='csr', dtype=
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='vertify msip')
-    parser.add_argument('--circuit', type=int, default=1, help='Circuit number')
+    parser.add_argument('--circuit', type=int, default=6, help='Circuit number')
     parser.add_argument("--port_num", type=int, default= 10000)
     args = parser.parse_args()
     data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/{}t_SIP_gt.mat".format(args.circuit))
@@ -111,7 +111,8 @@ if __name__ == "__main__":
     tf = 2e-09
     dt = 1e-11
     srcType = 'pulse'
-    IS, VS = generate_udiff(args.port_num, args.circuit, seed = 0)
+    # IS, VS = generate_udiff(args.port_num, args.circuit, seed = 399)
+    IS, VS = generate_uover(args.port_num, args.circuit, seed = 99)
     x0 = np.zeros((C1.shape[0], 1))
 
     xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C1, G1, B1, VS, IS, x0, srcType)
@@ -121,6 +122,9 @@ if __name__ == "__main__":
     xrAll, time2, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, C2, G2, B2, VS, IS, xr0, srcType)
     y_mor = B2.T@xrAll
 
+    y_save = y_mor[3000,:]
+    np.save("sip_over.npy", y_save)
+
     recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'relative_error':[]}
     metrics = calculate_metrix(y_test = np.abs(y), y_mean_pre = np.abs(y_mor))
     recording['rmse'].append(metrics['rmse'])
@@ -129,7 +133,7 @@ if __name__ == "__main__":
     recording['mae'].append(metrics['mae'])
     recording['relative_error'].append(metrics['relative_error'])
     record = pd.DataFrame(recording)
-    record.to_csv(data_path + '/res_sip.csv', index = False)
+    record.to_csv(data_path + '/res_sip_over.csv', index = False)
 
     # yy = y[0,:]
     # yy_mor = y_mor[0,:]

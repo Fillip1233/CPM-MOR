@@ -12,14 +12,22 @@ import utils.PRIMA as PRIMA
 from utils.tdIntLinBE_new import *
 from code_try.tdIntLinBE_forsvd import *
 
-def svd_try(B, threshold):
+def svd_try(B, threshold, load_path=None):
 
-    B_1 = csc_matrix(B, dtype=np.float64)
-    t1 = time.time()
-    B_dense = B_1.toarray()
-    U, S, V = np.linalg.svd(B_dense,full_matrices=False)
-    t2 = time.time()
-    print('time for svd:', t2-t1)
+    if load_path is None:
+        B_1 = csc_matrix(B, dtype=np.float64)
+        t1 = time.time()
+        B_dense = B_1.toarray()
+        U, S, V = np.linalg.svd(B_dense,full_matrices=False)
+        t2 = time.time()
+        print('time for svd:', t2-t1)
+    else:
+        t1 = time.time()
+        U = np.load(load_path + 'U.npy')
+        S = np.load(load_path + 'S.npy')
+        V = np.load(load_path + 'V.npy')
+        t2 = time.time()
+        print('time for svd:', t2-t1)
     indices = S > threshold
     U_new = U[:, indices]               
     S_new = S[indices]                  

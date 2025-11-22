@@ -186,7 +186,7 @@ if __name__ == '__main__':
     parser.add_argument('--circuit', type=int, default=1, help='Circuit number')
     args = parser.parse_args()
     # save_path = os.path.join('/home/fillip/home/CPM-MOR/SVDMOR2_res/{}t'.format(args.circuit))
-    save_path = os.path.join('/home/fillip/home/CPM-MOR/Baseline/SVDMOR/{}t/'.format(args.circuit))
+    save_path = os.path.join('/home/fillip/home/CPM-MOR/Baseline/SVD_try/{}t/'.format(args.circuit))
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -204,8 +204,8 @@ if __name__ == '__main__':
     logging.info("Finish B, C, G")
     # U,S,V = svdmor_2(G, B, O)
     # svdmor_2(G, B, O)
-    U, S, V = svdmor_2(G, B, O)
-    # U,S,V = svd_try(B)
+    # U, S, V = svdmor_2(G, B, O)
+    U,S,V = svd_try(B)
     np.save(save_path + "/U.npy",U)
     np.save(save_path + "/S.npy",S)
     np.save(save_path + "/V.npy",V)

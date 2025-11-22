@@ -2,3 +2,10 @@
 2025-11-09 21:21:04,226 - INFO - Finish B, C, G
 2025-11-09 21:22:42,477 - INFO - Finish R
 2025-11-09 21:22:43,176 - INFO - Finish B sparse save
+2025-11-09 23:03:19,890 - INFO - Namespace(threshold=2, port_num=10000, circuit=1)
+2025-11-09 23:03:19,912 - INFO - Finish B, C, G
+2025-11-09 23:04:50,846 - INFO - Finish R
+2025-11-09 23:04:51,457 - INFO - Finish B sparse save
+2025-11-09 23:31:45,083 - INFO - Finish SVD ,time: 1705.1701607704163
+2025-11-09 23:31:49,492 - INFO - Memory usage: 12829.79 MB
+2025-11-09 23:31:49,492 - INFO - Finish!

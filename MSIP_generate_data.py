@@ -9,20 +9,21 @@ import numpy as np
 import scipy.io as spio
 from scipy.sparse import coo_matrix, block_diag
 import matplotlib.pyplot as plt
-from generate_mf_mor_data import generate_u, generate_udiff
+from generate_mf_mor_data import generate_u, generate_udiff, generate_uover
 from utils.tdIntLinBE_new import *
 from verify_msipbdsm import coo_from_triplets, load_coo_txt
+from memory_profiler import memory_usage
 import time
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="generate mf_mor data for model")
     parser.add_argument("--port_num", type=int, default= 10000)
-    parser.add_argument("--circuit", type=int, default = 1)
+    parser.add_argument("--circuit", type=int, default = 6)
     parser.add_argument("--generate", type=int, default= 0)
     parser.add_argument("--block", type=int, default= 2)
     parser.add_argument("--data_num", type=int, default= 400)
     args = parser.parse_args()
-    save_path = os.path.join(sys.path[0], 'MSIP_BDSM/train_data/{}t_2per'.format(args.circuit))
+    save_path = os.path.join(sys.path[0], 'MSIP_BDSM/train_data/{}t_2per_over1'.format(args.circuit))
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -71,7 +72,8 @@ if __name__ == "__main__":
             logging.info("Generating {}th input data".format(i))
             seed = i
             t1 = time.time()
-            IS, VS = generate_udiff(port_num, args.circuit, seed)
+            # IS, VS = generate_udiff(port_num, args.circuit, seed)
+            IS, VS = generate_uover(port_num, args.circuit, seed)
             x0 = np.zeros((C1.shape[0], 1))
             xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C1, G1, B1, VS, IS, x0, srcType)
             y = B1.T@xAll
@@ -101,12 +103,14 @@ if __name__ == "__main__":
     
     else:
         IS, VS = generate_udiff(port_num, args.circuit, seed=1)
+        # IS, VS = generate_uover(port_num, args.circuit, seed=1)
         x0 = np.zeros((C1.shape[0], 1))
         xAll, time1, dtAll, uAll = tdIntLinBE_new(t0, tf, dt, C1, G1, B1, VS, IS, x0, srcType)
         y = B1.T@xAll
 
         xr0 = np.zeros((Cr.shape[0], 1))
         xrAll, time2, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, Cr, Gr, Br, VS, IS, xr0, srcType)
+        
         y_mor = Br.T@xrAll
 
         yy = y[0,:]
@@ -123,7 +127,7 @@ if __name__ == "__main__":
         plt.grid()
         plt.title("SIP-BDSM test", fontsize=14)
         plt.tight_layout()
-        plt.savefig('SIP-BDSM_{}t_{}_1w.png'.format(args.circuit,f), dpi=300)
+        plt.savefig('SIP-BDSM_{}t_{}_1w_over.png'.format(args.circuit,f), dpi=300)
         pass
 
 
