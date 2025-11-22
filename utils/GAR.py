@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import numpy as np
 from utils.hogp_simple import HOGP_simple
 import utils.kernel as kernel
@@ -27,6 +28,41 @@ class Tensor_linear(torch.nn.Module):
     def forward(self,x):
         for i in range(len(self.l_shape)):
             x = tensorly.tenalg.mode_dot(x, self.vectors[i], i+1)
+        return x
+    
+class Tensor_linear_mask(torch.nn.Module):
+    ## tensor linear layer with mask for the first matrix
+    def __init__(self, l_shape, h_shape, mask=None):
+        super().__init__()
+        self.l_shape = l_shape
+        self.h_shape = h_shape
+        self.mask = mask  # mask: (l_shape[0], h_shape[0]) 或 None
+
+        self.vectors = []
+        for i in range(len(self.l_shape)):
+            if self.l_shape[i] < self.h_shape[i]:
+                init_tensor = torch.eye(self.l_shape[i])
+                init_tensor = torch.nn.functional.interpolate(
+                    init_tensor.reshape(1, 1, *init_tensor.shape),
+                    (self.l_shape[i], self.h_shape[i]),
+                    mode='bilinear'
+                )
+                init_tensor = init_tensor.squeeze().T
+            elif self.l_shape[i] == self.h_shape[i]:
+                init_tensor = torch.eye(self.l_shape[i])
+            self.vectors.append(torch.nn.Parameter(init_tensor))
+        self.vectors = torch.nn.ParameterList(self.vectors)
+
+    def forward(self, x):
+        if self.mask is not None:
+            # 第一个矩阵使用 mask
+            v0 = self.vectors[0] * self.mask
+            x = tensorly.tenalg.mode_dot(x, v0, 1)
+            for i in range(1, len(self.l_shape)):
+                x = tensorly.tenalg.mode_dot(x, self.vectors[i], i + 1)
+        else:
+            for i in range(len(self.l_shape)):
+                x = tensorly.tenalg.mode_dot(x, self.vectors[i], i + 1)
         return x
         
 class GAR(torch.nn.Module):

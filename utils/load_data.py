@@ -66,6 +66,63 @@ def prepare_data(data_path, train_data_num=100, prima = False):
     
     return x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time, pr
 
+def prepare_data_block(data_path, train_data_num=100, prima = False):
+
+    x1 = np.load(data_path+'/mf_inall.npy')
+    x = torch.tensor(x1, dtype=torch.float32)
+   
+    yl1= np.load(data_path+'/mf_low_f_b4.npy')
+    yl = torch.tensor(yl1, dtype=torch.float32)
+
+    yh1 = np.load(data_path+'/mf_high_f.npy')
+    yh = torch.tensor(yh1, dtype=torch.float32)
+
+    time = np.load(data_path+'/mf_time.npy')
+
+    if prima:
+        pr = np.load(data_path+'/prima.npy')
+        pr = torch.tensor(pr, dtype=torch.float32)
+
+    x_trainl = x[:train_data_num, :]
+    x_trainh = x[:train_data_num, :]
+    y_l = yl[:train_data_num, :]
+    y_h = yh[:train_data_num, :]
+
+    x_test = x[train_data_num:, :]
+    y_test = yh[train_data_num:, :]
+    yl_test = yl[train_data_num:, :]
+
+    if not prima:
+        pr = None
+    
+    return x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time, pr
+
+def prepare_data_mfmor(data_path, train_data_num=100, circuit = 1):
+
+    x1 = np.load(data_path+'/mf_inall.npy')
+    x = torch.tensor(x1, dtype=torch.float32)
+
+    yl1= np.load(f'/home/fillip/home/CPM-MOR/Baseline/MFMOR/{circuit}t_2per'+'/mf_low_f.npy')
+    yl = torch.tensor(yl1, dtype=torch.float32)
+
+    yh1 = np.load(data_path+'/mf_high_f.npy')
+    yh = torch.tensor(yh1, dtype=torch.float32)
+
+    time = np.load(data_path+'/mf_time.npy')
+
+    x_trainl = x[:train_data_num, :]
+    x_trainh = x[:train_data_num, :]
+    y_l = yl[:train_data_num, :]
+    y_h = yh[:train_data_num, :]
+
+    x_test = x[train_data_num:, :]
+    y_test = yh[train_data_num:, :]
+    yl_test = yl[train_data_num:, :]
+
+    pr = None
+    
+    return x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time, pr
+
 def load_over_data(data_path):
     x1 = np.load(data_path+'/mf_inall.npy')
     x = torch.tensor(x1, dtype=torch.float32)
@@ -91,6 +148,25 @@ def load_over_data_sip(data_path):
     x = torch.tensor(x1, dtype=torch.float32)
    
     yl1= np.load(data_path+'/mf_low_f.npy')
+    yl = torch.tensor(yl1, dtype=torch.float32)
+
+    yh1 = np.load(data_path+'/mf_high_f.npy')
+    yh = torch.tensor(yh1, dtype=torch.float32)
+
+    time = np.load(data_path+'/mf_time.npy')
+
+    x_test = x
+    y_test = yh
+    yl_test = yl
+    pr = None
+
+    return x_test, y_test, yl_test, time, pr
+
+def load_over_data_mfmor(data_path, circuit):
+    x1 = np.load(data_path+'/mf_inall.npy')
+    x = torch.tensor(x1, dtype=torch.float32)
+   
+    yl1= np.load(f'/home/fillip/home/CPM-MOR/Baseline/MFMOR/{circuit}t_2per'+'/mf_low_f.npy')
     yl = torch.tensor(yl1, dtype=torch.float32)
 
     yh1 = np.load(data_path+'/mf_high_f.npy')

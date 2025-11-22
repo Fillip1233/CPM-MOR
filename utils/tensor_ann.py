@@ -8,6 +8,50 @@ from utils.GAR import *
 from torch.utils.data import DataLoader, TensorDataset
 from torch.utils.tensorboard import SummaryWriter
 
+class tensor_ann_mask(nn.Module):
+    def __init__(self, data_shape_list, hidden_size, mask = None, d_num = 100):
+        super(tensor_ann_mask, self).__init__()
+        self.f = torch.nn.Sequential(
+            nn.Linear(d_num, hidden_size),
+            nn.SiLU(),
+            # nn.Linear(hidden_size, hidden_size),
+            # nn.SiLU(),
+            # nn.Linear(hidden_size, hidden_size),
+            # nn.SiLU(),
+            nn.Linear(hidden_size, d_num),
+        )
+        
+        self.Tensor_linear_list = []
+        for i in range(len(data_shape_list) - 1):
+            self.Tensor_linear_list.append(Tensor_linear_mask(data_shape_list[i], data_shape_list[i + 1], mask=mask))
+        self.Tensor_linear_list = torch.nn.ModuleList(self.Tensor_linear_list)
+    
+    def forward(self, u):
+        # u = u.permute(0, 2, 1)
+        # batch_size, d_num, port_num = u.shape
+        # u = u.reshape(-1, port_num)
+        # u_f = self.f(u)
+        # u_f = u_f.reshape(batch_size, d_num,  port_num)
+        # u_f = u_f.permute(0, 2, 1)
+        
+        batch_size, port_num, d_num = u.shape
+        u = u.view(-1, d_num)
+        # u = u.view(batch_size, port_num*d_num)
+        u_f = self.f(u)
+        u_f = u_f.view(batch_size, port_num, d_num)
+
+        return u_f
+    def forward_h(self, u, y_low):
+        y_l_after = self.Tensor_linear_list[0](y_low)
+        res = self(u)
+        return res + y_l_after
+        # return y_l_after 
+    
+    def draw(self, y_low):
+        y_l_after1  = tensorly.tenalg.mode_dot(y_low, self.Tensor_linear_list[0].vectors[0], 1)
+        y_l_after2  = tensorly.tenalg.mode_dot(y_l_after1, self.Tensor_linear_list[0].vectors[1], 2)
+        return y_l_after1, y_l_after2
+    
 class tensor_ann(nn.Module):
     def __init__(self, data_shape_list, hidden_size, d_num = 100):
         super(tensor_ann, self).__init__()
@@ -72,7 +116,7 @@ def train_tensor_ann(tensor_ann ,data_manager, lr, epoch, normal = False):
         print(f"Epoch {i}, loss {loss}", end='\r')   
     print(' ')
 
-def train_tensor_ann_fft(tensor_ann, data_manager, lr, epoch, batch_size=64, alpha=1.0, beta=1.0, normal=False):
+def train_tensor_ann_fft(tensor_ann, data_manager, lr, epoch, batch_size=64, alpha=1.0, beta=0.0, normal=False):
     
     writer = SummaryWriter(log_dir='./runs/tensor_ann_fft')
 
@@ -90,13 +134,12 @@ def train_tensor_ann_fft(tensor_ann, data_manager, lr, epoch, batch_size=64, alp
 
         for batch_x, batch_y_l, batch_y_h in dataloader:
             optimizer.zero_grad()
-            u_pred = tensor_ann(batch_x)
-            y_res = batch_y_h - tensor_ann.Tensor_linear_list[0](batch_y_l)
+            pred = tensor_ann(batch_x) + tensor_ann.Tensor_linear_list[0](batch_y_l)
 
-            loss_time = criterion(u_pred, y_res)
+            loss_time = criterion(pred, batch_y_h)
 
-            U_pred = torch.fft.rfft(u_pred, dim=-1)
-            Y_res = torch.fft.rfft(y_res, dim=-1)
+            U_pred = torch.fft.rfft(pred, dim=-1)
+            Y_res = torch.fft.rfft(batch_y_h, dim=-1)
             loss_freq = criterion(torch.abs(U_pred), torch.abs(Y_res))
 
             loss = alpha * loss_time + beta * loss_freq

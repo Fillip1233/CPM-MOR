@@ -3,6 +3,7 @@
 top module
 '''
 import argparse
+import logging
 import os
 import sys
 import torch
@@ -21,18 +22,40 @@ from utils.MF_data import *
 import matplotlib.ticker as ticker
 from scipy.io import savemat
 
+def build_mask_from_topk(topk_idx, topk, port_num):
+    """
+    topk_idx: (port_num, topk) 每行是相关端口索引
+    返回 mask 矩阵: (port_num, port_num), dtype=float32
+    """
+    mask = torch.zeros((port_num, port_num), dtype=torch.float32)
+    for i in range(port_num):
+        idx = topk_idx[i][:topk]
+        idx = idx[idx >= 0]  # 去掉 -1
+        mask[i, idx] = 1.0
+    return mask
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An example program with command-line arguments")
     parser.add_argument("--lr", type= float, default= 1e-2)
     parser.add_argument("--epoch", type= int, default= 200)
     parser.add_argument("--bs", type= int, default= 32)
     parser.add_argument("--hidden_size", type= int, default= 128)
-    parser.add_argument("--draw_type", type= int, default= 0)
-    parser.add_argument("--module_name", type= str, default= "tensor_ann")
+    parser.add_argument("--draw_type", type= int, default= 2)
+    parser.add_argument("--module_name", type= str, default= "tensor_ann_mask")
     parser.add_argument("--test_over", type= int, default= 0)
-    parser.add_argument("--cir", type= int, default= 1)
+    parser.add_argument("--cir", type= int, default= 6)
+    parser.add_argument("--alpha", type= float, default= 1.0)
+    parser.add_argument("--beta", type= float, default= 0.0)
+    parser.add_argument("--topk", type= int, default= 3)
+    parser.add_argument("--exp_marker", type= str, default= "top")
 
     args = parser.parse_args()
+    save_path = f'./DAC/{args.cir}t_2per/'+args.exp_marker
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/data_generate.log")])
+    logging.info(args)
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # data_path = os.path.join(f'./Exp_res/DeMOR_data/{args.cir}t/')
@@ -72,13 +95,25 @@ if __name__ == "__main__":
         # torch.save(mynn.state_dict(), data_path + '/alpha_ann.pth')
         print('alpha:', mynn.alpha)
         tr_time2 = time.time()
+    
     elif args.module_name == 'tensor_ann':
+        
         mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=201).to(device)
         tr_time1 = time.time()
-        # train_tensor_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
-        train_tensor_ann_fft(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=1.0,batch_size=args.bs, beta=0.00)
+        train_tensor_ann_fft(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=args.alpha,batch_size=args.bs, beta=args.beta)
         tr_time2 = time.time()
-        torch.save(mynn.state_dict(), data_path + '/tensor_ann_fft.pth')
+        torch.save(mynn.state_dict(), data_path + '/tensor_ann_mfmor.pth')
+
+    elif args.module_name == 'tensor_ann_mask':
+        mask = np.load(f'./Baseline/mask/{args.cir}t/coridx.npy', allow_pickle=True)
+        mask1 = build_mask_from_topk(mask, topk=args.topk, port_num=10000)
+        mask1 = torch.tensor(mask1).to(device)
+        mynn = tensor_ann_mask(data_shape, hidden_size=args.hidden_size, mask=mask1, d_num=201).to(device)
+        tr_time1 = time.time()
+        # train_tensor_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
+        train_tensor_ann_fft(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=args.alpha,batch_size=args.bs, beta=args.beta)
+        tr_time2 = time.time()
+        torch.save(mynn.state_dict(), data_path + '/tensor_ann_block.pth')
         
     elif args.module_name == 'tensor_rnn':
         mynn = tensor_rnn(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
@@ -126,11 +161,13 @@ if __name__ == "__main__":
     recording['relative_error'].append(metrics['relative_error'])
     recording['pred_time'].append(pre_t2 - pre_t1)
     recording['train_time'].append(tr_time2 - tr_time1)
+    logging.info(f"Test Results: RMSE: {metrics['rmse']}, NRMSE: {metrics['nrmse']}, R2: {metrics['r2']}, MAE: {metrics['mae']}, Relative Error: {metrics['relative_error']},train_time: {tr_time2 - tr_time1}, pred_time: {pre_t2 - pre_t1}")
     record = pd.DataFrame(recording)
     if args.test_over:
         record.to_csv(data_path1 + '/{}_over_res.csv'.format(args.module_name), index = False)
     else:
-        record.to_csv(data_path + '/{}_res_fft.csv'.format(args.module_name), index = False)
+        # record.to_csv(data_path + '/{}_res_fft.csv'.format(args.module_name), index = False)
+        record.to_csv(save_path + '/{}_res_2per_block.csv'.format(args.module_name), index = False)
 
     if args.draw_type == 0:
         #全端口波形图
@@ -161,7 +198,8 @@ if __name__ == "__main__":
             # plt.tight_layout()
             fig.subplots_adjust(left=0.05, right=0.92, top=0.85, bottom=0.1)
             # plt.show()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_fft.png')
+            # plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_fft.png')
+            plt.savefig(save_path + f'/ibmpg{args.cir}t_example_{i}_fft.pdf')
             plt.clf()
             break
     
@@ -200,7 +238,8 @@ if __name__ == "__main__":
         plt.grid()
         plt.tight_layout()
         # plt.show()
-        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_total_port_response.png')
+        # plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_total_port_response.png')
+        plt.savefig(save_path + f'/FFT_ibmpg{args.cir}t_total_port_response.pdf')
         plt.clf()
         # break
     if args.draw_type == 2:
@@ -240,7 +279,8 @@ if __name__ == "__main__":
             plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.png', dpi=300)
+            # plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.png', dpi=300)
+            plt.savefig(save_path + f'/ibmpg{args.cir}t_example_{example}_response_block1.pdf', dpi=300)
             plt.clf()
             break
     if args.draw_type == 3:
