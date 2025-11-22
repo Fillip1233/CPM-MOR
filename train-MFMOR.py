@@ -3,6 +3,7 @@
 top module
 '''
 import argparse
+import logging
 import os
 import sys
 import torch
@@ -17,30 +18,52 @@ from utils.res_ann import *
 from utils.tensor_rnn import *
 from utils.tensor_lstm import *
 from utils.single_gar import *
+from utils.MF_data import *
 import matplotlib.ticker as ticker
 from scipy.io import savemat
-from train_module_sip import build_mask_from_topk
+
+def build_mask_from_topk(topk_idx, topk, port_num):
+    """
+    topk_idx: (port_num, topk) 每行是相关端口索引
+    返回 mask 矩阵: (port_num, port_num), dtype=float32
+    """
+    mask = torch.zeros((port_num, port_num), dtype=torch.float32)
+    for i in range(port_num):
+        idx = topk_idx[i][:topk]
+        idx = idx[idx >= 0]  # 去掉 -1
+        mask[i, idx] = 1.0
+    return mask
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="test MSIP_BDSM_MF-MOR")
-    parser.add_argument("--lr", type= float, default= 1e-1)
-    parser.add_argument("--epoch", type= int, default= 300)
+    parser = argparse.ArgumentParser(description="An example program with command-line arguments")
+    parser.add_argument("--lr", type= float, default= 1e-2)
+    parser.add_argument("--epoch", type= int, default= 100)
     parser.add_argument("--bs", type= int, default= 100)
     parser.add_argument("--hidden_size", type= int, default= 128)
     parser.add_argument("--draw_type", type= int, default= 2)
     parser.add_argument("--module_name", type= str, default= "tensor_ann")
     parser.add_argument("--test_over", type= int, default= 0)
     parser.add_argument("--cir", type= int, default= 2)
-    parser.add_argument("--exp_marker", type= str, default= "mfmor")
+    parser.add_argument("--alpha", type= float, default= 1.0)
+    parser.add_argument("--beta", type= float, default= 0.0)
+    parser.add_argument("--exp_marker", type= str, default= "mf-mor")
 
     args = parser.parse_args()
+    save_path = f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/'+args.exp_marker
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[logging.StreamHandler(),logging.FileHandler(f"{save_path}/data_generate.log")])
+    logging.info(args)
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data_path = os.path.join(f'./MSIP_BDSM/train_data/{args.cir}t_2per/')
-    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, train_data_num=300, prima=False)
+    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data_mfmor(data_path, train_data_num=300, circuit=args.cir)
+
+    # x_normalizer = min_max_normalizer_2(min_value= 0.0, max_value= 1.0)
     if args.test_over:
-        data_path1 = os.path.join(f'./MSIP_BDSM/train_data/{args.cir}t_2per_over1')
-        x_test, y_test, yl_test, time1, pr = load_over_data_sip(data_path1)
+        data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_sin')
+        x_test, y_test, yl_test, time1, pr = load_over_data(data_path1)
     x_test = x_test.to(device)
     y_test = y_test.to(device)
     yl_test = yl_test.to(device)
@@ -55,37 +78,56 @@ if __name__ == "__main__":
     ]
     fidelity_num = len(initial_data)
     fidelity_manager = MultiFidelityDataManager(initial_data)
-
     if args.module_name == 'res_ann':
         mynn = res_ann(hidden_size=args.hidden_size, d_num=101).to(device)
-        mynn.load_state_dict(torch.load(data_path + '/res_ann.pth'))
+        tr_time1 = time.time()
+        train_res_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
+        tr_time2 = time.time()
+        # torch.save(mynn.state_dict(), data_path + '/res_ann.pth')
         
     elif args.module_name == 'alpha_ann':
         mynn = alpha_ann(hidden_size=args.hidden_size, d_num=101).to(device)
-        mynn.load_state_dict(torch.load(data_path + '/alpha_ann.pth'))
-
-    elif args.module_name == 'tensor_ann':
-        mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=201).to(device)
-        mynn.load_state_dict(torch.load(data_path + '/tensor_ann_mfmor.pth'))
-
+        tr_time1 = time.time()
+        train_alpha_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
+        # torch.save(mynn.state_dict(), data_path + '/alpha_ann.pth')
+        print('alpha:', mynn.alpha)
+        tr_time2 = time.time()
     elif args.module_name == 'tensor_ann_mask':
         mask = np.load(f'./Baseline/mask/{args.cir}t/coridx.npy', allow_pickle=True)
-        mask1 = build_mask_from_topk(mask,topk=3,port_num= 10000)
+        mask1 = build_mask_from_topk(mask,topk=3, port_num=10000)
         mask1 = torch.tensor(mask1).to(device)
         mynn = tensor_ann_mask(data_shape, hidden_size=args.hidden_size, mask=mask1, d_num=201).to(device)
-        mynn.load_state_dict(torch.load(data_path + '/tensor_ann_fft.pth'))
+        tr_time1 = time.time()
+        # train_tensor_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
+        train_tensor_ann_fft(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=args.alpha,batch_size=args.bs, beta=args.beta)
+        tr_time2 = time.time()
+        torch.save(mynn.state_dict(), data_path + '/tensor_ann_mask.pth')
+    elif args.module_name == 'tensor_ann':
+        mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=201).to(device)
+        tr_time1 = time.time()
+        # train_tensor_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
+        train_tensor_ann_fft(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=args.alpha,batch_size=args.bs, beta=args.beta)
+        tr_time2 = time.time()
+        torch.save(mynn.state_dict(), data_path + '/tensor_ann_mfmor.pth')
         
     elif args.module_name == 'tensor_rnn':
         mynn = tensor_rnn(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
-        mynn.load_state_dict(torch.load(data_path + '/tensor_rnn.pth'))
+        tr_time1 = time.time()
+        train_tensor_rnn(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
+        tr_time2 = time.time()
+        # torch.save(mynn.state_dict(), data_path + '/tensor_rnn.pth')
         
     elif args.module_name == 'tensor_lstm':
         mynn = tensor_lstm(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
-        mynn.load_state_dict(torch.load(data_path + '/tensor_lstm.pth'))
-        
+        tr_time1 = time.time()
+        train_tensor_lstm(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
+        tr_time2 = time.time()
+        torch.save(mynn.state_dict(), data_path + '/tensor_lstm.pth')
     elif args.module_name == 'gar':
         mynn = gar(data_shape).to(device)
-        mynn.load_state_dict(torch.load(data_path + '/gar.pth'))
+        tr_time1 = time.time()
+        train_gar(mynn, fidelity_manager, max_iter = args.epoch, lr_init = args.lr)
+        tr_time2 = time.time()
         
 
     total_params = sum(p.numel() for p in mynn.parameters())
@@ -101,7 +143,11 @@ if __name__ == "__main__":
     ##plot the results
     yte = y_test
 
-    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[], 'relative_error':[]}
+    # savemat('ypred.mat', {'ypred': ypred.cpu().numpy()})
+    # savemat('yte.mat', {'yte': yte.cpu().numpy()})
+
+    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[],'train_time':[], 'relative_error':[]}
+    # metrics = calculate_metrix(y_test = yte[:10,:], y_mean_pre = ypred[:10,:])
     metrics = calculate_metrix(y_test = yte, y_mean_pre = ypred)
     recording['rmse'].append(metrics['rmse'])
     recording['nrmse'].append(metrics['nrmse'])
@@ -109,19 +155,23 @@ if __name__ == "__main__":
     recording['mae'].append(metrics['mae'])
     recording['relative_error'].append(metrics['relative_error'])
     recording['pred_time'].append(pre_t2 - pre_t1)
+    recording['train_time'].append(tr_time2 - tr_time1)
+    logging.info(f"Test Results: RMSE: {metrics['rmse']}, NRMSE: {metrics['nrmse']}, R2: {metrics['r2']}, MAE: {metrics['mae']}, Relative Error: {metrics['relative_error']}")
     record = pd.DataFrame(recording)
     if args.test_over:
-        record.to_csv(data_path1 + '/{}_over_res_mfmor.csv'.format(args.module_name), index = False)
+        record.to_csv(data_path1 + '/{}_over_res.csv'.format(args.module_name), index = False)
     else:
-        record.to_csv(data_path + '/test_{}_res_fft.csv'.format(args.module_name), index = False)
+        # record.to_csv(data_path + '/{}_res_fft.csv'.format(args.module_name), index = False)
+        record.to_csv(save_path + '/{}_res_2per_MFMOR.csv'.format(args.module_name), index = False)
 
     if args.draw_type == 0:
         #全端口波形图
-        for i in [99]:
+        for i in range(100):
             i = 99
             fig, axs = plt.subplots(1, 3, figsize=(10, 6))
 
-            cbar_ax2 = fig.add_axes([0.93, 0.3, 0.03, 0.4])
+            # cbar_ax1 = fig.add_axes([0.02, 0.3, 0.03, 0.4])
+            cbar_ax2 = fig.add_axes([0.94, 0.3, 0.03, 0.4])
             vmin = torch.min(yte[i])
             vmax = torch.max(yte[i])
 
@@ -139,11 +189,12 @@ if __name__ == "__main__":
             cbar2.formatter = ticker.ScalarFormatter(useMathText=True)  # 启用科学计数法
             cbar2.formatter.set_powerlimits((0, 0))  # 设置科学计数法的阈值（这里对所有数值生效）
             cbar2.update_ticks()
-            # fig.suptitle(f"ibmpg{args.cir}t time and voltage model predictions and errors for each port", fontsize=14)
+            fig.suptitle(f"ibmpg{args.cir}t time and voltage model predictions and errors for each port", fontsize=14)
             # plt.tight_layout()
-            fig.subplots_adjust(left=0.05, right=0.9, top=0.95, bottom=0.05)
+            fig.subplots_adjust(left=0.05, right=0.92, top=0.85, bottom=0.1)
             # plt.show()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_response.pdf')
+            # plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_fft.png')
+            plt.savefig(save_path + f'/ibmpg{args.cir}t_example_{i}_fft.pdf')
             plt.clf()
             break
     
@@ -169,12 +220,12 @@ if __name__ == "__main__":
             ppr = torch.zeros((pr1.shape[1])).to(device)
             for p in range(pr1.shape[0]):
                 ppr += pr1[p, :]
-        plt.plot(time1, yy_low.cpu(), color='#3B2CBE', linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
-        plt.plot(time1, yy_te.cpu(), color='#095E06FF', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
+        plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
+        plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
         if pr is not None:
             plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
-
-        plt.plot(time1, yy_1.cpu(), color='#FF3F69', linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
+        
+        plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
         plt.legend(fontsize=12)
         plt.title(f"ibmpg{args.cir}t total port response", fontsize=14)
         plt.xlabel("Time (s)", fontsize=12)
@@ -182,7 +233,8 @@ if __name__ == "__main__":
         plt.grid()
         plt.tight_layout()
         # plt.show()
-        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/FFT_ibmpg{args.cir}t_total_port_response.pdf')
+        # plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_total_port_response.png')
+        plt.savefig(save_path + f'/FFT_ibmpg{args.cir}t_total_port_response.pdf')
         plt.clf()
         # break
     if args.draw_type == 2:
@@ -202,18 +254,16 @@ if __name__ == "__main__":
             yy_te = y_te[i, :]
             yy_low = torch.zeros((y_low.shape[1])).to(device)
             yy_low = y_low[i, :]
-            # np.save(f'./MSIP_BDSM/Exp_res/high.npy', yy_te.cpu().numpy())
-            # np.save(f'./MSIP_BDSM/Exp_res/time.npy', time1)
             np.save(f'./MSIP_BDSM/Exp_res/MF-MOR.npy', yy_1.cpu().numpy())
             if pr is not None:
                 ppr = torch.zeros((pr1.shape[1])).to(device)
                 ppr = pr1[i, :]
             
-            plt.plot(time1, yy_low.cpu(), color="#3B2CBE", linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
-            plt.plot(time1, yy_te.cpu(), color="#095E06FF", linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
+            plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
+            plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
             if pr is not None:
                 plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
-            plt.plot(time1, yy_1.cpu(), color="#BE0F35", linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
+            plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
             # plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='LF', markevery = 35, markersize=6, linewidth=1.5)
             # plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GT', markevery = 25, markersize=6, linewidth=1.5)
             # if pr is not None:
@@ -225,7 +275,8 @@ if __name__ == "__main__":
             plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.pdf', dpi=300)
+            # plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.png', dpi=300)
+            plt.savefig(save_path + f'/ibmpg{args.cir}t_mfmor.pdf', dpi=300)
             plt.clf()
             break
     if args.draw_type == 3:
