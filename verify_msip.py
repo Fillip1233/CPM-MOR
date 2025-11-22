@@ -5,8 +5,9 @@ from scipy.sparse import coo_matrix
 import matplotlib.pyplot as plt
 from generate_mf_mor_data import generate_u, generate_udiff
 from utils.tdIntLinBE_new import *
-
-
+from utils.calculate_metrix import calculate_metrix
+import pandas as pd
+import os
 
 def coo_from_triplets(rows, cols, vals, shape=None, to='csr', dtype=np.complex128):
     """
@@ -83,18 +84,22 @@ def load_coo_txt(path, shape=None, delimiter=None, comment='#', to='csr', dtype=
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='vertify msip')
-    parser.add_argument('--circuit', type=int, default=6, help='Circuit number')
+    parser.add_argument('--circuit', type=int, default=1, help='Circuit number')
     parser.add_argument("--port_num", type=int, default= 10000)
     args = parser.parse_args()
-    data = spio.loadmat("/home/fillip/桌面/CPM-MOR/IBM_transient/{}t_SIP_gt.mat".format(args.circuit))
+    data = spio.loadmat("/home/fillip/home/CPM-MOR/IBM_transient/{}t_SIP_gt.mat".format(args.circuit))
     port_num = args.port_num
+
+    data_path = "/home/fillip/home/CPM-MOR/Baseline/SIP/{}t".format(args.circuit)
+    if not os.path.exists(data_path):
+        os.makedirs(data_path)
     C1, G1, B1 = data['C_final'] * 1e-0, data['G_final'], data['B_final']
     B1 = B1.tocsc()
     C1 = C1.tocsc()
     G1 = G1.tocsc()
 
-    C2 = load_coo_txt(f'/home/fillip/桌面/MUMPS/MUMPS_5.7.1/examples/result/{args.circuit}t/SIP_C_sip',to = 'csr')
-    G2 = load_coo_txt(f'/home/fillip/桌面/MUMPS/MUMPS_5.7.1/examples/result/{args.circuit}t/SIP_G_sip',to = 'csr')
+    C2 = load_coo_txt(f'/home/fillip/home/My_MUMPS_5.7.1/examples/result/{args.circuit}t/SIP_C_sip',to = 'csr')
+    G2 = load_coo_txt(f'/home/fillip/home/My_MUMPS_5.7.1/examples/result/{args.circuit}t/SIP_G_sip',to = 'csr')
     C2 = C2.tocsc()
     G2 = G2.tocsc()
     B2 = B1[-G2.shape[0]:,:port_num]
@@ -103,7 +108,7 @@ if __name__ == "__main__":
     f = 9
 
     t0 = 0
-    tf = 1e-09
+    tf = 2e-09
     dt = 1e-11
     srcType = 'pulse'
     IS, VS = generate_udiff(args.port_num, args.circuit, seed = 0)
@@ -116,19 +121,29 @@ if __name__ == "__main__":
     xrAll, time2, dtAll, urAll = tdIntLinBE_new(t0, tf, dt, C2, G2, B2, VS, IS, xr0, srcType)
     y_mor = B2.T@xrAll
 
-    yy = y[0,:]
-    yy_mor = y_mor[0,:]
-    for i in range(1, port_num):
-        yy = yy + y[i,:]
-        yy_mor = yy_mor + y_mor[i,:]
+    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'relative_error':[]}
+    metrics = calculate_metrix(y_test = np.abs(y), y_mean_pre = np.abs(y_mor))
+    recording['rmse'].append(metrics['rmse'])
+    recording['nrmse'].append(metrics['nrmse'])
+    recording['r2'].append(metrics['r2'])
+    recording['mae'].append(metrics['mae'])
+    recording['relative_error'].append(metrics['relative_error'])
+    record = pd.DataFrame(recording)
+    record.to_csv(data_path + '/res_sip.csv', index = False)
 
-    plt.plot(time1, yy, color='#ED3F27', linestyle='-.', marker='*', label='GT', markevery = 35, markersize=6, linewidth=1.5)
-    plt.plot(time2, yy_mor, color='#6B3F69', linestyle='--', marker='*', label='MULtifrontal-SIP', markevery = 25, markersize=6, linewidth=1.5)
-    plt.xlabel("Time (s)", fontsize=12)
-    plt.ylabel("Response result (V)", fontsize=12)
-    plt.legend(fontsize=12)
-    plt.grid()
-    plt.title("MULtifrontal-SIP test", fontsize=14)
-    plt.tight_layout()
-    plt.savefig('MULtifrontal-SIP_{}t_{}_10000.png'.format(args.circuit,f), dpi=300)
+    # yy = y[0,:]
+    # yy_mor = y_mor[0,:]
+    # for i in range(1, port_num):
+    #     yy = yy + y[i,:]
+    #     yy_mor = yy_mor + y_mor[i,:]
+
+    # plt.plot(time1, yy, color='#ED3F27', linestyle='-.', marker='*', label='GT', markevery = 35, markersize=6, linewidth=1.5)
+    # plt.plot(time2, yy_mor, color='#6B3F69', linestyle='--', marker='*', label='MULtifrontal-SIP', markevery = 25, markersize=6, linewidth=1.5)
+    # plt.xlabel("Time (s)", fontsize=12)
+    # plt.ylabel("Response result (V)", fontsize=12)
+    # plt.legend(fontsize=12)
+    # plt.grid()
+    # plt.title("MULtifrontal-SIP test", fontsize=14)
+    # plt.tight_layout()
+    # plt.savefig('MULtifrontal-SIP_{}t_{}_10000.png'.format(args.circuit,f), dpi=300)
     pass

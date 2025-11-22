@@ -73,6 +73,7 @@ if __name__ == "__main__":
         mask1 = build_mask_from_topk(mask,topk=3,port_num= 10000)
         mask1 = torch.tensor(mask1).to(device)
         mynn = tensor_ann_mask(data_shape, hidden_size=args.hidden_size, mask=mask1, d_num=201).to(device)
+        mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=201).to(device)
         mynn.load_state_dict(torch.load(data_path + '/tensor_ann_fft.pth'))
         
     elif args.module_name == 'tensor_rnn':
@@ -102,11 +103,13 @@ if __name__ == "__main__":
     yte = y_test
 
     recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[], 'relative_error':[]}
+    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[], 'relative_error':[]}
     metrics = calculate_metrix(y_test = yte, y_mean_pre = ypred)
     recording['rmse'].append(metrics['rmse'])
     recording['nrmse'].append(metrics['nrmse'])
     recording['r2'].append(metrics['r2'])
     recording['mae'].append(metrics['mae'])
+    recording['relative_error'].append(metrics['relative_error'])
     recording['relative_error'].append(metrics['relative_error'])
     recording['pred_time'].append(pre_t2 - pre_t1)
     record = pd.DataFrame(recording)
@@ -143,6 +146,7 @@ if __name__ == "__main__":
             # plt.tight_layout()
             fig.subplots_adjust(left=0.05, right=0.9, top=0.95, bottom=0.05)
             # plt.show()
+            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_response.pdf')
             plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_response.pdf')
             plt.clf()
             break
@@ -182,6 +186,7 @@ if __name__ == "__main__":
         plt.grid()
         plt.tight_layout()
         # plt.show()
+        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/FFT_ibmpg{args.cir}t_total_port_response.pdf')
         plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/FFT_ibmpg{args.cir}t_total_port_response.pdf')
         plt.clf()
         # break
@@ -225,6 +230,7 @@ if __name__ == "__main__":
             plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
+            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.pdf', dpi=300)
             plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.pdf', dpi=300)
             plt.clf()
             break

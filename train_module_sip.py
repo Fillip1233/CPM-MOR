@@ -37,7 +37,7 @@ def build_mask_from_topk(topk_idx, topk, port_num):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An example program with command-line arguments")
     parser.add_argument("--lr", type= float, default= 1e-2)
-    parser.add_argument("--epoch", type= int, default= 100)
+    parser.add_argument("--epoch", type= int, default= 200)
     parser.add_argument("--bs", type= int, default= 32)
     parser.add_argument("--hidden_size", type= int, default= 128)
     parser.add_argument("--draw_type", type= int, default= 2)
