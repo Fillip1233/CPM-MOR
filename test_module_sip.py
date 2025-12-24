@@ -25,25 +25,25 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="test MSIP_BDSM_MF-MOR")
     parser.add_argument("--lr", type= float, default= 1e-1)
     parser.add_argument("--epoch", type= int, default= 300)
-    parser.add_argument("--bs", type= int, default= 100)
     parser.add_argument("--hidden_size", type= int, default= 128)
     parser.add_argument("--draw_type", type= int, default= 2)
-    parser.add_argument("--module_name", type= str, default= "tensor_ann")
+    parser.add_argument("--module_name", type= str, default= "tensor_fno_mask")
     parser.add_argument("--test_over", type= int, default= 0)
-    parser.add_argument("--cir", type= int, default= 2)
-    parser.add_argument("--exp_marker", type= str, default= "mfmor")
+    parser.add_argument("--cir", type= int, default= 1)
+    parser.add_argument("--exp_marker", type= str, default= "top")
 
     args = parser.parse_args()
     torch.manual_seed(1)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cpu")
     data_path = os.path.join(f'./MSIP_BDSM/train_data/{args.cir}t_2per/')
-    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, train_data_num=300, prima=False)
+    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, train_data_num=200, prima=False)
     if args.test_over:
         data_path1 = os.path.join(f'./MSIP_BDSM/train_data/{args.cir}t_2per_over1')
         x_test, y_test, yl_test, time1, pr = load_over_data_sip(data_path1)
-    x_test = x_test.to(device)
-    y_test = y_test.to(device)
-    yl_test = yl_test.to(device)
+    # x_test = x_test[:100,:,:].to(device)
+    # y_test = y_test[:100,:,:].to(device)
+    # yl_test = yl_test[:100,:,:].to(device)
     if pr is not None:
         pr = pr.to(device)
 
@@ -69,12 +69,19 @@ if __name__ == "__main__":
         mynn.load_state_dict(torch.load(data_path + '/tensor_ann_mfmor.pth'))
 
     elif args.module_name == 'tensor_ann_mask':
-        mask = np.load(f'./Baseline/mask/{args.cir}t/coridx.npy', allow_pickle=True)
+        mask = np.load(f'./Baseline_data/mask/{args.cir}t/coridx.npy', allow_pickle=True)
         mask1 = build_mask_from_topk(mask,topk=3,port_num= 10000)
         mask1 = torch.tensor(mask1).to(device)
         mynn = tensor_ann_mask(data_shape, hidden_size=args.hidden_size, mask=mask1, d_num=201).to(device)
-        mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=201).to(device)
-        mynn.load_state_dict(torch.load(data_path + '/tensor_ann_fft.pth'))
+        # mynn = tensor_ann(data_shape, hidden_size=args.hidden_size, d_num=201).to(device)
+        mynn.load_state_dict(torch.load(data_path + '/tensor_ann_me1.pth'))
+
+    elif args.module_name == 'tensor_fno_mask':
+        mask = np.load(f'./Baseline_data/mask/{args.cir}t/coridx.npy', allow_pickle=True)
+        mask1 = build_mask_from_topk(mask,topk=3,port_num= 10000)
+        mask1 = torch.tensor(mask1).to(device)
+        mynn = tensor_fno_mask(data_shape, mask=mask1, d_num=201).to(device)
+        mynn.load_state_dict(torch.load(data_path + '/tensor_fno_mask0.pth'))
         
     elif args.module_name == 'tensor_rnn':
         mynn = tensor_rnn(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
@@ -103,20 +110,18 @@ if __name__ == "__main__":
     yte = y_test
 
     recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[], 'relative_error':[]}
-    recording = {'rmse':[], 'nrmse':[], 'r2':[],'mae':[], 'pred_time':[], 'relative_error':[]}
     metrics = calculate_metrix(y_test = yte, y_mean_pre = ypred)
     recording['rmse'].append(metrics['rmse'])
     recording['nrmse'].append(metrics['nrmse'])
     recording['r2'].append(metrics['r2'])
     recording['mae'].append(metrics['mae'])
     recording['relative_error'].append(metrics['relative_error'])
-    recording['relative_error'].append(metrics['relative_error'])
     recording['pred_time'].append(pre_t2 - pre_t1)
     record = pd.DataFrame(recording)
     if args.test_over:
         record.to_csv(data_path1 + '/{}_over_res_mfmor.csv'.format(args.module_name), index = False)
     else:
-        record.to_csv(data_path + '/test_{}_res_fft.csv'.format(args.module_name), index = False)
+        record.to_csv(data_path + '/test_{}_res_ann_me0.csv'.format(args.module_name), index = False)
 
     if args.draw_type == 0:
         #全端口波形图
@@ -146,7 +151,6 @@ if __name__ == "__main__":
             # plt.tight_layout()
             fig.subplots_adjust(left=0.05, right=0.9, top=0.95, bottom=0.05)
             # plt.show()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_response.pdf')
             plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{i}_response.pdf')
             plt.clf()
             break
@@ -187,7 +191,6 @@ if __name__ == "__main__":
         plt.tight_layout()
         # plt.show()
         plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/FFT_ibmpg{args.cir}t_total_port_response.pdf')
-        plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/FFT_ibmpg{args.cir}t_total_port_response.pdf')
         plt.clf()
         # break
     if args.draw_type == 2:
@@ -209,7 +212,7 @@ if __name__ == "__main__":
             yy_low = y_low[i, :]
             # np.save(f'./MSIP_BDSM/Exp_res/high.npy', yy_te.cpu().numpy())
             # np.save(f'./MSIP_BDSM/Exp_res/time.npy', time1)
-            np.save(f'./MSIP_BDSM/Exp_res/MF-MOR.npy', yy_1.cpu().numpy())
+            # np.save(f'./MSIP_BDSM/Exp_res/MF-MOR.npy', yy_1.cpu().numpy())
             if pr is not None:
                 ppr = torch.zeros((pr1.shape[1])).to(device)
                 ppr = pr1[i, :]
@@ -230,8 +233,8 @@ if __name__ == "__main__":
             plt.ylabel("Response result (V)", fontsize=12)
             plt.grid()
             plt.tight_layout()
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.pdf', dpi=300)
-            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.pdf', dpi=300)
+            # plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.pdf', dpi=300)
+            plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/fno_me0.pdf')
             plt.clf()
             break
     if args.draw_type == 3:

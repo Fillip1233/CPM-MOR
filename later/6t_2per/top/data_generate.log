@@ -1,0 +1,19 @@
+2025-12-17 13:45:06,358 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-17 14:04:53,821 - INFO - Training time: 1165.176321029663
+2025-12-17 15:21:56,387 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_ann_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-17 15:44:04,919 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_ann_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-18 18:43:12,757 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-18 18:44:40,271 - INFO - Training time: 78.85434651374817
+2025-12-18 18:44:46,148 - INFO - Test Results: RMSE: 0.17522511988845405, NRMSE: 0.009149393998086452, R2: -17921585152.0, MAE: 0.13980503380298615, Relative Error: 3.36617112159729,train_time: 78.85434651374817, pred_time: 0.12032032012939453
+2025-12-19 09:56:27,301 - INFO - Namespace(lr=0.01, epoch=80, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-19 09:57:35,170 - INFO - Training time: 60.11738610267639
+2025-12-19 09:57:40,593 - INFO - Test Results: RMSE: 0.00043059855773784633, NRMSE: 0.006319031119346619, R2: -20049.3515625, MAE: 0.00038340705214068294, Relative Error: 0.009231525473296642,train_time: 60.11738610267639, pred_time: 0.11607789993286133
+2025-12-19 10:23:45,840 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-19 10:25:11,532 - INFO - Training time: 77.9518175125122
+2025-12-19 10:25:16,599 - INFO - Test Results: RMSE: 0.006697021830890682, NRMSE: 0.003701666137203574, R2: -24783328.0, MAE: 0.005282608326524496, Relative Error: 0.12719258666038513,train_time: 77.9518175125122, pred_time: 0.1239171028137207
+2025-12-19 10:34:02,908 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-19 10:35:23,127 - INFO - Training time: 72.68141293525696
+2025-12-19 10:35:27,705 - INFO - Test Results: RMSE: 0.034658294657728496, NRMSE: 0.002437115181237459, R2: -435338592.0, MAE: 0.028022609651088715, Relative Error: 0.6747174859046936,train_time: 72.68141293525696, pred_time: 0.12176084518432617
+2025-12-19 12:38:31,197 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-19 12:39:01,694 - INFO - Namespace(lr=0.01, epoch=100, bs=4, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-19 12:39:19,366 - INFO - Namespace(lr=0.01, epoch=100, bs=1, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=6, alpha=1.0, beta=0.0, topk=3, exp_marker='top')

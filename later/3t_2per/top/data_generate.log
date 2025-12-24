@@ -1,0 +1,13 @@
+2025-12-17 12:45:57,953 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=3, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-17 13:05:41,623 - INFO - Training time: 1165.0966472625732
+2025-12-17 15:17:41,426 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_ann_mask', test_over=0, cir=3, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-17 15:40:03,243 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_ann_mask', test_over=0, cir=3, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-18 18:38:19,358 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=3, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-18 18:39:54,356 - INFO - Training time: 76.08124494552612
+2025-12-18 18:39:59,241 - INFO - Test Results: RMSE: 0.0015601695744206004, NRMSE: 0.0007152023026719689, R2: -27728.68359375, MAE: 0.0013621073449030519, Relative Error: 0.008880342356860638,train_time: 76.08124494552612, pred_time: 0.12081599235534668
+2025-12-19 10:19:06,914 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=3, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-19 10:20:31,357 - INFO - Training time: 76.5994164943695
+2025-12-19 10:20:35,820 - INFO - Test Results: RMSE: 0.019973050360789273, NRMSE: 0.00211747526191175, R2: -44754220.0, MAE: 0.015733756124973297, Relative Error: 0.10257718712091446,train_time: 76.5994164943695, pred_time: 0.11806988716125488
+2025-12-19 10:29:39,270 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=3, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-19 10:30:59,805 - INFO - Training time: 72.55580282211304
+2025-12-19 10:31:03,849 - INFO - Test Results: RMSE: 0.3108557358783048, NRMSE: 0.030533207580447197, R2: -12548504576.0, MAE: 0.24723348021507263, Relative Error: 1.611853837966919,train_time: 72.55580282211304, pred_time: 0.12148785591125488

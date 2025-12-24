@@ -37,20 +37,20 @@ def build_mask_from_topk(topk_idx, topk, port_num):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An example program with command-line arguments")
     parser.add_argument("--lr", type= float, default= 1e-2)
-    parser.add_argument("--epoch", type= int, default= 200)
-    parser.add_argument("--bs", type= int, default= 32)
+    parser.add_argument("--epoch", type= int, default= 100)
+    parser.add_argument("--bs", type= int, default= 8)
     parser.add_argument("--hidden_size", type= int, default= 128)
     parser.add_argument("--draw_type", type= int, default= 2)
     parser.add_argument("--module_name", type= str, default= "tensor_ann_mask")
     parser.add_argument("--test_over", type= int, default= 0)
-    parser.add_argument("--cir", type= int, default= 6)
+    parser.add_argument("--cir", type= int, default= 1)
     parser.add_argument("--alpha", type= float, default= 1.0)
     parser.add_argument("--beta", type= float, default= 0.0)
     parser.add_argument("--topk", type= int, default= 3)
     parser.add_argument("--exp_marker", type= str, default= "top")
 
     args = parser.parse_args()
-    save_path = f'./DAC/{args.cir}t_2per/'+args.exp_marker
+    save_path = f'./later/{args.cir}t_2per/'+args.exp_marker
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -61,15 +61,15 @@ if __name__ == "__main__":
     # data_path = os.path.join(f'./Exp_res/DeMOR_data/{args.cir}t/')
     data_path = os.path.join(f'./MSIP_BDSM/train_data/{args.cir}t_2per/')
     # x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1,pr = prepare_data_mix(data_path,prima = True)
-    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, train_data_num=300, prima=False)
+    x_trainl, x_trainh, y_l, y_h, x_test, y_test, yl_test, time1, pr = prepare_data(data_path, train_data_num=200, prima=False)
 
     # x_normalizer = min_max_normalizer_2(min_value= 0.0, max_value= 1.0)
     if args.test_over:
-        data_path1 = os.path.join(sys.path[0], 'train_data/1t/sim_100_port2000_multiper_sin')
-        x_test, y_test, yl_test, time1, pr = load_over_data(data_path1)
-    x_test = x_test.to(device)
-    y_test = y_test.to(device)
-    yl_test = yl_test.to(device)
+        data_path1 = os.path.join(sys.path[0], '/home/fillip/home/CPM-MOR/MSIP_BDSM/train_data/2t_2per_over1')
+        x_test, y_test, yl_test, time1, pr = load_over_data_sip(data_path1)
+    # x_test = x_test[:100,:,:].to(device)
+    # y_test = y_test[:100,:,:].to(device)
+    # yl_test = yl_test[:100,:,:].to(device)
     if pr is not None:
         pr = pr.to(device)
 
@@ -105,15 +105,26 @@ if __name__ == "__main__":
         torch.save(mynn.state_dict(), data_path + '/tensor_ann_mfmor.pth')
 
     elif args.module_name == 'tensor_ann_mask':
-        mask = np.load(f'./Baseline/mask/{args.cir}t/coridx.npy', allow_pickle=True)
+        mask = np.load(f'./Baseline_data/mask/{args.cir}t/coridx.npy', allow_pickle=True)
         mask1 = build_mask_from_topk(mask, topk=args.topk, port_num=10000)
         mask1 = torch.tensor(mask1).to(device)
         mynn = tensor_ann_mask(data_shape, hidden_size=args.hidden_size, mask=mask1, d_num=201).to(device)
         tr_time1 = time.time()
         # train_tensor_ann(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch)
-        train_tensor_ann_fft(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=args.alpha,batch_size=args.bs, beta=args.beta)
+        train_fft_com(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=args.alpha,batch_size=args.bs, beta=args.beta)
         tr_time2 = time.time()
-        torch.save(mynn.state_dict(), data_path + '/tensor_ann_block.pth')
+        # torch.save(mynn.state_dict(), data_path + '/tensor_ann_me1.pth')
+
+    elif args.module_name == 'tensor_fno_mask':
+        mask = np.load(f'./Baseline_data/mask/{args.cir}t/coridx.npy', allow_pickle=True)
+        mask1 = build_mask_from_topk(mask, topk=args.topk, port_num=10000)
+        mask1 = torch.tensor(mask1).to(device)
+        mynn = tensor_fno_mask(data_shape, mask=mask1, d_num=201).to(device)
+        tr_time1 = time.time()
+        train_fft_com(mynn, fidelity_manager, lr = args.lr, epoch = args.epoch, alpha=args.alpha,batch_size=args.bs, beta=args.beta)
+        tr_time2 = time.time()
+        logging.info("Training time: {}".format(tr_time2 - tr_time1))
+        # torch.save(mynn.state_dict(), data_path + '/tensor_fno_mask0.pth')
         
     elif args.module_name == 'tensor_rnn':
         mynn = tensor_rnn(data_shape, hidden_size=args.hidden_size, d_num=2000, num_layers=1).to(device)
@@ -142,6 +153,7 @@ if __name__ == "__main__":
         if args.module_name == 'gar':
             ypred = mynn.forward(fidelity_manager, x_test, yl_test)
         else:
+            y_t = mynn.forward_t(x_test, yl_test)
             ypred = mynn.forward_h(x_test, yl_test)
         pre_t2 = time.time()
 
@@ -167,7 +179,7 @@ if __name__ == "__main__":
         record.to_csv(data_path1 + '/{}_over_res.csv'.format(args.module_name), index = False)
     else:
         # record.to_csv(data_path + '/{}_res_fft.csv'.format(args.module_name), index = False)
-        record.to_csv(save_path + '/{}_res_2per_block.csv'.format(args.module_name), index = False)
+        record.to_csv(save_path + '/{}_res_fno.csv'.format(args.module_name), index = False)
 
     if args.draw_type == 0:
         #全端口波形图
@@ -243,7 +255,6 @@ if __name__ == "__main__":
         plt.clf()
         # break
     if args.draw_type == 2:
-        #单个端口响应波形图
         plt.figure(figsize=(8, 5))
         example = 99
         y_1 = ypred[example]
@@ -262,12 +273,12 @@ if __name__ == "__main__":
             if pr is not None:
                 ppr = torch.zeros((pr1.shape[1])).to(device)
                 ppr = pr1[i, :]
-            
+        
             plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='Low-fidelity', markevery = 35, markersize=6, linewidth=1.5)
             plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GroundTruth', markevery = 25, markersize=6, linewidth=1.5)
             if pr is not None:
                 plt.plot(time1, ppr.cpu(), color='green', linestyle='--', marker='o', label='PRIMA', markevery = 30, markersize=6, linewidth=1.5)
-            plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='MF-MOR', markevery = 28, markersize=6, linewidth=1.5)
+            plt.plot(time1, yy_1.cpu(), color='red', linestyle='-.', marker='*', label='SMF-MOR', markevery = 28, markersize=6, linewidth=1.5)
             # plt.plot(time1, yy_low.cpu(), color='black', linestyle='-.', marker='*', label='LF', markevery = 35, markersize=6, linewidth=1.5)
             # plt.plot(time1, yy_te.cpu(), color='blue', linestyle='-.', marker='*', label='GT', markevery = 25, markersize=6, linewidth=1.5)
             # if pr is not None:
@@ -280,8 +291,67 @@ if __name__ == "__main__":
             plt.grid()
             plt.tight_layout()
             # plt.savefig(f'./MSIP_BDSM/Exp_res/{args.cir}t_2per/ibmpg{args.cir}t_example_{example}_response_port.png', dpi=300)
-            plt.savefig(save_path + f'/ibmpg{args.cir}t_example_{example}_response_block1.pdf', dpi=300)
+            # plt.savefig(save_path + f'/ibmpg{args.cir}t_example_{example}_response_block1.pdf', dpi=300)
+            plt.savefig(save_path + f'/fno_try.pdf', dpi=300)
             plt.clf()
-            break
+
     if args.draw_type == 3:
+        plt.figure(figsize=(8, 5))
+        example = 99
+        y_1 = ypred[example]
+        y_te = yte[example]
+        y_low = yl_test[example]
+        y_t = y_t[example]
+        if pr is not None:
+            pr1 = pr[example]
+        for i in range(100):
+            i = 100
+            yy_1 = torch.zeros((y_1.shape[1])).to(device)
+            yy_1 = y_1[i, :]
+            yy_te = torch.zeros((y_te.shape[1])).to(device)
+            yy_te = y_te[i, :]
+            yy_low = torch.zeros((y_low.shape[1])).to(device)
+            yy_low = y_low[i, :]
+            if pr is not None:
+                ppr = torch.zeros((pr1.shape[1])).to(device)
+                ppr = pr1[i, :]
+            
+            yy_1 = yy_1.cpu().numpy()
+            yy_te = yy_te.cpu().numpy()
+            dt = 1e-11
+            fs = 1 / dt
+            N = len(yy_1)
+            Y1 = np.fft.fft(yy_1)
+            Y2 = np.fft.fft(yy_te)
+            freq = np.fft.fftfreq(N, d=dt)
+            half = N // 2
+            freq_half = freq[:half]
+            amp_half1 = np.abs(Y1[:half]) / N * 2
+            amp_half2 = np.abs(Y2[:half]) / N * 2
+            # ===== 选频段（非常关键）=====
+            fmax = 4e9   # 根据你的电路自己改
+            mask = (freq_half >= 0) & (freq_half <= fmax)
+
+            freq_plot = freq_half[mask]
+            amp_plot1 = amp_half1[mask]
+            amp_plot2 = amp_half2[mask]
+
+            # ===== 柱状图 =====
+            df = freq_plot[1] - freq_plot[0]
+
+            fig, axes = plt.subplots(2, 1, figsize=(8, 10))
+            
+            axes[0].bar(freq_plot, amp_plot1, width=df)
+            axes[0].set_xlabel("Frequency (Hz)")
+            axes[0].set_ylabel("Amplitude")
+            axes[0].set_title("SMF-MOR Frequency Spectrum")
+            axes[1].bar(freq_plot, amp_plot2, width=df)
+            axes[1].set_xlabel("Frequency (Hz)")
+            axes[1].set_ylabel("Amplitude")
+            axes[1].set_title("high_f Frequency Spectrum")
+            plt.savefig(f'freq_spectrum_cir{args.cir}-ann.png', dpi=300)
+            plt.close()
+
+            break
+    if args.draw_type == 4:
         pass

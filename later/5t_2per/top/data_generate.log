@@ -1,0 +1,13 @@
+2025-12-17 13:25:29,815 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=5, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-17 13:45:02,866 - INFO - Training time: 1165.2585191726685
+2025-12-17 15:20:35,958 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_ann_mask', test_over=0, cir=5, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-17 15:42:44,054 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_ann_mask', test_over=0, cir=5, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-18 18:41:39,740 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=5, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-18 18:43:03,267 - INFO - Training time: 75.4341971874237
+2025-12-18 18:43:07,788 - INFO - Test Results: RMSE: 0.00023677548081986233, NRMSE: 0.027334067970514297, R2: -216692.515625, MAE: 0.00018000155978370458, Relative Error: 0.005609136540442705,train_time: 75.4341971874237, pred_time: 0.11263608932495117
+2025-12-19 10:22:13,856 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=5, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-19 10:23:37,752 - INFO - Training time: 76.02976775169373
+2025-12-19 10:23:41,710 - INFO - Test Results: RMSE: 0.004335955976058068, NRMSE: 0.0036211844999343157, R2: -391475776.0, MAE: 0.0033712347503751516, Relative Error: 0.10505306720733643,train_time: 76.02976775169373, pred_time: 0.11939597129821777
+2025-12-19 10:32:34,660 - INFO - Namespace(lr=0.01, epoch=100, bs=8, hidden_size=128, draw_type=2, module_name='tensor_fno_mask', test_over=0, cir=5, alpha=1.0, beta=0.0, topk=3, exp_marker='top')
+2025-12-19 10:33:55,173 - INFO - Training time: 72.54419445991516
+2025-12-19 10:33:59,032 - INFO - Test Results: RMSE: 0.04677515522529947, NRMSE: 0.0009281497914344072, R2: -1421634432.0, MAE: 0.03837280720472336, Relative Error: 1.1957579851150513,train_time: 72.54419445991516, pred_time: 0.11831879615783691
